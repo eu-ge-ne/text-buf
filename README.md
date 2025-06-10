@@ -112,7 +112,7 @@ assertEquals(buf.read([0, 0], [1, 0]), "ipsum");
 
 ### `TextBuf()`
 
-Creates instance of `TextBuf` interpreting text characters as
+Creates instances of `TextBuf` interpreting text characters as
 `UTF-16 code units`. Visit
 [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#utf-16_characters_unicode_code_points_and_grapheme_clusters)
 for more details. Accepts optional initial text.
