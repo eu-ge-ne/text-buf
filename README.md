@@ -249,16 +249,16 @@ Runtime | Deno 2.3.3 (aarch64-apple-darwin)
 
 file:///Users/eug/Dev/github.com/eu-ge-ne/text-buf/bench/create.bench.ts
 
-benchmark              time/iter (avg)        iter/s      (min … max)           p75      p99     p995
----------------------- ----------------------------- --------------------- --------------------------
+benchmark            time/iter (avg)        iter/s      (min … max)           p75      p99     p995
+-------------------- ----------------------------- --------------------- --------------------------
 
 group Create
-Creating a TextBuf            2.8 ms         354.4 (  2.7 ms …   3.7 ms)   2.9 ms   3.7 ms   3.7 ms
-Creating a string               2.5 ms         396.4 (  2.4 ms …   3.1 ms)   2.5 ms   3.1 ms   3.1 ms
+Creating a TextBuf            3.0 ms         334.5 (  2.8 ms …   3.9 ms)   3.0 ms   3.8 ms   3.9 ms
+Creating a string             2.7 ms         371.5 (  2.6 ms …   3.2 ms)   2.7 ms   3.2 ms   3.2 ms
 
 summary
   Creating a TextBuf
-     1.12x slower than Creating a string
+     1.11x slower than Creating a string
 ```
 
 ### Write
