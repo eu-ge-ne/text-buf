@@ -18,7 +18,7 @@ import { split } from "./splitting.ts";
 export type Position = number | readonly [number, number];
 
 /**
- * Implements `piece table` data structure to represent text buffer.
+ * `piece table` data structure implemented using `red-black tree`.
  */
 export class TextBuf {
   /**
