@@ -4,7 +4,7 @@
 
 [![JSR](https://jsr.io/badges/@eu-ge-ne/text-buf)](https://jsr.io/@eu-ge-ne/text-buf)
 [![JSR Score](https://jsr.io/badges/@eu-ge-ne/text-buf/score)](https://jsr.io/@eu-ge-ne/text-buf)
-[![codecov](https://codecov.io/gh/eu-ge-ne/text-buf/branch/main/graph/badge.svg?token=9CQ0V249XC)](https://codecov.io/gh/eu-ge-ne/text-buf)
+[![codecov](https://codecov.io/gh/eu-ge-ne/text-buf/branch/main/graph/badge.svg?token=6H0QTYEJNE)](https://codecov.io/gh/eu-ge-ne/text-buf)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=eu-ge-ne_text-buf&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=eu-ge-ne_text-buf)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=eu-ge-ne_text-buf&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=eu-ge-ne_text-buf)
 
