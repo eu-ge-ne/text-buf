@@ -1,6 +1,6 @@
 # text-buf
 
-A `piece table` data structure implemented using `red-black tree`.
+`piece table` data structure implemented using `red-black tree`.
 
 [![JSR](https://jsr.io/badges/@eu-ge-ne/text-buf)](https://jsr.io/@eu-ge-ne/text-buf)
 [![JSR Score](https://jsr.io/badges/@eu-ge-ne/text-buf/score)](https://jsr.io/@eu-ge-ne/text-buf)
