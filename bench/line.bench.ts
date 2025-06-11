@@ -1,4 +1,4 @@
-import { TextBuf } from "../src/mod.ts";
+import { TextBuf } from "../src/text-buf.ts";
 
 import { lines, read_line } from "./utils.ts";
 

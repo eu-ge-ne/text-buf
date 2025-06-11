@@ -1,6 +1,6 @@
 import { assertEquals } from "@std/assert";
 
-import { TextBuf } from "../src/mod.ts";
+import { TextBuf } from "../src/text-buf.ts";
 import { assert_tree } from "./assert.ts";
 
 Deno.test("Write to 0 line", () => {
