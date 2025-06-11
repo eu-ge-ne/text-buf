@@ -1,4 +1,4 @@
-# text-buf
+# @eu-ge-ne/text-buf
 
 `piece table` data structure implemented using `red-black tree`.
 
@@ -8,7 +8,7 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=eu-ge-ne_text-buf&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=eu-ge-ne_text-buf)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=eu-ge-ne_text-buf&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=eu-ge-ne_text-buf)
 
-- [text-buf](#text-buf)
+- [@eu-ge-ne/text-buf](#eu-ge-netext-buf)
   - [Installation](#installation)
     - [Deno](#deno)
     - [Node.js](#nodejs)
