@@ -293,24 +293,24 @@ Runtime | Deno 2.3.3 (aarch64-apple-darwin)
 
 file:///Users/eug/Dev/github.com/eu-ge-ne/text-buf/bench/write.bench.ts
 
-benchmark                          time/iter (avg)        iter/s      (min … max)           p75      p99     p995
----------------------------------- ----------------------------- --------------------- --------------------------
+benchmark                  time/iter (avg)        iter/s      (min … max)           p75      p99     p995
+-------------------------- ----------------------------- --------------------- --------------------------
 
 group Append
-Appending into a TextBuf                 28.8 ms          34.7 ( 26.7 ms …  33.8 ms)  29.7 ms  33.8 ms  33.8 ms
-Appending into a string                     9.4 ms         106.7 (  9.2 ms …  10.5 ms)   9.4 ms  10.5 ms  10.5 ms
+Appending into a TextBuf           26.7 ms          37.4 ( 25.6 ms …  31.9 ms)  27.3 ms  31.9 ms  31.9 ms
+Appending into a string             9.9 ms         100.9 (  9.7 ms …  11.9 ms)   9.9 ms  11.9 ms  11.9 ms
 
 summary
   Appending into a TextBuf
-     3.08x slower than Appending into a string
+     2.70x slower than Appending into a string
 
 group Insert
-Inserting into a TextBuf                 87.3 ms          11.5 ( 84.2 ms …  89.1 ms)  88.5 ms  89.1 ms  89.1 ms
-Inserting 1M chars into a string             1.7 s           0.6 (   1.6 s …    1.8 s)    1.7 s    1.8 s    1.8 s
+Inserting into a TextBuf           89.7 ms          11.2 ( 89.2 ms …  90.8 ms)  89.9 ms  90.8 ms  90.8 ms
+Inserting into a string              1.5 s           0.7 (   1.4 s …    1.7 s)    1.6 s    1.7 s    1.7 s
 
 summary
   Inserting into a TextBuf
-    19.22x faster than Inserting 1M chars into a string
+    17.05x faster than Inserting into a string
 ```
 
 ### Erase
