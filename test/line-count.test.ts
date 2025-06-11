@@ -1,6 +1,6 @@
 import { assertEquals } from "@std/assert";
 
-import { TextBuf } from "../src/mod.ts";
+import { TextBuf } from "../src/text-buf.ts";
 
 Deno.test("0 newlines", () => {
   const buf1 = new TextBuf("A");
