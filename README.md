@@ -323,24 +323,24 @@ Runtime | Deno 2.3.3 (aarch64-apple-darwin)
 
 file:///Users/eug/Dev/github.com/eu-ge-ne/text-buf/bench/erase.bench.ts
 
-benchmark                   time/iter (avg)        iter/s      (min … max)           p75      p99     p995
---------------------------- ----------------------------- --------------------- --------------------------
+benchmark                 time/iter (avg)        iter/s      (min … max)           p75      p99     p995
+------------------------- ----------------------------- --------------------- --------------------------
 
 group Trim
-Trimming a TextBuf               637.3 µs         1,569 (577.0 µs …   1.1 ms) 680.8 µs 939.8 µs   1.0 ms
-Trimming a string                  391.3 µs         2,556 (368.8 µs … 759.8 µs) 397.0 µs 674.5 µs 703.6 µs
+Trimming a TextBuf                 3.3 ms         299.1 (  2.7 ms …   4.0 ms)   3.5 ms   3.7 ms   4.0 ms
+Trimming a string                395.4 µs         2,529 (368.5 µs … 758.2 µs) 400.7 µs 698.0 µs 719.3 µs
 
 summary
   Trimming a TextBuf
-     1.63x slower than Trimming a string
+     8.46x slower than Trimming a string
 
 group Delete
-Deleting from a TextBuf           20.9 ms          47.9 ( 20.3 ms …  22.0 ms)  21.2 ms  22.0 ms  22.0 ms
-Deleting from a string             167.7 ms           6.0 (166.9 ms … 169.3 ms) 167.8 ms 169.3 ms 169.3 ms
+Deleting from a TextBuf            8.2 ms         121.4 (  6.8 ms …  10.5 ms)   8.5 ms  10.5 ms  10.5 ms
+Deleting from a string           185.4 ms           5.4 (168.5 ms … 260.4 ms) 192.3 ms 260.4 ms 260.4 ms
 
 summary
   Deleting from a TextBuf
-     8.03x faster than Deleting from a string
+    22.51x faster than Deleting from a string
 ```
 
 ## License
