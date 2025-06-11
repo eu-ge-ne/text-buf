@@ -23,9 +23,9 @@
     - [`TextBuf.proto.erase()`](#textbufprotoerase)
   - [Benchmarks](#benchmarks)
     - [Create](#create)
+    - [Line](#line)
     - [Write](#write)
     - [Erase](#erase)
-    - [Line](#line)
   - [License](#license)
 
 > In computing, a piece table is a data structure typically used to represent a
@@ -261,6 +261,28 @@ summary
      1.11x slower than Creating a string
 ```
 
+### Line
+
+```bash
+❯ deno bench bench/line.bench.ts
+Check file:///Users/eug/Dev/github.com/eu-ge-ne/text-buf/bench/line.bench.ts
+    CPU | Apple M4 Pro
+Runtime | Deno 2.3.3 (aarch64-apple-darwin)
+
+file:///Users/eug/Dev/github.com/eu-ge-ne/text-buf/bench/line.bench.ts
+
+benchmark                       time/iter (avg)        iter/s      (min … max)           p75      p99     p995
+------------------------------- ----------------------------- --------------------- --------------------------
+
+group Line
+Accessing a line in a TextBuf           91.9 µs        10,880 ( 85.5 µs … 175.8 µs)  89.6 µs 127.3 µs 135.1 µs
+Accessing a line in a string            40.6 ms          24.6 ( 39.6 ms …  43.5 ms)  41.2 ms  43.5 ms  43.5 ms
+
+summary
+  Accessing a line in a TextBuf
+   442.00x faster than Accessing a line in a string
+```
+
 ### Write
 
 ```bash
@@ -319,27 +341,6 @@ Deleting from a string             167.7 ms           6.0 (166.9 ms … 169.3 ms
 summary
   Deleting from a TextBuf
      8.03x faster than Deleting from a string
-```
-
-### Line
-
-```bash
-❯ deno bench bench/line.bench.ts
-    CPU | Apple M4 Pro
-Runtime | Deno 2.3.3 (aarch64-apple-darwin)
-
-file:///Users/eug/Dev/github.com/eu-ge-ne/text-buf/bench/line.bench.ts
-
-benchmark                         time/iter (avg)        iter/s      (min … max)           p75      p99     p995
---------------------------------- ----------------------------- --------------------- --------------------------
-
-group Line
-Accessing a line in a TextBuf          157.9 µs         6,332 (145.3 µs … 281.0 µs) 152.6 µs 224.6 µs 234.8 µs
-Accessing a line in a string              40.4 ms          24.8 ( 39.4 ms …  44.1 ms)  40.5 ms  44.1 ms  44.1 ms
-
-summary
-  Accessing a line in a TextBuf
-   255.80x faster than Accessing a line in a string
 ```
 
 ## License
