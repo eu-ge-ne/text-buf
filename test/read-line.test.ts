@@ -3,6 +3,45 @@ import { assertEquals } from "@std/assert";
 import { TextBuf } from "../src/text-buf.ts";
 import { assert_tree } from "./assert.ts";
 
+Deno.test("Empty", () => {
+  const buf = new TextBuf();
+
+  assertEquals(buf.line_count, 0);
+  assertEquals(buf.read([0, 0], [1, 0]), "");
+
+  assert_tree(buf);
+});
+
+Deno.test("1 line", () => {
+  const buf = new TextBuf("0");
+
+  assertEquals(buf.line_count, 1);
+  assertEquals(buf.read([0, 0], [1, 0]), "0");
+
+  assert_tree(buf);
+});
+
+Deno.test("2 lines", () => {
+  const buf = new TextBuf("0\n");
+
+  assertEquals(buf.line_count, 2);
+  assertEquals(buf.read([0, 0], [1, 0]), "0\n");
+  assertEquals(buf.read([1, 0], [2, 0]), "");
+
+  assert_tree(buf);
+});
+
+Deno.test("3 lines", () => {
+  const buf = new TextBuf("0\n1\n");
+
+  assertEquals(buf.line_count, 3);
+  assertEquals(buf.read([0, 0], [1, 0]), "0\n");
+  assertEquals(buf.read([1, 0], [2, 0]), "1\n");
+  assertEquals(buf.read([2, 0], [3, 0]), "");
+
+  assert_tree(buf);
+});
+
 Deno.test("Line at valid index", () => {
   const buf = new TextBuf();
 
@@ -44,8 +83,8 @@ Deno.test("Line at index >= line_count", () => {
   const buf = new TextBuf("Lorem\nipsum\ndolor\nsit\namet");
 
   assertEquals(buf.read([4, 0], [5, 0]), "amet");
-  assertEquals(buf.read([5, 0], [6, 0]), undefined);
-  assertEquals(buf.read([6, 0], [7, 0]), undefined);
+  assertEquals(buf.read([5, 0], [6, 0]), "");
+  assertEquals(buf.read([6, 0], [7, 0]), "");
 
   assert_tree(buf);
 });
@@ -72,6 +111,6 @@ Deno.test("Write adds lines", () => {
   }
 
   assertEquals(buf.line_count, 11);
-  assertEquals(buf.read([11, 0], [12, 0]), undefined);
+  assertEquals(buf.read([11, 0], [12, 0]), "");
   assert_tree(buf);
 });

@@ -74,7 +74,7 @@ const buf = new TextBuf();
 
 assertEquals(buf.count, 0);
 assertEquals(buf.line_count, 0);
-assertEquals(buf.read(0), undefined);
+assertEquals(buf.read(0), "");
 
 buf.write(0, "Lorem");
 
@@ -96,7 +96,7 @@ assertEquals(buf.line_count, 3);
 assertEquals(buf.read(0), "Lorem\nipsum\n");
 assertEquals(buf.read([0, 0], [1, 0]), "Lorem\n");
 assertEquals(buf.read([1, 0], [2, 0]), "ipsum\n");
-assertEquals(buf.read([2, 0], [3, 0]), undefined);
+assertEquals(buf.read([2, 0], [3, 0]), "");
 
 buf.erase(0, 6);
 buf.erase(5, 6);

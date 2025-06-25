@@ -31,8 +31,8 @@ Deno.test("Write to a line which does not exist", () => {
 
   buf.write([1, 0], "Lorem ipsum");
 
-  assertEquals(buf.read(0), undefined);
-  assertEquals(buf.read([0, 0], [1, 0]), undefined);
+  assertEquals(buf.read(0), "");
+  assertEquals(buf.read([0, 0], [1, 0]), "");
 
   assert_tree(buf);
 });
@@ -42,8 +42,8 @@ Deno.test("Write to a column which does not exist", () => {
 
   buf.write([0, 1], "Lorem ipsum");
 
-  assertEquals(buf.read(0), undefined);
-  assertEquals(buf.read([0, 0], [1, 0]), undefined);
+  assertEquals(buf.read(0), "");
+  assertEquals(buf.read([0, 0], [1, 0]), "");
 
   assert_tree(buf);
 });

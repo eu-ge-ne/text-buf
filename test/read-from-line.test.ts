@@ -19,8 +19,8 @@ Deno.test("Line at index >= line_count", () => {
   const buf = new TextBuf("Lorem\nipsum\ndolor\nsit\namet");
 
   assertEquals(buf.read([4, 0]), "amet");
-  assertEquals(buf.read([5, 0]), undefined);
-  assertEquals(buf.read([6, 0]), undefined);
+  assertEquals(buf.read([5, 0]), "");
+  assertEquals(buf.read([6, 0]), "");
 
   assert_tree(buf);
 });

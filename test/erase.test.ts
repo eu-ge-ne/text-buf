@@ -70,7 +70,7 @@ function test_erase_head(buf: TextBuf, n: number): void {
     expected = expected.slice(n);
   }
 
-  assertEquals(buf.read(0), undefined);
+  assertEquals(buf.read(0), "");
   assertEquals(buf.count, 0);
   assert_tree(buf);
 }
@@ -87,7 +87,7 @@ function test_erase_tail(buf: TextBuf, n: number): void {
     expected = expected.slice(0, -n);
   }
 
-  assertEquals(buf.read(0), undefined);
+  assertEquals(buf.read(0), "");
   assertEquals(buf.count, 0);
   assert_tree(buf);
 }
@@ -105,7 +105,7 @@ function test_erase_middle(buf: TextBuf, n: number): void {
     expected = expected.slice(0, pos) + expected.slice(pos + n);
   }
 
-  assertEquals(buf.read(0), undefined);
+  assertEquals(buf.read(0), expected);
   assertEquals(buf.count, 0);
   assert_tree(buf);
 }
@@ -154,7 +154,7 @@ Deno.test("Erase causing splitting nodes", () => {
   for (let n = 2; buf.count > 0;) {
     const s = Math.floor(buf.count / n);
     for (let i = n - 1; i >= 1; i -= 1) {
-      assertEquals(buf.read(0), expected ? expected : undefined);
+      assertEquals(buf.read(0), expected);
       assertEquals(buf.count, expected.length);
       assert_tree(buf);
 
@@ -164,7 +164,7 @@ Deno.test("Erase causing splitting nodes", () => {
     n += 1;
   }
 
-  assertEquals(buf.read(0), undefined);
+  assertEquals(buf.read(0), expected);
   assertEquals(buf.count, 0);
   assert_tree(buf);
 });
