@@ -6,7 +6,7 @@ import { assert_tree } from "./assert.ts";
 Deno.test("Create empty", () => {
   const buf = new TextBuf();
 
-  assertEquals(buf.read(0), undefined);
+  assertEquals(buf.read(0), "");
   assertEquals(buf.count, 0);
   assertEquals(buf.line_count, 0);
 

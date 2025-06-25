@@ -95,28 +95,30 @@ export class TextBuf {
    * assertEquals(buf.read([1, 0], [2, 0]), "ipsum");
    * ```
    */
-  read(start: Position, end?: Position): string | undefined {
-    const i0 = this.#index(start);
-
-    if (typeof i0 === "number") {
-      const first = find_node(this.root, i0);
-
-      if (first) {
-        const { node, offset } = first;
-
-        const i1 = (end ? this.#index(end) : undefined) ??
-          Number.MAX_SAFE_INTEGER;
-        const n = i1 - i0;
-
-        return read(node, offset, n).reduce((r, x) => r + x, "");
-      }
+  read(start: Position, end?: Position): string {
+    const start_i = this.#index(start);
+    if (typeof start_i === "undefined") {
+      return "";
     }
+
+    const first = find_node(this.root, start_i);
+    if (!first) {
+      return "";
+    }
+
+    const { node, offset } = first;
+
+    const end_i = (end ? this.#index(end) : undefined) ??
+      Number.MAX_SAFE_INTEGER;
+    const n = end_i - start_i;
+
+    return read(node, offset, n).reduce((r, x) => r + x, "");
   }
 
   /**
    * Inserts text into the buffer at the specified position.
    *
-   * @param `position` Position at witch to insert the text.
+   * @param `pos` Position at witch to insert the text.
    * @param `text` Text to insert.
    *
    * @example
@@ -133,8 +135,8 @@ export class TextBuf {
    * assertEquals(buf.read(0), "Lorem ipsum");
    * ```
    */
-  write(position: Position, text: string): void {
-    let i = this.#index(position);
+  write(pos: Position, text: string): void {
+    let i = this.#index(pos);
 
     if (typeof i === "number") {
       let p = NIL;
@@ -267,20 +269,28 @@ export class TextBuf {
     }
   }
 
-  #index(position: Position): number | undefined {
+  #index(pos: Position): number | undefined {
     let i: number | undefined;
 
-    if (typeof position === "number") {
-      i = position;
+    if (typeof pos === "number") {
+      i = pos;
     } else {
-      let line = position[0];
-      if (line < 0) {
-        line = Math.max(this.line_count + line, 0);
+      let ln = pos[0];
+      if (ln < 0) {
+        ln = Math.max(this.line_count + ln, 0);
       }
 
-      i = line === 0 ? 0 : find_eol(this.root, line - 1);
+      switch (ln) {
+        case 0:
+          i = 0;
+          break;
+        default:
+          i = find_eol(this.root, ln - 1);
+          break;
+      }
+
       if (typeof i === "number") {
-        i += position[1];
+        i += pos[1];
       }
     }
 
