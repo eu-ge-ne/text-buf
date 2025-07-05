@@ -129,13 +129,13 @@ export class TextBuf {
    *
    * const buf = new TextBuf();
    *
-   * buf.write(0, "Lorem");
-   * buf.write([0, 5], " ipsum");
+   * buf.insert(0, "Lorem");
+   * buf.insert([0, 5], " ipsum");
    *
    * assertEquals(buf.read(0), "Lorem ipsum");
    * ```
    */
-  write(pos: Position, text: string): void {
+  insert(pos: Position, text: string): void {
     let i = this.#index(pos);
 
     if (typeof i === "number") {

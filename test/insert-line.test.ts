@@ -3,10 +3,10 @@ import { assertEquals } from "@std/assert";
 import { TextBuf } from "../src/text-buf.ts";
 import { assert_tree } from "./assert.ts";
 
-Deno.test("Write to 0 line", () => {
+Deno.test("Insert into 0 line", () => {
   const buf = new TextBuf();
 
-  buf.write([0, 0], "Lorem ipsum");
+  buf.insert([0, 0], "Lorem ipsum");
 
   assertEquals(buf.read(0), "Lorem ipsum");
   assertEquals(buf.read([0, 0], [1, 0]), "Lorem ipsum");
@@ -14,11 +14,11 @@ Deno.test("Write to 0 line", () => {
   assert_tree(buf);
 });
 
-Deno.test("Write to a line", () => {
+Deno.test("Insert into a line", () => {
   const buf = new TextBuf();
-  buf.write(0, "Lorem");
+  buf.insert(0, "Lorem");
 
-  buf.write([0, 5], " ipsum");
+  buf.insert([0, 5], " ipsum");
 
   assertEquals(buf.read(0), "Lorem ipsum");
   assertEquals(buf.read([0, 0], [1, 0]), "Lorem ipsum");
@@ -26,10 +26,10 @@ Deno.test("Write to a line", () => {
   assert_tree(buf);
 });
 
-Deno.test("Write to a line which does not exist", () => {
+Deno.test("Insert into a line which does not exist", () => {
   const buf = new TextBuf();
 
-  buf.write([1, 0], "Lorem ipsum");
+  buf.insert([1, 0], "Lorem ipsum");
 
   assertEquals(buf.read(0), "");
   assertEquals(buf.read([0, 0], [1, 0]), "");
@@ -37,10 +37,10 @@ Deno.test("Write to a line which does not exist", () => {
   assert_tree(buf);
 });
 
-Deno.test("Write to a column which does not exist", () => {
+Deno.test("Insert into a column which does not exist", () => {
   const buf = new TextBuf();
 
-  buf.write([0, 1], "Lorem ipsum");
+  buf.insert([0, 1], "Lorem ipsum");
 
   assertEquals(buf.read(0), "");
   assertEquals(buf.read([0, 0], [1, 0]), "");

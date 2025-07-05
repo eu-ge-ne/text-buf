@@ -45,16 +45,16 @@ Deno.test("3 lines", () => {
 Deno.test("Line at valid index", () => {
   const buf = new TextBuf();
 
-  buf.write(0, "Lorem\naliqua.");
-  buf.write(6, "ipsum\nmagna\n");
-  buf.write(12, "dolor\ndolore\n");
-  buf.write(18, "sit\net\n");
-  buf.write(22, "amet,\nlabore\n");
-  buf.write(28, "consectetur\nut\n");
-  buf.write(40, "adipiscing\nincididunt\n");
-  buf.write(51, "elit,\ntempor\n");
-  buf.write(57, "sed\neiusmod\n");
-  buf.write(61, "do\n");
+  buf.insert(0, "Lorem\naliqua.");
+  buf.insert(6, "ipsum\nmagna\n");
+  buf.insert(12, "dolor\ndolore\n");
+  buf.insert(18, "sit\net\n");
+  buf.insert(22, "amet,\nlabore\n");
+  buf.insert(28, "consectetur\nut\n");
+  buf.insert(40, "adipiscing\nincididunt\n");
+  buf.insert(51, "elit,\ntempor\n");
+  buf.insert(57, "sed\neiusmod\n");
+  buf.insert(61, "do\n");
 
   assertEquals(buf.read([0, 0], [1, 0]), "Lorem\n");
   assertEquals(buf.read([1, 0], [2, 0]), "ipsum\n");
@@ -99,11 +99,11 @@ Deno.test("Line at index < 0", () => {
   assert_tree(buf);
 });
 
-Deno.test("Write adds lines", () => {
+Deno.test("Insert adds lines", () => {
   const buf = new TextBuf();
 
   for (let i = 0; i < 10; i += 1) {
-    buf.write(buf.count, `${i}\n`);
+    buf.insert(buf.count, `${i}\n`);
 
     assertEquals(buf.line_count, i + 2);
     assertEquals(buf.read([i, 0], [i + 1, 0]), `${i}\n`);

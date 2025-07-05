@@ -13,7 +13,7 @@ Deno.bench("Appending into a TextBuf", {
   b.start();
 
   for (let i = 0; i < N; i += 1) {
-    buf.write(buf.count, str(1));
+    buf.insert(buf.count, str(1));
   }
 
   b.end();
@@ -43,7 +43,7 @@ Deno.bench("Inserting into a TextBuf", {
 
   for (let i = 0; i < N; i += 1) {
     const pos = Math.trunc(buf.count / 2);
-    buf.write(pos, str(2));
+    buf.insert(pos, str(2));
   }
 
   b.end();

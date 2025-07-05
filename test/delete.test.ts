@@ -9,25 +9,25 @@ const EXPECTED =
 function text_buf(): TextBuf {
   const buf = new TextBuf();
 
-  buf.write(buf.count, "Lorem");
-  buf.write(buf.count, " ipsum");
-  buf.write(buf.count, " dolor");
-  buf.write(buf.count, " sit");
-  buf.write(buf.count, " amet,");
-  buf.write(buf.count, " consectetur");
-  buf.write(buf.count, " adipiscing");
-  buf.write(buf.count, " elit,");
-  buf.write(buf.count, " sed");
-  buf.write(buf.count, " do");
-  buf.write(buf.count, " eiusmod");
-  buf.write(buf.count, " tempor");
-  buf.write(buf.count, " incididunt");
-  buf.write(buf.count, " ut");
-  buf.write(buf.count, " labore");
-  buf.write(buf.count, " et");
-  buf.write(buf.count, " dolore");
-  buf.write(buf.count, " magna");
-  buf.write(buf.count, " aliqua.");
+  buf.insert(buf.count, "Lorem");
+  buf.insert(buf.count, " ipsum");
+  buf.insert(buf.count, " dolor");
+  buf.insert(buf.count, " sit");
+  buf.insert(buf.count, " amet,");
+  buf.insert(buf.count, " consectetur");
+  buf.insert(buf.count, " adipiscing");
+  buf.insert(buf.count, " elit,");
+  buf.insert(buf.count, " sed");
+  buf.insert(buf.count, " do");
+  buf.insert(buf.count, " eiusmod");
+  buf.insert(buf.count, " tempor");
+  buf.insert(buf.count, " incididunt");
+  buf.insert(buf.count, " ut");
+  buf.insert(buf.count, " labore");
+  buf.insert(buf.count, " et");
+  buf.insert(buf.count, " dolore");
+  buf.insert(buf.count, " magna");
+  buf.insert(buf.count, " aliqua.");
 
   return buf;
 }
@@ -35,25 +35,25 @@ function text_buf(): TextBuf {
 function text_buf_reversed(): TextBuf {
   const buf = new TextBuf();
 
-  buf.write(0, " aliqua.");
-  buf.write(0, " magna");
-  buf.write(0, " dolore");
-  buf.write(0, " et");
-  buf.write(0, " labore");
-  buf.write(0, " ut");
-  buf.write(0, " incididunt");
-  buf.write(0, " tempor");
-  buf.write(0, " eiusmod");
-  buf.write(0, " do");
-  buf.write(0, " sed");
-  buf.write(0, " elit,");
-  buf.write(0, " adipiscing");
-  buf.write(0, " consectetur");
-  buf.write(0, " amet,");
-  buf.write(0, " sit");
-  buf.write(0, " dolor");
-  buf.write(0, " ipsum");
-  buf.write(0, "Lorem");
+  buf.insert(0, " aliqua.");
+  buf.insert(0, " magna");
+  buf.insert(0, " dolore");
+  buf.insert(0, " et");
+  buf.insert(0, " labore");
+  buf.insert(0, " ut");
+  buf.insert(0, " incididunt");
+  buf.insert(0, " tempor");
+  buf.insert(0, " eiusmod");
+  buf.insert(0, " do");
+  buf.insert(0, " sed");
+  buf.insert(0, " elit,");
+  buf.insert(0, " adipiscing");
+  buf.insert(0, " consectetur");
+  buf.insert(0, " amet,");
+  buf.insert(0, " sit");
+  buf.insert(0, " dolor");
+  buf.insert(0, " ipsum");
+  buf.insert(0, "Lorem");
 
   return buf;
 }
@@ -181,10 +181,10 @@ Deno.test("Delete count < 0", () => {
 Deno.test("Delete removes lines", () => {
   const buf = new TextBuf();
 
-  buf.write(0, "Lorem");
-  buf.write(5, "ipsum");
-  buf.write(5, "\n");
-  buf.write(11, "\n");
+  buf.insert(0, "Lorem");
+  buf.insert(5, "ipsum");
+  buf.insert(5, "\n");
+  buf.insert(11, "\n");
 
   buf.delete(0, 6);
   buf.delete(5, 6);
