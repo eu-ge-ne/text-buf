@@ -13,7 +13,7 @@ Deno.bench("Trimming a TextBuf", {
   b.start();
 
   for (let i = 0; i < N; i += 1) {
-    buf.erase(-1, 1);
+    buf.delete(-1, 1);
   }
 
   b.end();
@@ -43,7 +43,7 @@ Deno.bench("Deleting from a TextBuf", {
 
   for (let i = 0; i < N; i += 1) {
     const pos = Math.trunc(buf.count / 2);
-    buf.erase(pos, 1);
+    buf.delete(pos, 1);
   }
 
   b.end();

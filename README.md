@@ -19,12 +19,12 @@
   - [`TextBuf:line_count`](#textbufline_count)
   - [`TextBuf.proto.read()`](#textbufprotoread)
   - [`TextBuf.proto.write()`](#textbufprotowrite)
-  - [`TextBuf.proto.erase()`](#textbufprotoerase)
+  - [`TextBuf.proto.delete()`](#textbufprotodelete)
 - [Benchmarks](#benchmarks)
   - [Create](#create)
   - [Line](#line)
   - [Write](#write)
-  - [Erase](#erase)
+  - [Delete](#delete)
 - [License](#license)
 
 > In computing, a piece table is a data structure typically used to represent a
@@ -98,8 +98,8 @@ assertEquals(buf.read([0, 0], [1, 0]), "Lorem\n");
 assertEquals(buf.read([1, 0], [2, 0]), "ipsum\n");
 assertEquals(buf.read([2, 0], [3, 0]), "");
 
-buf.erase(0, 6);
-buf.erase(5, 6);
+buf.delete(0, 6);
+buf.delete(5, 6);
 
 assertEquals(buf.count, 5);
 assertEquals(buf.line_count, 1);
@@ -213,7 +213,7 @@ buf.write([0, 5], " ipsum");
 assertEquals(buf.read(0), "Lorem ipsum");
 ```
 
-### `TextBuf.proto.erase()`
+### `TextBuf.proto.delete()`
 
 Removes characters in the buffer's section, specified by start (inclusive) and
 end (exclusive) positions.
@@ -221,7 +221,7 @@ end (exclusive) positions.
 Syntax
 
 ```ts ignore
-erase(start: Position, end?: Position): void
+delete(start: Position, end?: Position): void
 ```
 
 Example
@@ -232,7 +232,7 @@ import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
 
 const buf = new TextBuf("Lorem ipsum");
 
-buf.erase(5, 11);
+buf.delete(5, 11);
 
 assertEquals(buf.read(0), "Lorem");
 ```
@@ -242,18 +242,17 @@ assertEquals(buf.read(0), "Lorem");
 ### Create
 
 ```bash
-❯ deno bench bench/create.bench.ts
     CPU | Apple M4 Pro
-Runtime | Deno 2.3.3 (aarch64-apple-darwin)
+Runtime | Deno 2.4.0 (aarch64-apple-darwin)
 
 file:///Users/eug/Dev/github.com/eu-ge-ne/text-buf/bench/create.bench.ts
 
-benchmark            time/iter (avg)        iter/s      (min … max)           p75      p99     p995
--------------------- ----------------------------- --------------------- --------------------------
+| benchmark            | time/iter (avg) |        iter/s |      (min … max)      |      p75 |      p99 |     p995 |
+| -------------------- | --------------- | ------------- | --------------------- | -------- | -------- | -------- |
 
 group Create
-Creating a TextBuf            3.0 ms         334.5 (  2.8 ms …   3.9 ms)   3.0 ms   3.8 ms   3.9 ms
-Creating a string             2.7 ms         371.5 (  2.6 ms …   3.2 ms)   2.7 ms   3.2 ms   3.2 ms
+| Creating a TextBuf   |          1.8 ms |         571.1 | (  1.6 ms …   2.4 ms) |   1.7 ms |   2.3 ms |   2.3 ms |
+| Creating a string    |          1.6 ms |         633.5 | (  1.5 ms …   1.9 ms) |   1.6 ms |   1.9 ms |   1.9 ms |
 
 summary
   Creating a TextBuf
@@ -263,83 +262,77 @@ summary
 ### Line
 
 ```bash
-❯ deno bench bench/line.bench.ts
-Check file:///Users/eug/Dev/github.com/eu-ge-ne/text-buf/bench/line.bench.ts
     CPU | Apple M4 Pro
-Runtime | Deno 2.3.3 (aarch64-apple-darwin)
+Runtime | Deno 2.4.0 (aarch64-apple-darwin)
 
 file:///Users/eug/Dev/github.com/eu-ge-ne/text-buf/bench/line.bench.ts
 
-benchmark                       time/iter (avg)        iter/s      (min … max)           p75      p99     p995
-------------------------------- ----------------------------- --------------------- --------------------------
+| benchmark                       | time/iter (avg) |        iter/s |      (min … max)      |      p75 |      p99 |     p995 |
+| ------------------------------- | --------------- | ------------- | --------------------- | -------- | -------- | -------- |
 
 group Line
-Accessing a line in a TextBuf           91.9 µs        10,880 ( 85.5 µs … 175.8 µs)  89.6 µs 127.3 µs 135.1 µs
-Accessing a line in a string            40.6 ms          24.6 ( 39.6 ms …  43.5 ms)  41.2 ms  43.5 ms  43.5 ms
+| Accessing a line in a TextBuf   |         61.7 µs |        16,220 | ( 54.6 µs … 164.2 µs) |  62.6 µs |  89.8 µs |  96.2 µs |
+| Accessing a line in a string    |         27.3 ms |          36.7 | ( 26.2 ms …  29.5 ms) |  27.8 ms |  29.5 ms |  29.5 ms |
 
 summary
   Accessing a line in a TextBuf
-   442.00x faster than Accessing a line in a string
+   442.10x faster than Accessing a line in a string
 ```
 
 ### Write
 
 ```bash
-❯ deno bench bench/write.bench.ts
-Check file:///Users/eug/Dev/github.com/eu-ge-ne/text-buf/bench/write.bench.ts
     CPU | Apple M4 Pro
-Runtime | Deno 2.3.3 (aarch64-apple-darwin)
+Runtime | Deno 2.4.0 (aarch64-apple-darwin)
 
 file:///Users/eug/Dev/github.com/eu-ge-ne/text-buf/bench/write.bench.ts
 
-benchmark                  time/iter (avg)        iter/s      (min … max)           p75      p99     p995
--------------------------- ----------------------------- --------------------- --------------------------
+| benchmark                  | time/iter (avg) |        iter/s |      (min … max)      |      p75 |      p99 |     p995 |
+| -------------------------- | --------------- | ------------- | --------------------- | -------- | -------- | -------- |
 
 group Append
-Appending into a TextBuf           26.7 ms          37.4 ( 25.6 ms …  31.9 ms)  27.3 ms  31.9 ms  31.9 ms
-Appending into a string             9.9 ms         100.9 (  9.7 ms …  11.9 ms)   9.9 ms  11.9 ms  11.9 ms
+| Appending into a TextBuf   |         17.1 ms |          58.5 | ( 16.2 ms …  20.9 ms) |  17.2 ms |  20.9 ms |  20.9 ms |
+| Appending into a string    |          5.9 ms |         169.6 | (  5.5 ms …   6.5 ms) |   5.9 ms |   6.5 ms |   6.5 ms |
 
 summary
   Appending into a TextBuf
-     2.70x slower than Appending into a string
+     2.90x slower than Appending into a string
 
 group Insert
-Inserting into a TextBuf           89.7 ms          11.2 ( 89.2 ms …  90.8 ms)  89.9 ms  90.8 ms  90.8 ms
-Inserting into a string              1.5 s           0.7 (   1.4 s …    1.7 s)    1.6 s    1.7 s    1.7 s
+| Inserting into a TextBuf   |         65.0 ms |          15.4 | ( 60.5 ms …  71.2 ms) |  67.9 ms |  71.2 ms |  71.2 ms |
+| Inserting into a string    |           1.3 s |           0.8 | (   1.1 s …    1.4 s) |    1.3 s |    1.4 s |    1.4 s |
 
 summary
   Inserting into a TextBuf
-    17.05x faster than Inserting into a string
+    19.45x faster than Inserting into a string
 ```
 
-### Erase
+### Delete
 
 ```bash
-❯ deno bench bench/erase.bench.ts
-Check file:///Users/eug/Dev/github.com/eu-ge-ne/text-buf/bench/erase.bench.ts
     CPU | Apple M4 Pro
-Runtime | Deno 2.3.3 (aarch64-apple-darwin)
+Runtime | Deno 2.4.0 (aarch64-apple-darwin)
 
-file:///Users/eug/Dev/github.com/eu-ge-ne/text-buf/bench/erase.bench.ts
+file:///Users/eug/Dev/github.com/eu-ge-ne/text-buf/bench/delete.bench.ts
 
-benchmark                 time/iter (avg)        iter/s      (min … max)           p75      p99     p995
-------------------------- ----------------------------- --------------------- --------------------------
+| benchmark                 | time/iter (avg) |        iter/s |      (min … max)      |      p75 |      p99 |     p995 |
+| ------------------------- | --------------- | ------------- | --------------------- | -------- | -------- | -------- |
 
 group Trim
-Trimming a TextBuf                 3.3 ms         299.1 (  2.7 ms …   4.0 ms)   3.5 ms   3.7 ms   4.0 ms
-Trimming a string                395.4 µs         2,529 (368.5 µs … 758.2 µs) 400.7 µs 698.0 µs 719.3 µs
+| Trimming a TextBuf        |          2.2 ms |         447.4 | (  1.8 ms …   4.9 ms) |   2.3 ms |   3.0 ms |   3.0 ms |
+| Trimming a string         |        261.6 µs |         3,823 | (230.6 µs … 593.6 µs) | 265.9 µs | 486.6 µs | 504.7 µs |
 
 summary
   Trimming a TextBuf
-     8.46x slower than Trimming a string
+     8.54x slower than Trimming a string
 
 group Delete
-Deleting from a TextBuf            8.2 ms         121.4 (  6.8 ms …  10.5 ms)   8.5 ms  10.5 ms  10.5 ms
-Deleting from a string           185.4 ms           5.4 (168.5 ms … 260.4 ms) 192.3 ms 260.4 ms 260.4 ms
+| Deleting from a TextBuf   |          5.4 ms |         184.1 | (  4.8 ms …   6.3 ms) |   5.6 ms |   6.0 ms |   6.3 ms |
+| Deleting from a string    |        120.7 ms |           8.3 | (120.5 ms … 120.9 ms) | 120.8 ms | 120.9 ms | 120.9 ms |
 
 summary
   Deleting from a TextBuf
-    22.51x faster than Deleting from a string
+    22.22x faster than Deleting from a string
 ```
 
 ## License

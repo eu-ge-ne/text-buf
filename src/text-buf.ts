@@ -209,12 +209,12 @@ export class TextBuf {
    *
    * const buf = new TextBuf("Lorem ipsum");
    *
-   * buf.erase(5, 11);
+   * buf.delete(5, 11);
    *
    * assertEquals(buf.read(0), "Lorem");
    * ```
    */
-  erase(start: Position, end?: Position): void {
+  delete(start: Position, end?: Position): void {
     const i0 = this.#index(start);
 
     if (typeof i0 === "number") {
