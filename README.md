@@ -18,12 +18,12 @@
   - [`TextBuf:count`](#textbufcount)
   - [`TextBuf:line_count`](#textbufline_count)
   - [`TextBuf.proto.read()`](#textbufprotoread)
-  - [`TextBuf.proto.write()`](#textbufprotowrite)
+  - [`TextBuf.proto.insert()`](#textbufprotoinsert)
   - [`TextBuf.proto.delete()`](#textbufprotodelete)
 - [Benchmarks](#benchmarks)
   - [Create](#create)
   - [Line](#line)
-  - [Write](#write)
+  - [Insert](#insert)
   - [Delete](#delete)
 - [License](#license)
 
@@ -76,20 +76,20 @@ assertEquals(buf.count, 0);
 assertEquals(buf.line_count, 0);
 assertEquals(buf.read(0), "");
 
-buf.write(0, "Lorem");
+buf.insert(0, "Lorem");
 
 assertEquals(buf.count, 5);
 assertEquals(buf.line_count, 1);
 assertEquals(buf.read(0), "Lorem");
 
-buf.write(5, "ipsum");
+buf.insert(5, "ipsum");
 
 assertEquals(buf.count, 10);
 assertEquals(buf.line_count, 1);
 assertEquals(buf.read(0), "Loremipsum");
 
-buf.write(5, "\n");
-buf.write(11, "\n");
+buf.insert(5, "\n");
+buf.insert(11, "\n");
 
 assertEquals(buf.count, 12);
 assertEquals(buf.line_count, 3);
@@ -189,14 +189,14 @@ assertEquals(buf.read([0, 0], [1, 0]), "Lorem\n");
 assertEquals(buf.read([1, 0], [2, 0]), "ipsum");
 ```
 
-### `TextBuf.proto.write()`
+### `TextBuf.proto.insert()`
 
 Inserts text into the buffer at the specified position.
 
 Syntax
 
 ```ts ignore
-write(position: Position, text: string): void
+insert(position: Position, text: string): void
 ```
 
 Example
@@ -207,8 +207,8 @@ import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
 
 const buf = new TextBuf();
 
-buf.write(0, "Lorem");
-buf.write([0, 5], " ipsum");
+buf.insert(0, "Lorem");
+buf.insert([0, 5], " ipsum");
 
 assertEquals(buf.read(0), "Lorem ipsum");
 ```
@@ -279,32 +279,32 @@ summary
    442.10x faster than Accessing a line in a string
 ```
 
-### Write
+### Insert
 
 ```bash
     CPU | Apple M4 Pro
 Runtime | Deno 2.4.0 (aarch64-apple-darwin)
 
-file:///Users/eug/Dev/github.com/eu-ge-ne/text-buf/bench/write.bench.ts
+file:///Users/eug/Dev/github.com/eu-ge-ne/text-buf/bench/insert.bench.ts
 
 | benchmark                  | time/iter (avg) |        iter/s |      (min … max)      |      p75 |      p99 |     p995 |
 | -------------------------- | --------------- | ------------- | --------------------- | -------- | -------- | -------- |
 
 group Append
-| Appending into a TextBuf   |         17.1 ms |          58.5 | ( 16.2 ms …  20.9 ms) |  17.2 ms |  20.9 ms |  20.9 ms |
-| Appending into a string    |          5.9 ms |         169.6 | (  5.5 ms …   6.5 ms) |   5.9 ms |   6.5 ms |   6.5 ms |
+| Appending into a TextBuf   |         17.7 ms |          56.4 | ( 16.5 ms …  22.9 ms) |  18.1 ms |  22.9 ms |  22.9 ms |
+| Appending into a string    |          6.1 ms |         164.2 | (  5.7 ms …   6.7 ms) |   6.1 ms |   6.7 ms |   6.7 ms |
 
 summary
   Appending into a TextBuf
-     2.90x slower than Appending into a string
+     2.91x slower than Appending into a string
 
 group Insert
-| Inserting into a TextBuf   |         65.0 ms |          15.4 | ( 60.5 ms …  71.2 ms) |  67.9 ms |  71.2 ms |  71.2 ms |
-| Inserting into a string    |           1.3 s |           0.8 | (   1.1 s …    1.4 s) |    1.3 s |    1.4 s |    1.4 s |
+| Inserting into a TextBuf   |         66.8 ms |          15.0 | ( 62.9 ms …  73.5 ms) |  67.6 ms |  73.5 ms |  73.5 ms |
+| Inserting into a string    |           1.3 s |           0.8 | (   1.2 s …    1.4 s) |    1.4 s |    1.4 s |    1.4 s |
 
 summary
   Inserting into a TextBuf
-    19.45x faster than Inserting into a string
+    19.38x faster than Inserting into a string
 ```
 
 ### Delete
