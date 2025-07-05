@@ -58,7 +58,7 @@ function text_buf_reversed(): TextBuf {
   return buf;
 }
 
-function test_erase_head(buf: TextBuf, n: number): void {
+function test_delete_head(buf: TextBuf, n: number): void {
   let expected = EXPECTED;
 
   while (expected.length > 0) {
@@ -66,7 +66,7 @@ function test_erase_head(buf: TextBuf, n: number): void {
     assertEquals(buf.count, expected.length);
     assert_tree(buf);
 
-    buf.erase(0, n);
+    buf.delete(0, n);
     expected = expected.slice(n);
   }
 
@@ -75,7 +75,7 @@ function test_erase_head(buf: TextBuf, n: number): void {
   assert_tree(buf);
 }
 
-function test_erase_tail(buf: TextBuf, n: number): void {
+function test_delete_tail(buf: TextBuf, n: number): void {
   let expected = EXPECTED;
 
   while (expected.length > 0) {
@@ -83,7 +83,7 @@ function test_erase_tail(buf: TextBuf, n: number): void {
     assertEquals(buf.count, expected.length);
     assert_tree(buf);
 
-    buf.erase(-n, buf.count);
+    buf.delete(-n, buf.count);
     expected = expected.slice(0, -n);
   }
 
@@ -92,7 +92,7 @@ function test_erase_tail(buf: TextBuf, n: number): void {
   assert_tree(buf);
 }
 
-function test_erase_middle(buf: TextBuf, n: number): void {
+function test_delete_middle(buf: TextBuf, n: number): void {
   let expected = EXPECTED;
 
   while (expected.length > 0) {
@@ -101,7 +101,7 @@ function test_erase_middle(buf: TextBuf, n: number): void {
     assert_tree(buf);
 
     const pos = Math.floor(buf.count / 2);
-    buf.erase(pos, pos + n);
+    buf.delete(pos, pos + n);
     expected = expected.slice(0, pos) + expected.slice(pos + n);
   }
 
@@ -111,42 +111,42 @@ function test_erase_middle(buf: TextBuf, n: number): void {
 }
 
 for (let n = 1; n <= 10; n += 1) {
-  Deno.test(`Erase ${n} chars from the beginning of a text`, () => {
-    test_erase_head(text_buf(), n);
+  Deno.test(`Delete ${n} chars from the beginning of a text`, () => {
+    test_delete_head(text_buf(), n);
   });
 }
 
 for (let n = 1; n <= 10; n += 1) {
-  Deno.test(`Erase ${n} chars from the beginning of a text reversed`, () => {
-    test_erase_head(text_buf_reversed(), n);
+  Deno.test(`Delete ${n} chars from the beginning of a text reversed`, () => {
+    test_delete_head(text_buf_reversed(), n);
   });
 }
 
 for (let n = 1; n <= 10; n += 1) {
-  Deno.test(`Erase ${n} chars from the end of a text`, () => {
-    test_erase_tail(text_buf(), n);
+  Deno.test(`Delete ${n} chars from the end of a text`, () => {
+    test_delete_tail(text_buf(), n);
   });
 }
 
 for (let n = 1; n <= 10; n += 1) {
-  Deno.test(`Erase ${n} chars from the end of a text reversed`, () => {
-    test_erase_tail(text_buf_reversed(), n);
+  Deno.test(`Delete ${n} chars from the end of a text reversed`, () => {
+    test_delete_tail(text_buf_reversed(), n);
   });
 }
 
 for (let n = 1; n <= 10; n += 1) {
-  Deno.test(`Erase ${n} chars from the middle of a text`, () => {
-    test_erase_middle(text_buf(), n);
+  Deno.test(`Delete ${n} chars from the middle of a text`, () => {
+    test_delete_middle(text_buf(), n);
   });
 }
 
 for (let n = 1; n <= 10; n += 1) {
-  Deno.test(`Erase ${n} chars from the middle of text reversed`, () => {
-    test_erase_middle(text_buf_reversed(), n);
+  Deno.test(`Delete ${n} chars from the middle of text reversed`, () => {
+    test_delete_middle(text_buf_reversed(), n);
   });
 }
 
-Deno.test("Erase causing splitting nodes", () => {
+Deno.test("Delete splitting nodes", () => {
   const buf = new TextBuf(EXPECTED);
 
   let expected = EXPECTED;
@@ -158,7 +158,7 @@ Deno.test("Erase causing splitting nodes", () => {
       assertEquals(buf.count, expected.length);
       assert_tree(buf);
 
-      buf.erase(s * i, s * i + 2);
+      buf.delete(s * i, s * i + 2);
       expected = expected.slice(0, s * i) + expected.slice(s * i + 2);
     }
     n += 1;
@@ -169,16 +169,16 @@ Deno.test("Erase causing splitting nodes", () => {
   assert_tree(buf);
 });
 
-Deno.test("Erase count < 0", () => {
+Deno.test("Delete count < 0", () => {
   const buf = new TextBuf("Lorem ipsum");
 
-  buf.erase(5, -6);
+  buf.delete(5, -6);
 
   assertEquals(buf.read(0), "Lorem ipsum");
   assert_tree(buf);
 });
 
-Deno.test("Erase removes lines", () => {
+Deno.test("Delete removes lines", () => {
   const buf = new TextBuf();
 
   buf.write(0, "Lorem");
@@ -186,8 +186,8 @@ Deno.test("Erase removes lines", () => {
   buf.write(5, "\n");
   buf.write(11, "\n");
 
-  buf.erase(0, 6);
-  buf.erase(5, 6);
+  buf.delete(0, 6);
+  buf.delete(5, 6);
 
   assertEquals(buf.count, 5);
   assertEquals(buf.line_count, 1);
@@ -196,36 +196,36 @@ Deno.test("Erase removes lines", () => {
   assert_tree(buf);
 });
 
-Deno.test("Erasing newline char removes line", () => {
+Deno.test("Delete newline char removes line", () => {
   const buf = new TextBuf(" \n \n");
 
   assertEquals(buf.line_count, 3);
 
-  buf.erase(1, 2);
+  buf.delete(1, 2);
 
   assertEquals(buf.read(0), "  \n");
   assertEquals(buf.line_count, 2);
   assert_tree(buf);
 });
 
-Deno.test("Erasing first newline char removes line", () => {
+Deno.test("Delete first newline char removes line", () => {
   const buf = new TextBuf("\n\n");
 
   assertEquals(buf.line_count, 3);
 
-  buf.erase(0, 1);
+  buf.delete(0, 1);
 
   assertEquals(buf.read(0), "\n");
   assertEquals(buf.line_count, 2);
   assert_tree(buf);
 });
 
-Deno.test("Erasing line followed by newline", () => {
+Deno.test("Delete line followed by newline", () => {
   const buf = new TextBuf(" \n \n\n \n");
 
   assertEquals(buf.line_count, 5);
 
-  buf.erase(2, 4);
+  buf.delete(2, 4);
 
   assertEquals(buf.read(0), " \n\n \n");
   assertEquals(buf.line_count, 4);
