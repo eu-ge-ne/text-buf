@@ -5,10 +5,10 @@ export function find_node(
   index: number,
 ): { node: Node; offset: number } | undefined {
   while (x !== NIL) {
-    if (index < x.left.len) {
+    if (index < x.left.total_len) {
       x = x.left;
     } else {
-      index -= x.left.len;
+      index -= x.left.total_len;
 
       if (index < x.slice.len) {
         return { node: x, offset: index };
@@ -23,11 +23,11 @@ export function find_node(
 
 export function find_eol(x: Node, eol_index: number): number | undefined {
   for (let i = 0; x !== NIL;) {
-    if (eol_index < x.left.eols_len) {
+    if (eol_index < x.left.total_eols_len) {
       x = x.left;
     } else {
-      eol_index -= x.left.eols_len;
-      i += x.left.len;
+      eol_index -= x.left.total_eols_len;
+      i += x.left.total_len;
 
       if (eol_index < x.slice.eols_len) {
         return i + x.slice.buf.eol_ends[x.slice.eols_start + eol_index]! -
