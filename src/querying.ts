@@ -1,7 +1,6 @@
 import { NIL, type Node } from "./node.ts";
 import type { Tree } from "./tree.ts";
 
-
 export function find_eol(
   tree: Tree,
   eol_index: number,
