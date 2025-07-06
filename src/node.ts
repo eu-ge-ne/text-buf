@@ -6,12 +6,12 @@ export interface Node {
   p: Node;
   left: Node;
   right: Node;
+  total_len: number;
+  total_eols_len: number;
   readonly slice: Slice;
-  len: number;
-  eols_len: number;
 }
 
-export const NIL = { red: false, len: 0, eols_len: 0 } as Node;
+export const NIL = { red: false, total_len: 0, total_eols_len: 0 } as Node;
 
 NIL.p = NIL;
 NIL.left = NIL;
@@ -23,9 +23,9 @@ export function new_node(slice: Slice): Node {
     p: NIL,
     left: NIL,
     right: NIL,
+    total_len: slice.len,
+    total_eols_len: slice.eols_len,
     slice,
-    len: slice.len,
-    eols_len: slice.eols_len,
   };
 }
 

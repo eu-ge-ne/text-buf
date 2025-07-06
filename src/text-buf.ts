@@ -52,7 +52,7 @@ export class TextBuf {
    * ```
    */
   get count(): number {
-    return this.root.len;
+    return this.root.total_len;
   }
 
   /**
@@ -72,7 +72,7 @@ export class TextBuf {
    * ```
    */
   get line_count(): number {
-    return this.root.len === 0 ? 0 : this.root.eols_len + 1;
+    return this.root.total_len === 0 ? 0 : this.root.total_eols_len + 1;
   }
 
   /**
@@ -144,12 +144,12 @@ export class TextBuf {
       let insert_case = InsertionCase.Root;
 
       for (let x = this.root; x !== NIL;) {
-        if (i <= x.left.len) {
+        if (i <= x.left.total_len) {
           insert_case = InsertionCase.Left;
           p = x;
           x = x.left;
         } else {
-          i -= x.left.len;
+          i -= x.left.total_len;
 
           if (i < x.slice.len) {
             insert_case = InsertionCase.Split;
