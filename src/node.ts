@@ -1,6 +1,12 @@
 import { successor } from "./querying.ts";
 import type { Tree } from "./tree.ts";
 
+export const NIL = { red: false, total_len: 0, total_eols_len: 0 } as Node;
+
+NIL.p = NIL;
+NIL.left = NIL;
+NIL.right = NIL;
+
 export interface Node {
   red: boolean;
   p: Node;
@@ -15,13 +21,7 @@ export interface Node {
   slice_eols_len: number;
 }
 
-export const NIL = { red: false, total_len: 0, total_eols_len: 0 } as Node;
-
-NIL.p = NIL;
-NIL.left = NIL;
-NIL.right = NIL;
-
-function new_node(
+function node(
   buf_index: number,
   slice_start: number,
   slice_len: number,
@@ -46,7 +46,7 @@ function new_node(
 export function node_from_buf(tree: Tree, buf_index: number): Node {
   const buf = tree.bufs[buf_index]!;
 
-  return new_node(buf_index, 0, buf.len, 0, buf.eol_starts.length);
+  return node(buf_index, 0, buf.len, 0, buf.eol_starts.length);
 }
 
 export function* read(
@@ -119,7 +119,7 @@ export function split_node(
   const eols_end = buf.find_eol(eols_start, start + len);
   const eols_len = eols_end - eols_start;
 
-  return new_node(x.buf_index, start, len, eols_start, eols_len);
+  return node(x.buf_index, start, len, eols_start, eols_len);
 }
 
 export function bubble(x: Node): void {
