@@ -59,3 +59,20 @@ export function grow_node(x: Node, text: string): void {
 
   resize_slice(x.slice, x.slice.len + text.length);
 }
+
+export function trim_node_start(x: Node, n: number): void {
+  x.slice.start += n;
+  x.slice.len -= n;
+  x.slice.eols_start = x.slice.buf.find_eol(x.slice.eols_start, x.slice.start);
+
+  const eols_end = x.slice.buf.find_eol(
+    x.slice.eols_start,
+    x.slice.start + x.slice.len,
+  );
+
+  x.slice.eols_len = eols_end - x.slice.eols_start;
+}
+
+export function trim_node_end(x: Node, n: number): void {
+  resize_slice(x.slice, x.slice.len - n);
+}

@@ -30,18 +30,6 @@ export function slice_from_text(text: string): Slice {
   return new_slice(buf, 0, buf.len, 0, buf.eol_starts.length);
 }
 
-export function trim_slice_end(x: Slice, n: number): void {
-  resize_slice(x, x.len - n);
-}
-
-export function trim_slice_start(x: Slice, n: number): void {
-  x.start += n;
-  x.len -= n;
-  x.eols_start = x.buf.find_eol(x.eols_start, x.start);
-  const eols_end = x.buf.find_eol(x.eols_start, x.start + x.len);
-  x.eols_len = eols_end - x.eols_start;
-}
-
 export function resize_slice(x: Slice, len: number): void {
   x.len = len;
   const eols_end = x.buf.find_eol(x.eols_start, x.start + x.len);
