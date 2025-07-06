@@ -1,6 +1,6 @@
 import { delete_node } from "./deletion.ts";
 import { insert_left, insert_right, InsertionCase } from "./insertion.ts";
-import { bubble, NIL, trim_node_end, trim_node_start } from "./node.ts";
+import { bubble, NIL } from "./node.ts";
 import type { Position } from "./position.ts";
 import { successor } from "./querying.ts";
 import { split } from "./splitting.ts";
@@ -229,12 +229,12 @@ export class TextBuf {
           if (offset === 0) {
             delete_node(this.tree, node);
           } else {
-            trim_node_end(this.tree, node, count);
+            this.tree.trim_node_end(node, count);
             bubble(node);
           }
         } else if (offset2 < node.slice_len) {
           if (offset === 0) {
-            trim_node_start(this.tree, node, count);
+            this.tree.trim_node_start(node, count);
             bubble(node);
           } else {
             split(this.tree, node, offset, count);
