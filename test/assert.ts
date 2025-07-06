@@ -1,6 +1,6 @@
 import { assert } from "@std/assert";
 
-import { NIL, type Node } from "../src/node.ts";
+import type { Node } from "../src/node.ts";
 import type { TextBuf } from "../src/text-buf.ts";
 
 export function assert_tree(tree: TextBuf): void {
@@ -23,7 +23,7 @@ export function assert_tree(tree: TextBuf): void {
 
 function assert_node(x: Node): void {
   // 3. Every leaf (NIL) is black.
-  if (x === NIL) {
+  if (x.nil) {
     assert(!x.red);
   } else {
     // 4. If a node is red, then both its children are black.
@@ -40,8 +40,8 @@ function assert_node(x: Node): void {
 }
 
 function collect_leaf_parents(x: Node, leaf_parents: Set<Node>): void {
-  if (x !== NIL) {
-    if (x.left === NIL || x.right === NIL) {
+  if (!x.nil) {
+    if (x.left.nil || x.right.nil) {
       leaf_parents.add(x);
     }
 
@@ -53,7 +53,7 @@ function collect_leaf_parents(x: Node, leaf_parents: Set<Node>): void {
 function black_height(x: Node): number {
   let height = 0;
 
-  while (x.p !== NIL) {
+  while (!x.p.nil) {
     if (!x.red) {
       height += 1;
     }

@@ -153,7 +153,7 @@ export class TextBuf {
       let p = NIL;
       let insert_case = InsertionCase.Root;
 
-      for (let x = this.root; x !== NIL;) {
+      for (let x = this.root; !x.nil;) {
         if (i <= x.left.total_len) {
           insert_case = InsertionCase.Left;
           p = x;
@@ -266,7 +266,7 @@ export class TextBuf {
             this.#split_node(last.node, last.offset, 0);
           }
 
-          while ((x !== NIL) && (i < count)) {
+          while (!x.nil && (i < count)) {
             i += x.slice_len;
 
             const next = successor(x);
@@ -326,7 +326,7 @@ export class TextBuf {
   #find_node(index: number): { node: Node; offset: number } | undefined {
     let x = this.root;
 
-    while (x !== NIL) {
+    while (!x.nil) {
       if (index < x.left.total_len) {
         x = x.left;
       } else {
@@ -346,7 +346,7 @@ export class TextBuf {
   #find_eol(eol_index: number): number | undefined {
     let x = this.root;
 
-    for (let i = 0; x !== NIL;) {
+    for (let i = 0; !x.nil;) {
       if (eol_index < x.left.total_eols_len) {
         x = x.left;
       } else {
@@ -368,7 +368,7 @@ export class TextBuf {
   }
 
   *#read(x: Node, offset: number, n: number): Generator<string> {
-    while ((x !== NIL) && (n > 0)) {
+    while (!x.nil && (n > 0)) {
       const count = Math.min(x.slice_len - offset, n);
 
       yield this.bufs[x.buf_index]!.read(x.slice_start + offset, count);
@@ -449,13 +449,13 @@ export class TextBuf {
     const y = x.right;
 
     x.right = y.left;
-    if (y.left !== NIL) {
+    if (!y.left.nil) {
       y.left.p = x;
     }
 
     y.p = x.p;
 
-    if (x.p === NIL) {
+    if (x.p.nil) {
       this.root = y;
     } else if (x === x.p.left) {
       x.p.left = y;
@@ -473,13 +473,13 @@ export class TextBuf {
     const x = y.left;
 
     y.left = x.right;
-    if (x.right !== NIL) {
+    if (!x.right.nil) {
       x.right.p = y;
     }
 
     x.p = y.p;
 
-    if (y.p === NIL) {
+    if (y.p.nil) {
       this.root = x;
     } else if (y === y.p.left) {
       y.p.left = x;
@@ -494,7 +494,7 @@ export class TextBuf {
   }
 
   #insert_after(p: Node, z: Node): void {
-    if (p.right === NIL) {
+    if (p.right.nil) {
       this.#insert_right(p, z);
     } else {
       this.#insert_left(minimum(p.right), z);
@@ -562,12 +562,12 @@ export class TextBuf {
     let y_original_color = y.red;
     let x: Node;
 
-    if (z.left === NIL) {
+    if (z.left.nil) {
       x = z.right;
 
       this.#transplant(z, z.right);
       bubble(z.right.p);
-    } else if (z.right === NIL) {
+    } else if (z.right.nil) {
       x = z.left;
 
       this.#transplant(z, z.left);
@@ -603,7 +603,7 @@ export class TextBuf {
   }
 
   #transplant(u: Node, v: Node): void {
-    if (u.p === NIL) {
+    if (u.p.nil) {
       this.root = v;
     } else if (u === u.p.left) {
       u.p.left = v;
