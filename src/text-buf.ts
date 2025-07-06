@@ -102,7 +102,7 @@ export class TextBuf {
       return "";
     }
 
-    const first = this.tree.find_node(start_i);
+    const first = this.#find_node(start_i);
     if (!first) {
       return "";
     }
@@ -219,7 +219,7 @@ export class TextBuf {
     const i0 = this.#index(start);
 
     if (typeof i0 === "number") {
-      const first = this.tree.find_node(i0);
+      const first = this.#find_node(i0);
 
       if (first) {
         const i1 = (end ? this.#index(end) : undefined) ??
@@ -251,7 +251,7 @@ export class TextBuf {
             x = this.tree.split_node(node, offset, 0);
           }
 
-          const last = this.tree.find_node(i1);
+          const last = this.#find_node(i1);
           if (last && last.offset !== 0) {
             this.tree.split_node(last.node, last.offset, 0);
           }
@@ -311,5 +311,25 @@ export class TextBuf {
     const buf_index = this.tree.bufs.push(buf) - 1;
 
     return create_node(buf_index, 0, buf.len, 0, buf.eol_starts.length);
+  }
+
+  #find_node(index: number): { node: Node; offset: number } | undefined {
+    let x = this.tree.root;
+
+    while (x !== NIL) {
+      if (index < x.left.total_len) {
+        x = x.left;
+      } else {
+        index -= x.left.total_len;
+
+        if (index < x.slice_len) {
+          return { node: x, offset: index };
+        } else {
+          index -= x.slice_len;
+
+          x = x.right;
+        }
+      }
+    }
   }
 }

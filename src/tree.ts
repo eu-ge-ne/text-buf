@@ -12,26 +12,6 @@ export class Tree {
   root = NIL;
   bufs: Buffer[] = [];
 
-  find_node(index: number): { node: Node; offset: number } | undefined {
-    let x = this.root;
-
-    while (x !== NIL) {
-      if (index < x.left.total_len) {
-        x = x.left;
-      } else {
-        index -= x.left.total_len;
-
-        if (index < x.slice_len) {
-          return { node: x, offset: index };
-        } else {
-          index -= x.slice_len;
-
-          x = x.right;
-        }
-      }
-    }
-  }
-
   find_eol(eol_index: number): number | undefined {
     let x = this.root;
 
