@@ -29,22 +29,3 @@ export function slice_from_text(text: string): Slice {
 
   return new_slice(buf, 0, buf.len, 0, buf.eol_starts.length);
 }
-
-export function resize_slice(x: Slice, len: number): void {
-  x.len = len;
-  const eols_end = x.buf.find_eol(x.eols_start, x.start + x.len);
-  x.eols_len = eols_end - x.eols_start;
-}
-
-export function split_slice(x: Slice, index: number, gap: number): Slice {
-  const start = x.start + index + gap;
-  const len = x.len - index - gap;
-
-  resize_slice(x, index);
-
-  const eols_start = x.buf.find_eol(x.eols_start + x.eols_len, start);
-  const eols_end = x.buf.find_eol(eols_start, start + len);
-  const eols_len = eols_end - eols_start;
-
-  return new_slice(x.buf, start, len, eols_start, eols_len);
-}

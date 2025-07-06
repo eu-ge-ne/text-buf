@@ -1,5 +1,5 @@
 import { successor } from "./querying.ts";
-import { resize_slice, type Slice, slice_from_text } from "./slice.ts";
+import { new_slice, type Slice, slice_from_text } from "./slice.ts";
 
 export interface Node {
   red: boolean;
@@ -75,4 +75,28 @@ export function trim_node_start(x: Node, n: number): void {
 
 export function trim_node_end(x: Node, n: number): void {
   resize_slice(x.slice, x.slice.len - n);
+}
+
+export function split_node(x: Node, index: number, gap: number): Node {
+  const start = x.slice.start + index + gap;
+  const len = x.slice.len - index - gap;
+
+  resize_slice(x.slice, index);
+
+  const eols_start = x.slice.buf.find_eol(
+    x.slice.eols_start + x.slice.eols_len,
+    start,
+  );
+  const eols_end = x.slice.buf.find_eol(eols_start, start + len);
+  const eols_len = eols_end - eols_start;
+
+  const slice = new_slice(x.slice.buf, start, len, eols_start, eols_len);
+
+  return new_node(slice);
+}
+
+function resize_slice(x: Slice, len: number): void {
+  x.len = len;
+  const eols_end = x.buf.find_eol(x.eols_start, x.start + x.len);
+  x.eols_len = eols_end - x.eols_start;
 }
