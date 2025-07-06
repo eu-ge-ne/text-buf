@@ -135,4 +135,52 @@ export class Tree {
 
     x.slice_eols_len = eols_end - x.slice_eols_start;
   }
+
+  left_rotate(x: Node): void {
+    const y = x.right;
+
+    x.right = y.left;
+    if (y.left !== NIL) {
+      y.left.p = x;
+    }
+
+    y.p = x.p;
+
+    if (x.p === NIL) {
+      this.root = y;
+    } else if (x === x.p.left) {
+      x.p.left = y;
+    } else {
+      x.p.right = y;
+    }
+
+    y.left = x;
+    x.p = y;
+
+    bubble(x);
+  }
+
+  right_rotate(y: Node): void {
+    const x = y.left;
+
+    y.left = x.right;
+    if (x.right !== NIL) {
+      x.right.p = y;
+    }
+
+    x.p = y.p;
+
+    if (y.p === NIL) {
+      this.root = x;
+    } else if (y === y.p.left) {
+      y.p.left = x;
+    } else {
+      y.p.right = x;
+    }
+
+    x.right = y;
+    y.p = x;
+
+    bubble(y);
+  }
 }

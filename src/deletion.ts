@@ -1,6 +1,5 @@
 import { bubble, NIL, type Node } from "./node.ts";
 import { minimum } from "./querying.ts";
-import { left_rotate, right_rotate } from "./rotation.ts";
 import type { Tree } from "./tree.ts";
 
 export function delete_node(tree: Tree, z: Node): void {
@@ -68,7 +67,7 @@ function delete_fixup(tree: Tree, x: Node): void {
       if (w.red) {
         w.red = false;
         x.p.red = true;
-        left_rotate(tree, x.p);
+        tree.left_rotate(x.p);
         w = x.p.right;
       }
 
@@ -79,14 +78,14 @@ function delete_fixup(tree: Tree, x: Node): void {
         if (!w.right.red) {
           w.left.red = false;
           w.red = true;
-          right_rotate(tree, w);
+          tree.right_rotate(w);
           w = x.p.right;
         }
 
         w.red = x.p.red;
         x.p.red = false;
         w.right.red = false;
-        left_rotate(tree, x.p);
+        tree.left_rotate(x.p);
         x = tree.root;
       }
     } else {
@@ -95,7 +94,7 @@ function delete_fixup(tree: Tree, x: Node): void {
       if (w.red) {
         w.red = false;
         x.p.red = true;
-        right_rotate(tree, x.p);
+        tree.right_rotate(x.p);
         w = x.p.left;
       }
 
@@ -106,14 +105,14 @@ function delete_fixup(tree: Tree, x: Node): void {
         if (!w.left.red) {
           w.right.red = false;
           w.red = true;
-          left_rotate(tree, w);
+          tree.left_rotate(w);
           w = x.p.left;
         }
 
         w.red = x.p.red;
         x.p.red = false;
         w.left.red = false;
-        right_rotate(tree, x.p);
+        tree.right_rotate(x.p);
         x = tree.root;
       }
     }

@@ -1,6 +1,5 @@
 import { bubble, NIL, type Node } from "./node.ts";
 import { minimum } from "./querying.ts";
-import { left_rotate, right_rotate } from "./rotation.ts";
 import type { Tree } from "./tree.ts";
 
 export const enum InsertionCase {
@@ -46,11 +45,11 @@ function insert_fixup(tree: Tree, z: Node): void {
       } else {
         if (z === z.p.right) {
           z = z.p;
-          left_rotate(tree, z);
+          tree.left_rotate(z);
         }
         z.p.red = false;
         z.p.p.red = true;
-        right_rotate(tree, z.p.p);
+        tree.right_rotate(z.p.p);
       }
     } else {
       const y = z.p.p.left;
@@ -62,11 +61,11 @@ function insert_fixup(tree: Tree, z: Node): void {
       } else {
         if (z === z.p.left) {
           z = z.p;
-          right_rotate(tree, z);
+          tree.right_rotate(z);
         }
         z.p.red = false;
         z.p.p.red = true;
-        left_rotate(tree, z.p.p);
+        tree.left_rotate(z.p.p);
       }
     }
   }
