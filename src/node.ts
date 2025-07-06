@@ -50,8 +50,8 @@ export function node_from_buf(tree: Tree, buf_index: number): Node {
 }
 
 export function* read(
-  x: Node,
   tree: Tree,
+  x: Node,
   offset: number,
   n: number,
 ): Generator<string> {

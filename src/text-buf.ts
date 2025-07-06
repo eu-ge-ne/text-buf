@@ -123,7 +123,7 @@ export class TextBuf {
       Number.MAX_SAFE_INTEGER;
     const n = end_i - start_i;
 
-    return read(node, this, offset, n).reduce((r, x) => r + x, "");
+    return read(this, node, offset, n).reduce((r, x) => r + x, "");
   }
 
   /**
