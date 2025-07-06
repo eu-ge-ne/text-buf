@@ -1,6 +1,6 @@
 import { insert_after } from "./insertion.ts";
-import { type Node, split_node } from "./node.ts";
-import { bubble, type Tree } from "./tree.ts";
+import { bubble, type Node, split_node } from "./node.ts";
+import type { Tree } from "./tree.ts";
 
 export function split(tree: Tree, x: Node, index: number, gap: number): Node {
   const node = split_node(x, tree, index, gap);

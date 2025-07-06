@@ -122,6 +122,17 @@ export function split_node(
   return new_node(x.buf_index, start, len, eols_start, eols_len);
 }
 
+export function bubble(x: Node): void {
+  while (x !== NIL) {
+    x.total_len = x.left.total_len + x.slice_len + x.right.total_len;
+
+    x.total_eols_len = x.left.total_eols_len + x.slice_eols_len +
+      x.right.total_eols_len;
+
+    x = x.p;
+  }
+}
+
 function resize_node(x: Node, tree: Tree, len: number): void {
   const buf = tree.bufs[x.buf_index]!;
 

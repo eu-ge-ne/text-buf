@@ -1,5 +1,5 @@
-import { NIL, type Node } from "./node.ts";
-import { bubble, type Tree } from "./tree.ts";
+import { bubble, NIL, type Node } from "./node.ts";
+import type { Tree } from "./tree.ts";
 
 export function left_rotate(tree: Tree, x: Node): void {
   const y = x.right;

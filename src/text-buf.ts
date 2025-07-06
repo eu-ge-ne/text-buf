@@ -2,6 +2,7 @@ import { Buffer } from "./buffer.ts";
 import { delete_node } from "./deletion.ts";
 import { insert_left, insert_right, InsertionCase } from "./insertion.ts";
 import {
+  bubble,
   grow_node,
   NIL,
   node_from_buf,
@@ -13,7 +14,6 @@ import {
 import type { Position } from "./position.ts";
 import { find_eol, find_node, successor } from "./querying.ts";
 import { split } from "./splitting.ts";
-import { bubble } from "./tree.ts";
 
 /**
  * `piece table` data structure implemented using `red-black tree`.
