@@ -1,9 +1,9 @@
 import { assert } from "@std/assert";
 
 import { NIL, type Node } from "../src/node.ts";
-import type { Tree } from "../src/tree.ts";
+import type { TextBuf } from "../src/text-buf.ts";
 
-export function assert_tree(tree: Tree): void {
+export function assert_tree(tree: TextBuf): void {
   // 1. Every node is either red or black.
   // 2. The root is black.
   assert(!tree.root.red);

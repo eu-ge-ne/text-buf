@@ -1,6 +1,3 @@
-import { successor } from "./querying.ts";
-import type { Tree } from "./tree.ts";
-
 export const NIL = { red: false, total_len: 0, total_eols_len: 0 } as Node;
 
 NIL.p = NIL;
@@ -21,7 +18,7 @@ export interface Node {
   slice_eols_len: number;
 }
 
-function node(
+export function create_node(
   buf_index: number,
   slice_start: number,
   slice_len: number,
@@ -43,83 +40,6 @@ function node(
   };
 }
 
-export function node_from_buf(tree: Tree, buf_index: number): Node {
-  const buf = tree.bufs[buf_index]!;
-
-  return node(buf_index, 0, buf.len, 0, buf.eol_starts.length);
-}
-
-export function* read(
-  tree: Tree,
-  x: Node,
-  offset: number,
-  n: number,
-): Generator<string> {
-  while ((x !== NIL) && (n > 0)) {
-    const count = Math.min(x.slice_len - offset, n);
-
-    yield tree.bufs[x.buf_index]!.read(x.slice_start + offset, count);
-
-    x = successor(x);
-    offset = 0;
-    n -= count;
-  }
-}
-
-export function node_growable(tree: Tree, x: Node): boolean {
-  const buf = tree.bufs[x.buf_index]!;
-
-  return (buf.len < 100) && (x.slice_start + x.slice_len === buf.len);
-}
-
-export function grow_node(tree: Tree, x: Node, text: string): void {
-  tree.bufs[x.buf_index]!.append(text);
-
-  resize_node(tree, x, x.slice_len + text.length);
-}
-
-export function trim_node_start(tree: Tree, x: Node, n: number): void {
-  const buf = tree.bufs[x.buf_index]!;
-
-  x.slice_start += n;
-  x.slice_len -= n;
-  x.slice_eols_start = buf.find_eol(x.slice_eols_start, x.slice_start);
-
-  const eols_end = buf.find_eol(
-    x.slice_eols_start,
-    x.slice_start + x.slice_len,
-  );
-
-  x.slice_eols_len = eols_end - x.slice_eols_start;
-}
-
-export function trim_node_end(tree: Tree, x: Node, n: number): void {
-  resize_node(tree, x, x.slice_len - n);
-}
-
-export function split_node(
-  tree: Tree,
-  x: Node,
-  index: number,
-  gap: number,
-): Node {
-  const buf = tree.bufs[x.buf_index]!;
-
-  const start = x.slice_start + index + gap;
-  const len = x.slice_len - index - gap;
-
-  resize_node(tree, x, index);
-
-  const eols_start = buf.find_eol(
-    x.slice_eols_start + x.slice_eols_len,
-    start,
-  );
-  const eols_end = buf.find_eol(eols_start, start + len);
-  const eols_len = eols_end - eols_start;
-
-  return node(x.buf_index, start, len, eols_start, eols_len);
-}
-
 export function bubble(x: Node): void {
   while (x !== NIL) {
     x.total_len = x.left.total_len + x.slice_len + x.right.total_len;
@@ -131,15 +51,25 @@ export function bubble(x: Node): void {
   }
 }
 
-function resize_node(tree: Tree, x: Node, len: number): void {
-  const buf = tree.bufs[x.buf_index]!;
+export function minimum(x: Node): Node {
+  while (x.left !== NIL) {
+    x = x.left;
+  }
 
-  x.slice_len = len;
+  return x;
+}
 
-  const eols_end = buf.find_eol(
-    x.slice_eols_start,
-    x.slice_start + x.slice_len,
-  );
+export function successor(x: Node): Node {
+  if (x.right !== NIL) {
+    return minimum(x.right);
+  } else {
+    let y = x.p;
 
-  x.slice_eols_len = eols_end - x.slice_eols_start;
+    while (y !== NIL && x === y.right) {
+      x = y;
+      y = y.p;
+    }
+
+    return y;
+  }
 }
