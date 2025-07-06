@@ -10,7 +10,7 @@ import {
   trim_node_start,
 } from "./node.ts";
 import type { Position } from "./position.ts";
-import { find_eol, successor } from "./querying.ts";
+import { successor } from "./querying.ts";
 import { split } from "./splitting.ts";
 import { Tree } from "./tree.ts";
 
@@ -290,7 +290,7 @@ export class TextBuf {
           i = 0;
           break;
         default:
-          i = find_eol(this.tree, ln - 1);
+          i = this.tree.find_eol(ln - 1);
           break;
       }
 
