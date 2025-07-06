@@ -1,7 +1,6 @@
 import { Buffer } from "./buffer.ts";
 import { insert_after } from "./insertion.ts";
-import { bubble, create_node, NIL, type Node } from "./node.ts";
-import { successor } from "./querying.ts";
+import { bubble, create_node, NIL, type Node, successor } from "./node.ts";
 
 export class Tree {
   root = NIL;

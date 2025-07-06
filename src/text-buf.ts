@@ -1,8 +1,7 @@
 import { delete_node } from "./deletion.ts";
 import { insert_left, insert_right, InsertionCase } from "./insertion.ts";
-import { bubble, NIL } from "./node.ts";
+import { bubble, NIL, successor } from "./node.ts";
 import type { Position } from "./position.ts";
-import { successor } from "./querying.ts";
 import { Tree } from "./tree.ts";
 
 /**

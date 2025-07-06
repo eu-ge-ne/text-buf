@@ -1,5 +1,4 @@
-import { bubble, NIL, type Node } from "./node.ts";
-import { minimum } from "./querying.ts";
+import { bubble, minimum, NIL, type Node } from "./node.ts";
 import type { Tree } from "./tree.ts";
 
 export function delete_node(tree: Tree, z: Node): void {
