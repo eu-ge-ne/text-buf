@@ -153,12 +153,12 @@ export class TextBuf {
         } else {
           i -= x.left.total_len;
 
-          if (i < x.slice.len) {
+          if (i < x.slice_len) {
             insert_case = InsertionCase.Split;
             p = x;
             x = NIL;
           } else {
-            i -= x.slice.len;
+            i -= x.slice_len;
 
             insert_case = InsertionCase.Right;
             p = x;
@@ -231,14 +231,14 @@ export class TextBuf {
         const count = i1 - i0;
         const offset2 = offset + count;
 
-        if (offset2 === node.slice.len) {
+        if (offset2 === node.slice_len) {
           if (offset === 0) {
             delete_node(this, node);
           } else {
             trim_node_end(node, count);
             bubble(node);
           }
-        } else if (offset2 < node.slice.len) {
+        } else if (offset2 < node.slice_len) {
           if (offset === 0) {
             trim_node_start(node, count);
             bubble(node);
@@ -259,7 +259,7 @@ export class TextBuf {
           }
 
           while ((x !== NIL) && (i < count)) {
-            i += x.slice.len;
+            i += x.slice_len;
 
             const next = successor(x);
 
