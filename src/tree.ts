@@ -1,6 +1,12 @@
 import { Buffer } from "./buffer.ts";
-import { insert_after } from "./insertion.ts";
-import { bubble, create_node, NIL, type Node, successor } from "./node.ts";
+import {
+  bubble,
+  create_node,
+  minimum,
+  NIL,
+  type Node,
+  successor,
+} from "./node.ts";
 
 export class Tree {
   root = NIL;
@@ -86,7 +92,7 @@ export class Tree {
     const eols_len = eols_end - eols_start;
 
     const node = create_node(x.buf_index, start, len, eols_start, eols_len);
-    insert_after(this, x, node);
+    this.insert_after(x, node);
 
     return node;
   }
@@ -181,5 +187,69 @@ export class Tree {
     y.p = x;
 
     bubble(y);
+  }
+
+  insert_after(p: Node, z: Node): void {
+    if (p.right === NIL) {
+      this.insert_right(p, z);
+    } else {
+      this.insert_left(minimum(p.right), z);
+    }
+  }
+
+  insert_left(p: Node, z: Node): void {
+    p.left = z;
+    z.p = p;
+
+    bubble(z);
+    this.insert_fixup(z);
+  }
+
+  insert_right(p: Node, z: Node): void {
+    p.right = z;
+    z.p = p;
+
+    bubble(z);
+    this.insert_fixup(z);
+  }
+
+  insert_fixup(z: Node): void {
+    while (z.p.red) {
+      if (z.p === z.p.p.left) {
+        const y = z.p.p.right;
+        if (y.red) {
+          z.p.red = false;
+          y.red = false;
+          z.p.p.red = true;
+          z = z.p.p;
+        } else {
+          if (z === z.p.right) {
+            z = z.p;
+            this.left_rotate(z);
+          }
+          z.p.red = false;
+          z.p.p.red = true;
+          this.right_rotate(z.p.p);
+        }
+      } else {
+        const y = z.p.p.left;
+        if (y.red) {
+          z.p.red = false;
+          y.red = false;
+          z.p.p.red = true;
+          z = z.p.p;
+        } else {
+          if (z === z.p.left) {
+            z = z.p;
+            this.right_rotate(z);
+          }
+          z.p.red = false;
+          z.p.p.red = true;
+          this.left_rotate(z.p.p);
+        }
+      }
+    }
+
+    this.root.red = false;
   }
 }

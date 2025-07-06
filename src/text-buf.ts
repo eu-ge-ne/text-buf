@@ -1,8 +1,14 @@
 import { delete_node } from "./deletion.ts";
-import { insert_left, insert_right, InsertionCase } from "./insertion.ts";
 import { bubble, NIL, successor } from "./node.ts";
 import type { Position } from "./position.ts";
 import { Tree } from "./tree.ts";
+
+export const enum InsertionCase {
+  Root,
+  Left,
+  Right,
+  Split,
+}
 
 /**
  * `piece table` data structure implemented using `red-black tree`.
@@ -173,16 +179,16 @@ export class TextBuf {
             break;
           }
           case InsertionCase.Left: {
-            insert_left(this.tree, p, child);
+            this.tree.insert_left(p, child);
             break;
           }
           case InsertionCase.Right: {
-            insert_right(this.tree, p, child);
+            this.tree.insert_right(p, child);
             break;
           }
           case InsertionCase.Split: {
             const y = this.tree.split_node(p, i, 0);
-            insert_left(this.tree, y, child);
+            this.tree.insert_left(y, child);
             break;
           }
         }
