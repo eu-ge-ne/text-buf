@@ -42,18 +42,6 @@ export function create_node(
   };
 }
 
-export function node_growable(tree: Tree, x: Node): boolean {
-  const buf = tree.bufs[x.buf_index]!;
-
-  return (buf.len < 100) && (x.slice_start + x.slice_len === buf.len);
-}
-
-export function grow_node(tree: Tree, x: Node, text: string): void {
-  tree.bufs[x.buf_index]!.append(text);
-
-  resize_node(tree, x, x.slice_len + text.length);
-}
-
 export function trim_node_start(tree: Tree, x: Node, n: number): void {
   const buf = tree.bufs[x.buf_index]!;
 
@@ -70,7 +58,7 @@ export function trim_node_start(tree: Tree, x: Node, n: number): void {
 }
 
 export function trim_node_end(tree: Tree, x: Node, n: number): void {
-  resize_node(tree, x, x.slice_len - n);
+  tree.resize_node(x, x.slice_len - n);
 }
 
 export function split_node(
@@ -84,7 +72,7 @@ export function split_node(
   const start = x.slice_start + index + gap;
   const len = x.slice_len - index - gap;
 
-  resize_node(tree, x, index);
+  tree.resize_node(x, index);
 
   const eols_start = buf.find_eol(
     x.slice_eols_start + x.slice_eols_len,
@@ -105,17 +93,4 @@ export function bubble(x: Node): void {
 
     x = x.p;
   }
-}
-
-function resize_node(tree: Tree, x: Node, len: number): void {
-  const buf = tree.bufs[x.buf_index]!;
-
-  x.slice_len = len;
-
-  const eols_end = buf.find_eol(
-    x.slice_eols_start,
-    x.slice_start + x.slice_len,
-  );
-
-  x.slice_eols_len = eols_end - x.slice_eols_start;
 }

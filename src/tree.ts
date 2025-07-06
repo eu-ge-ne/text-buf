@@ -68,4 +68,29 @@ export class Tree {
       n -= count;
     }
   }
+
+  node_growable(x: Node): boolean {
+    const buf = this.bufs[x.buf_index]!;
+
+    return (buf.len < 100) && (x.slice_start + x.slice_len === buf.len);
+  }
+
+  grow_node(x: Node, text: string): void {
+    this.bufs[x.buf_index]!.append(text);
+
+    this.resize_node(x, x.slice_len + text.length);
+  }
+
+  resize_node(x: Node, len: number): void {
+    const buf = this.bufs[x.buf_index]!;
+
+    x.slice_len = len;
+
+    const eols_end = buf.find_eol(
+      x.slice_eols_start,
+      x.slice_start + x.slice_len,
+    );
+
+    x.slice_eols_len = eols_end - x.slice_eols_start;
+  }
 }
