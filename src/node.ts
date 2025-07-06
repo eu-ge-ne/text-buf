@@ -48,3 +48,8 @@ export function* read(
     n -= count;
   }
 }
+
+export function node_growable(x: Node): boolean {
+  return (x.slice.buf.len < 100) &&
+    (x.slice.start + x.slice.len === x.slice.buf.len);
+}

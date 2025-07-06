@@ -30,10 +30,6 @@ export function slice_from_text(text: string): Slice {
   return new_slice(buf, 0, buf.len, 0, buf.eol_starts.length);
 }
 
-export function slice_growable(x: Slice): boolean {
-  return (x.buf.len < 100) && (x.start + x.len === x.buf.len);
-}
-
 export function grow_slice(x: Slice, text: string): void {
   x.buf.append(text);
 
