@@ -1,52 +1,9 @@
 import type { Buffer } from "./buffer.ts";
-import {
-  bubble,
-  create_node,
-  minimum,
-  NIL,
-  type Node,
-  successor,
-} from "./node.ts";
+import { bubble, create_node, minimum, NIL, type Node } from "./node.ts";
 
 export class Tree {
   root = NIL;
   bufs: Buffer[] = [];
-
-  find_eol(eol_index: number): number | undefined {
-    let x = this.root;
-
-    for (let i = 0; x !== NIL;) {
-      if (eol_index < x.left.total_eols_len) {
-        x = x.left;
-      } else {
-        eol_index -= x.left.total_eols_len;
-        i += x.left.total_len;
-
-        if (eol_index < x.slice_eols_len) {
-          const buf = this.bufs[x.buf_index]!;
-          return i + buf.eol_ends[x.slice_eols_start + eol_index]! -
-            x.slice_start;
-        } else {
-          eol_index -= x.slice_eols_len;
-          i += x.slice_len;
-
-          x = x.right;
-        }
-      }
-    }
-  }
-
-  *read(x: Node, offset: number, n: number): Generator<string> {
-    while ((x !== NIL) && (n > 0)) {
-      const count = Math.min(x.slice_len - offset, n);
-
-      yield this.bufs[x.buf_index]!.read(x.slice_start + offset, count);
-
-      x = successor(x);
-      offset = 0;
-      n -= count;
-    }
-  }
 
   split_node(x: Node, index: number, gap: number): Node {
     const buf = this.bufs[x.buf_index]!;

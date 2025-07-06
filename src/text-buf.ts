@@ -113,7 +113,7 @@ export class TextBuf {
       Number.MAX_SAFE_INTEGER;
     const n = end_i - start_i;
 
-    return this.tree.read(node, offset, n).reduce((r, x) => r + x, "");
+    return this.#read(node, offset, n).reduce((r, x) => r + x, "");
   }
 
   /**
@@ -286,7 +286,7 @@ export class TextBuf {
           i = 0;
           break;
         default:
-          i = this.tree.find_eol(ln - 1);
+          i = this.#find_eol(ln - 1);
           break;
       }
 
@@ -330,6 +330,42 @@ export class TextBuf {
           x = x.right;
         }
       }
+    }
+  }
+
+  #find_eol(eol_index: number): number | undefined {
+    let x = this.tree.root;
+
+    for (let i = 0; x !== NIL;) {
+      if (eol_index < x.left.total_eols_len) {
+        x = x.left;
+      } else {
+        eol_index -= x.left.total_eols_len;
+        i += x.left.total_len;
+
+        if (eol_index < x.slice_eols_len) {
+          const buf = this.tree.bufs[x.buf_index]!;
+          return i + buf.eol_ends[x.slice_eols_start + eol_index]! -
+            x.slice_start;
+        } else {
+          eol_index -= x.slice_eols_len;
+          i += x.slice_len;
+
+          x = x.right;
+        }
+      }
+    }
+  }
+
+  *#read(x: Node, offset: number, n: number): Generator<string> {
+    while ((x !== NIL) && (n > 0)) {
+      const count = Math.min(x.slice_len - offset, n);
+
+      yield this.tree.bufs[x.buf_index]!.read(x.slice_start + offset, count);
+
+      x = successor(x);
+      offset = 0;
+      n -= count;
     }
   }
 }
