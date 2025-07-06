@@ -1,5 +1,6 @@
 import { Buffer } from "./buffer.ts";
-import { create_node, NIL, type Node } from "./node.ts";
+import { insert_after } from "./insertion.ts";
+import { bubble, create_node, NIL, type Node } from "./node.ts";
 import { successor } from "./querying.ts";
 
 export class Tree {
@@ -69,6 +70,28 @@ export class Tree {
     }
   }
 
+  split_node(x: Node, index: number, gap: number): Node {
+    const buf = this.bufs[x.buf_index]!;
+
+    const start = x.slice_start + index + gap;
+    const len = x.slice_len - index - gap;
+
+    this.#resize_node(x, index);
+    bubble(x);
+
+    const eols_start = buf.find_eol(
+      x.slice_eols_start + x.slice_eols_len,
+      start,
+    );
+    const eols_end = buf.find_eol(eols_start, start + len);
+    const eols_len = eols_end - eols_start;
+
+    const node = create_node(x.buf_index, start, len, eols_start, eols_len);
+    insert_after(this, x, node);
+
+    return node;
+  }
+
   node_growable(x: Node): boolean {
     const buf = this.bufs[x.buf_index]!;
 
@@ -98,24 +121,6 @@ export class Tree {
 
   trim_node_end(x: Node, n: number): void {
     this.#resize_node(x, x.slice_len - n);
-  }
-
-  split_node(x: Node, index: number, gap: number): Node {
-    const buf = this.bufs[x.buf_index]!;
-
-    const start = x.slice_start + index + gap;
-    const len = x.slice_len - index - gap;
-
-    this.#resize_node(x, index);
-
-    const eols_start = buf.find_eol(
-      x.slice_eols_start + x.slice_eols_len,
-      start,
-    );
-    const eols_end = buf.find_eol(eols_start, start + len);
-    const eols_len = eols_end - eols_start;
-
-    return create_node(x.buf_index, start, len, eols_start, eols_len);
   }
 
   #resize_node(x: Node, len: number): void {

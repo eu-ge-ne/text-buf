@@ -3,7 +3,6 @@ import { insert_left, insert_right, InsertionCase } from "./insertion.ts";
 import { bubble, NIL } from "./node.ts";
 import type { Position } from "./position.ts";
 import { successor } from "./querying.ts";
-import { split } from "./splitting.ts";
 import { Tree } from "./tree.ts";
 
 /**
@@ -183,7 +182,7 @@ export class TextBuf {
             break;
           }
           case InsertionCase.Split: {
-            const y = split(this.tree, p, i, 0);
+            const y = this.tree.split_node(p, i, 0);
             insert_left(this.tree, y, child);
             break;
           }
@@ -237,19 +236,19 @@ export class TextBuf {
             this.tree.trim_node_start(node, count);
             bubble(node);
           } else {
-            split(this.tree, node, offset, count);
+            this.tree.split_node(node, offset, count);
           }
         } else {
           let x = node;
           let i = 0;
 
           if (offset !== 0) {
-            x = split(this.tree, node, offset, 0);
+            x = this.tree.split_node(node, offset, 0);
           }
 
           const last = this.tree.find_node(i1);
           if (last && last.offset !== 0) {
-            split(this.tree, last.node, last.offset, 0);
+            this.tree.split_node(last.node, last.offset, 0);
           }
 
           while ((x !== NIL) && (i < count)) {
