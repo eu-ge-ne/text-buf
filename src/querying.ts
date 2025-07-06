@@ -10,10 +10,10 @@ export function find_node(
     } else {
       index -= x.left.total_len;
 
-      if (index < x.slice.len) {
+      if (index < x.slice_len) {
         return { node: x, offset: index };
       } else {
-        index -= x.slice.len;
+        index -= x.slice_len;
 
         x = x.right;
       }
@@ -29,12 +29,12 @@ export function find_eol(x: Node, eol_index: number): number | undefined {
       eol_index -= x.left.total_eols_len;
       i += x.left.total_len;
 
-      if (eol_index < x.slice.eols_len) {
-        return i + x.slice.buf.eol_ends[x.slice.eols_start + eol_index]! -
-          x.slice.start;
+      if (eol_index < x.slice_eols_len) {
+        return i + x.buf.eol_ends[x.slice_eols_start + eol_index]! -
+          x.slice_start;
       } else {
-        eol_index -= x.slice.eols_len;
-        i += x.slice.len;
+        eol_index -= x.slice_eols_len;
+        i += x.slice_len;
 
         x = x.right;
       }

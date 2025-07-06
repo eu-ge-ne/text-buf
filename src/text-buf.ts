@@ -1,14 +1,17 @@
+import { Buffer } from "./buffer.ts";
 import { delete_node } from "./deletion.ts";
 import { insert_left, insert_right, InsertionCase } from "./insertion.ts";
-import { NIL, node_from_text, read } from "./node.ts";
+import {
+  grow_node,
+  NIL,
+  node_from_buf,
+  node_growable,
+  read,
+  trim_node_end,
+  trim_node_start,
+} from "./node.ts";
 import type { Position } from "./position.ts";
 import { find_eol, find_node, successor } from "./querying.ts";
-import {
-  grow_slice,
-  slice_growable,
-  trim_slice_end,
-  trim_slice_start,
-} from "./slice.ts";
 import { split } from "./splitting.ts";
 import { bubble } from "./tree.ts";
 
@@ -30,7 +33,7 @@ export class TextBuf {
    */
   constructor(text?: string) {
     if (text && text.length > 0) {
-      this.root = node_from_text(text);
+      this.root = node_from_buf(new Buffer(text));
       this.root.red = false;
     }
   }
@@ -151,12 +154,12 @@ export class TextBuf {
         } else {
           i -= x.left.total_len;
 
-          if (i < x.slice.len) {
+          if (i < x.slice_len) {
             insert_case = InsertionCase.Split;
             p = x;
             x = NIL;
           } else {
-            i -= x.slice.len;
+            i -= x.slice_len;
 
             insert_case = InsertionCase.Right;
             p = x;
@@ -165,12 +168,12 @@ export class TextBuf {
         }
       }
 
-      if (insert_case === InsertionCase.Right && slice_growable(p.slice)) {
-        grow_slice(p.slice, text);
+      if (insert_case === InsertionCase.Right && node_growable(p)) {
+        grow_node(p, text);
 
         bubble(p);
       } else {
-        const child = node_from_text(text);
+        const child = node_from_buf(new Buffer(text));
 
         switch (insert_case) {
           case InsertionCase.Root: {
@@ -229,16 +232,16 @@ export class TextBuf {
         const count = i1 - i0;
         const offset2 = offset + count;
 
-        if (offset2 === node.slice.len) {
+        if (offset2 === node.slice_len) {
           if (offset === 0) {
             delete_node(this, node);
           } else {
-            trim_slice_end(node.slice, count);
+            trim_node_end(node, count);
             bubble(node);
           }
-        } else if (offset2 < node.slice.len) {
+        } else if (offset2 < node.slice_len) {
           if (offset === 0) {
-            trim_slice_start(node.slice, count);
+            trim_node_start(node, count);
             bubble(node);
           } else {
             split(this, node, offset, count);
@@ -257,7 +260,7 @@ export class TextBuf {
           }
 
           while ((x !== NIL) && (i < count)) {
-            i += x.slice.len;
+            i += x.slice_len;
 
             const next = successor(x);
 
