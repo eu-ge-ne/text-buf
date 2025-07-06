@@ -1,7 +1,13 @@
 import { Buffer } from "./buffer.ts";
-import { bubble, create_node, NIL, type Node, successor } from "./node.ts";
+import {
+  bubble,
+  create_node,
+  minimum,
+  NIL,
+  type Node,
+  successor,
+} from "./node.ts";
 import type { Position } from "./position.ts";
-import { Tree } from "./tree.ts";
 
 export const enum InsertionCase {
   Root,
@@ -18,7 +24,13 @@ export class TextBuf {
    * @ignore
    * @internal
    */
-  tree: Tree = new Tree();
+  root = NIL;
+
+  /**
+   * @ignore
+   * @internal
+   */
+  bufs: Buffer[] = [];
 
   /**
    * Creates instances of `TextBuf` interpreting text characters as `UTF-16 code units`. Visit [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#utf-16_characters_unicode_code_points_and_grapheme_clusters) for more details. Accepts optional initial text.
@@ -28,8 +40,8 @@ export class TextBuf {
    */
   constructor(text?: string) {
     if (text && text.length > 0) {
-      this.tree.root = this.#create_node(text);
-      this.tree.root.red = false;
+      this.root = this.#create_node(text);
+      this.root.red = false;
     }
   }
 
@@ -50,7 +62,7 @@ export class TextBuf {
    * ```
    */
   get count(): number {
-    return this.tree.root.total_len;
+    return this.root.total_len;
   }
 
   /**
@@ -70,9 +82,7 @@ export class TextBuf {
    * ```
    */
   get line_count(): number {
-    return this.tree.root.total_len === 0
-      ? 0
-      : this.tree.root.total_eols_len + 1;
+    return this.root.total_len === 0 ? 0 : this.root.total_eols_len + 1;
   }
 
   /**
@@ -143,7 +153,7 @@ export class TextBuf {
       let p = NIL;
       let insert_case = InsertionCase.Root;
 
-      for (let x = this.tree.root; x !== NIL;) {
+      for (let x = this.root; x !== NIL;) {
         if (i <= x.left.total_len) {
           insert_case = InsertionCase.Left;
           p = x;
@@ -165,8 +175,8 @@ export class TextBuf {
         }
       }
 
-      if (insert_case === InsertionCase.Right && this.tree.node_growable(p)) {
-        this.tree.grow_node(p, text);
+      if (insert_case === InsertionCase.Right && this.#node_growable(p)) {
+        this.#grow_node(p, text);
 
         bubble(p);
       } else {
@@ -174,21 +184,21 @@ export class TextBuf {
 
         switch (insert_case) {
           case InsertionCase.Root: {
-            this.tree.root = child;
-            this.tree.root.red = false;
+            this.root = child;
+            this.root.red = false;
             break;
           }
           case InsertionCase.Left: {
-            this.tree.insert_left(p, child);
+            this.#insert_left(p, child);
             break;
           }
           case InsertionCase.Right: {
-            this.tree.insert_right(p, child);
+            this.#insert_right(p, child);
             break;
           }
           case InsertionCase.Split: {
-            const y = this.tree.split_node(p, i, 0);
-            this.tree.insert_left(y, child);
+            const y = this.#split_node(p, i, 0);
+            this.#insert_left(y, child);
             break;
           }
         }
@@ -231,29 +241,29 @@ export class TextBuf {
 
         if (offset2 === node.slice_len) {
           if (offset === 0) {
-            this.tree.delete_node(node);
+            this.#delete_node(node);
           } else {
-            this.tree.trim_node_end(node, count);
+            this.#trim_node_end(node, count);
             bubble(node);
           }
         } else if (offset2 < node.slice_len) {
           if (offset === 0) {
-            this.tree.trim_node_start(node, count);
+            this.#trim_node_start(node, count);
             bubble(node);
           } else {
-            this.tree.split_node(node, offset, count);
+            this.#split_node(node, offset, count);
           }
         } else {
           let x = node;
           let i = 0;
 
           if (offset !== 0) {
-            x = this.tree.split_node(node, offset, 0);
+            x = this.#split_node(node, offset, 0);
           }
 
           const last = this.#find_node(i1);
           if (last && last.offset !== 0) {
-            this.tree.split_node(last.node, last.offset, 0);
+            this.#split_node(last.node, last.offset, 0);
           }
 
           while ((x !== NIL) && (i < count)) {
@@ -261,7 +271,7 @@ export class TextBuf {
 
             const next = successor(x);
 
-            this.tree.delete_node(x);
+            this.#delete_node(x);
 
             x = next;
           }
@@ -308,13 +318,13 @@ export class TextBuf {
 
   #create_node(text: string): Node {
     const buf = new Buffer(text);
-    const buf_index = this.tree.bufs.push(buf) - 1;
+    const buf_index = this.bufs.push(buf) - 1;
 
     return create_node(buf_index, 0, buf.len, 0, buf.eol_starts.length);
   }
 
   #find_node(index: number): { node: Node; offset: number } | undefined {
-    let x = this.tree.root;
+    let x = this.root;
 
     while (x !== NIL) {
       if (index < x.left.total_len) {
@@ -334,7 +344,7 @@ export class TextBuf {
   }
 
   #find_eol(eol_index: number): number | undefined {
-    let x = this.tree.root;
+    let x = this.root;
 
     for (let i = 0; x !== NIL;) {
       if (eol_index < x.left.total_eols_len) {
@@ -344,7 +354,7 @@ export class TextBuf {
         i += x.left.total_len;
 
         if (eol_index < x.slice_eols_len) {
-          const buf = this.tree.bufs[x.buf_index]!;
+          const buf = this.bufs[x.buf_index]!;
           return i + buf.eol_ends[x.slice_eols_start + eol_index]! -
             x.slice_start;
         } else {
@@ -361,11 +371,308 @@ export class TextBuf {
     while ((x !== NIL) && (n > 0)) {
       const count = Math.min(x.slice_len - offset, n);
 
-      yield this.tree.bufs[x.buf_index]!.read(x.slice_start + offset, count);
+      yield this.bufs[x.buf_index]!.read(x.slice_start + offset, count);
 
       x = successor(x);
       offset = 0;
       n -= count;
     }
+  }
+
+  #split_node(x: Node, index: number, gap: number): Node {
+    const buf = this.bufs[x.buf_index]!;
+
+    const start = x.slice_start + index + gap;
+    const len = x.slice_len - index - gap;
+
+    this.#resize_node(x, index);
+    bubble(x);
+
+    const eols_start = buf.find_eol(
+      x.slice_eols_start + x.slice_eols_len,
+      start,
+    );
+    const eols_end = buf.find_eol(eols_start, start + len);
+    const eols_len = eols_end - eols_start;
+
+    const node = create_node(x.buf_index, start, len, eols_start, eols_len);
+    this.#insert_after(x, node);
+
+    return node;
+  }
+
+  #node_growable(x: Node): boolean {
+    const buf = this.bufs[x.buf_index]!;
+
+    return (buf.len < 100) && (x.slice_start + x.slice_len === buf.len);
+  }
+
+  #grow_node(x: Node, text: string): void {
+    this.bufs[x.buf_index]!.append(text);
+
+    this.#resize_node(x, x.slice_len + text.length);
+  }
+
+  #trim_node_start(x: Node, n: number): void {
+    const buf = this.bufs[x.buf_index]!;
+
+    x.slice_start += n;
+    x.slice_len -= n;
+    x.slice_eols_start = buf.find_eol(x.slice_eols_start, x.slice_start);
+
+    const eols_end = buf.find_eol(
+      x.slice_eols_start,
+      x.slice_start + x.slice_len,
+    );
+
+    x.slice_eols_len = eols_end - x.slice_eols_start;
+  }
+
+  #trim_node_end(x: Node, n: number): void {
+    this.#resize_node(x, x.slice_len - n);
+  }
+
+  #resize_node(x: Node, len: number): void {
+    const buf = this.bufs[x.buf_index]!;
+
+    x.slice_len = len;
+
+    const eols_end = buf.find_eol(
+      x.slice_eols_start,
+      x.slice_start + x.slice_len,
+    );
+
+    x.slice_eols_len = eols_end - x.slice_eols_start;
+  }
+
+  #left_rotate(x: Node): void {
+    const y = x.right;
+
+    x.right = y.left;
+    if (y.left !== NIL) {
+      y.left.p = x;
+    }
+
+    y.p = x.p;
+
+    if (x.p === NIL) {
+      this.root = y;
+    } else if (x === x.p.left) {
+      x.p.left = y;
+    } else {
+      x.p.right = y;
+    }
+
+    y.left = x;
+    x.p = y;
+
+    bubble(x);
+  }
+
+  #right_rotate(y: Node): void {
+    const x = y.left;
+
+    y.left = x.right;
+    if (x.right !== NIL) {
+      x.right.p = y;
+    }
+
+    x.p = y.p;
+
+    if (y.p === NIL) {
+      this.root = x;
+    } else if (y === y.p.left) {
+      y.p.left = x;
+    } else {
+      y.p.right = x;
+    }
+
+    x.right = y;
+    y.p = x;
+
+    bubble(y);
+  }
+
+  #insert_after(p: Node, z: Node): void {
+    if (p.right === NIL) {
+      this.#insert_right(p, z);
+    } else {
+      this.#insert_left(minimum(p.right), z);
+    }
+  }
+
+  #insert_left(p: Node, z: Node): void {
+    p.left = z;
+    z.p = p;
+
+    bubble(z);
+    this.#insert_fixup(z);
+  }
+
+  #insert_right(p: Node, z: Node): void {
+    p.right = z;
+    z.p = p;
+
+    bubble(z);
+    this.#insert_fixup(z);
+  }
+
+  #insert_fixup(z: Node): void {
+    while (z.p.red) {
+      if (z.p === z.p.p.left) {
+        const y = z.p.p.right;
+        if (y.red) {
+          z.p.red = false;
+          y.red = false;
+          z.p.p.red = true;
+          z = z.p.p;
+        } else {
+          if (z === z.p.right) {
+            z = z.p;
+            this.#left_rotate(z);
+          }
+          z.p.red = false;
+          z.p.p.red = true;
+          this.#right_rotate(z.p.p);
+        }
+      } else {
+        const y = z.p.p.left;
+        if (y.red) {
+          z.p.red = false;
+          y.red = false;
+          z.p.p.red = true;
+          z = z.p.p;
+        } else {
+          if (z === z.p.left) {
+            z = z.p;
+            this.#right_rotate(z);
+          }
+          z.p.red = false;
+          z.p.p.red = true;
+          this.#left_rotate(z.p.p);
+        }
+      }
+    }
+
+    this.root.red = false;
+  }
+
+  #delete_node(z: Node): void {
+    let y = z;
+    let y_original_color = y.red;
+    let x: Node;
+
+    if (z.left === NIL) {
+      x = z.right;
+
+      this.#transplant(z, z.right);
+      bubble(z.right.p);
+    } else if (z.right === NIL) {
+      x = z.left;
+
+      this.#transplant(z, z.left);
+      bubble(z.left.p);
+    } else {
+      y = minimum(z.right);
+
+      y_original_color = y.red;
+      x = y.right;
+
+      if (y !== z.right) {
+        this.#transplant(y, y.right);
+        bubble(y.right.p);
+
+        y.right = z.right;
+        y.right.p = y;
+      } else {
+        x.p = y;
+      }
+
+      this.#transplant(z, y);
+
+      y.left = z.left;
+      y.left.p = y;
+      y.red = z.red;
+
+      bubble(y);
+    }
+
+    if (!y_original_color) {
+      this.#delete_fixup(x);
+    }
+  }
+
+  #transplant(u: Node, v: Node): void {
+    if (u.p === NIL) {
+      this.root = v;
+    } else if (u === u.p.left) {
+      u.p.left = v;
+    } else {
+      u.p.right = v;
+    }
+
+    v.p = u.p;
+  }
+
+  #delete_fixup(x: Node): void {
+    while (x !== this.root && !x.red) {
+      if (x === x.p.left) {
+        let w = x.p.right;
+
+        if (w.red) {
+          w.red = false;
+          x.p.red = true;
+          this.#left_rotate(x.p);
+          w = x.p.right;
+        }
+
+        if (!w.left.red && !w.right.red) {
+          w.red = true;
+          x = x.p;
+        } else {
+          if (!w.right.red) {
+            w.left.red = false;
+            w.red = true;
+            this.#right_rotate(w);
+            w = x.p.right;
+          }
+
+          w.red = x.p.red;
+          x.p.red = false;
+          w.right.red = false;
+          this.#left_rotate(x.p);
+          x = this.root;
+        }
+      } else {
+        let w = x.p.left;
+
+        if (w.red) {
+          w.red = false;
+          x.p.red = true;
+          this.#right_rotate(x.p);
+          w = x.p.left;
+        }
+
+        if (!w.right.red && !w.left.red) {
+          w.red = true;
+          x = x.p;
+        } else {
+          if (!w.left.red) {
+            w.right.red = false;
+            w.red = true;
+            this.#left_rotate(w);
+            w = x.p.left;
+          }
+
+          w.red = x.p.red;
+          x.p.red = false;
+          w.left.red = false;
+          this.#right_rotate(x.p);
+          x = this.root;
+        }
+      }
+    }
+
+    x.red = false;
   }
 }
