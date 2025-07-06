@@ -1,6 +1,7 @@
-import { bubble_update, NIL, type Node, type Tree } from "./node.ts";
+import { NIL, type Node } from "./node.ts";
 import { minimum } from "./querying.ts";
 import { left_rotate, right_rotate } from "./rotation.ts";
+import { bubble, type Tree } from "./tree.ts";
 
 export const enum InsertionCase {
   Root,
@@ -21,7 +22,7 @@ export function insert_left(tree: Tree, p: Node, z: Node): void {
   p.left = z;
   z.p = p;
 
-  bubble_update(z);
+  bubble(z);
   insert_fixup(tree, z);
 }
 
@@ -29,7 +30,7 @@ export function insert_right(tree: Tree, p: Node, z: Node): void {
   p.right = z;
   z.p = p;
 
-  bubble_update(z);
+  bubble(z);
   insert_fixup(tree, z);
 }
 

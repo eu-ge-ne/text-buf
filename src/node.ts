@@ -1,10 +1,6 @@
 import { successor } from "./querying.ts";
 import { type Slice, slice_from_text } from "./slice.ts";
 
-export interface Tree {
-  root: Node;
-}
-
 export interface Node {
   red: boolean;
   p: Node;
@@ -50,13 +46,5 @@ export function* read(
     node = successor(node);
     offset = 0;
     n -= count;
-  }
-}
-
-export function bubble_update(x: Node): void {
-  while (x !== NIL) {
-    x.len = x.left.len + x.slice.len + x.right.len;
-    x.eols_len = x.left.eols_len + x.slice.eols_len + x.right.eols_len;
-    x = x.p;
   }
 }
