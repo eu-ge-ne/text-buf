@@ -1,4 +1,5 @@
-import { bubble, NIL, successor } from "./node.ts";
+import { Buffer } from "./buffer.ts";
+import { bubble, create_node, NIL, type Node, successor } from "./node.ts";
 import type { Position } from "./position.ts";
 import { Tree } from "./tree.ts";
 
@@ -27,7 +28,7 @@ export class TextBuf {
    */
   constructor(text?: string) {
     if (text && text.length > 0) {
-      this.tree.root = this.tree.create_node(text);
+      this.tree.root = this.#create_node(text);
       this.tree.root.red = false;
     }
   }
@@ -169,7 +170,7 @@ export class TextBuf {
 
         bubble(p);
       } else {
-        const child = this.tree.create_node(text);
+        const child = this.#create_node(text);
 
         switch (insert_case) {
           case InsertionCase.Root: {
@@ -303,5 +304,12 @@ export class TextBuf {
         return i;
       }
     }
+  }
+
+  #create_node(text: string): Node {
+    const buf = new Buffer(text);
+    const buf_index = this.tree.bufs.push(buf) - 1;
+
+    return create_node(buf_index, 0, buf.len, 0, buf.eol_starts.length);
   }
 }

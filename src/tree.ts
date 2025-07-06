@@ -1,4 +1,4 @@
-import { Buffer } from "./buffer.ts";
+import type { Buffer } from "./buffer.ts";
 import {
   bubble,
   create_node,
@@ -11,13 +11,6 @@ import {
 export class Tree {
   root = NIL;
   bufs: Buffer[] = [];
-
-  create_node(text: string): Node {
-    const buf = new Buffer(text);
-    const buf_index = this.bufs.push(buf) - 1;
-
-    return create_node(buf_index, 0, buf.len, 0, buf.eol_starts.length);
-  }
 
   find_node(index: number): { node: Node; offset: number } | undefined {
     let x = this.root;
