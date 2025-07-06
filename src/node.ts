@@ -75,10 +75,10 @@ export function node_growable(tree: Tree, x: Node): boolean {
 export function grow_node(tree: Tree, x: Node, text: string): void {
   tree.bufs[x.buf_index]!.append(text);
 
-  resize_node(x, tree, x.slice_len + text.length);
+  resize_node(tree, x, x.slice_len + text.length);
 }
 
-export function trim_node_start(x: Node, tree: Tree, n: number): void {
+export function trim_node_start(tree: Tree, x: Node, n: number): void {
   const buf = tree.bufs[x.buf_index]!;
 
   x.slice_start += n;
@@ -93,13 +93,13 @@ export function trim_node_start(x: Node, tree: Tree, n: number): void {
   x.slice_eols_len = eols_end - x.slice_eols_start;
 }
 
-export function trim_node_end(x: Node, tree: Tree, n: number): void {
-  resize_node(x, tree, x.slice_len - n);
+export function trim_node_end(tree: Tree, x: Node, n: number): void {
+  resize_node(tree, x, x.slice_len - n);
 }
 
 export function split_node(
-  x: Node,
   tree: Tree,
+  x: Node,
   index: number,
   gap: number,
 ): Node {
@@ -108,7 +108,7 @@ export function split_node(
   const start = x.slice_start + index + gap;
   const len = x.slice_len - index - gap;
 
-  resize_node(x, tree, index);
+  resize_node(tree, x, index);
 
   const eols_start = buf.find_eol(
     x.slice_eols_start + x.slice_eols_len,
@@ -131,7 +131,7 @@ export function bubble(x: Node): void {
   }
 }
 
-function resize_node(x: Node, tree: Tree, len: number): void {
+function resize_node(tree: Tree, x: Node, len: number): void {
   const buf = tree.bufs[x.buf_index]!;
 
   x.slice_len = len;

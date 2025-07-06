@@ -244,12 +244,12 @@ export class TextBuf {
           if (offset === 0) {
             delete_node(this, node);
           } else {
-            trim_node_end(node, this, count);
+            trim_node_end(this, node, count);
             bubble(node);
           }
         } else if (offset2 < node.slice_len) {
           if (offset === 0) {
-            trim_node_start(node, this, count);
+            trim_node_start(this, node, count);
             bubble(node);
           } else {
             split(this, node, offset, count);
