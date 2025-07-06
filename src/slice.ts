@@ -30,12 +30,6 @@ export function slice_from_text(text: string): Slice {
   return new_slice(buf, 0, buf.len, 0, buf.eol_starts.length);
 }
 
-export function grow_slice(x: Slice, text: string): void {
-  x.buf.append(text);
-
-  resize_slice(x, x.len + text.length);
-}
-
 export function trim_slice_end(x: Slice, n: number): void {
   resize_slice(x, x.len - n);
 }

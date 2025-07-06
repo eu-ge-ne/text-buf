@@ -1,5 +1,5 @@
 import { successor } from "./querying.ts";
-import { type Slice, slice_from_text } from "./slice.ts";
+import { resize_slice, type Slice, slice_from_text } from "./slice.ts";
 
 export interface Node {
   red: boolean;
@@ -52,4 +52,10 @@ export function* read(
 export function node_growable(x: Node): boolean {
   return (x.slice.buf.len < 100) &&
     (x.slice.start + x.slice.len === x.slice.buf.len);
+}
+
+export function grow_node(x: Node, text: string): void {
+  x.slice.buf.append(text);
+
+  resize_slice(x.slice, x.slice.len + text.length);
 }

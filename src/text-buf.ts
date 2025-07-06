@@ -1,9 +1,9 @@
 import { delete_node } from "./deletion.ts";
 import { insert_left, insert_right, InsertionCase } from "./insertion.ts";
-import { NIL, node_from_text, node_growable, read } from "./node.ts";
+import { grow_node, NIL, node_from_text, node_growable, read } from "./node.ts";
 import type { Position } from "./position.ts";
 import { find_eol, find_node, successor } from "./querying.ts";
-import { grow_slice, trim_slice_end, trim_slice_start } from "./slice.ts";
+import { trim_slice_end, trim_slice_start } from "./slice.ts";
 import { split } from "./splitting.ts";
 import { bubble } from "./tree.ts";
 
@@ -161,7 +161,7 @@ export class TextBuf {
       }
 
       if (insert_case === InsertionCase.Right && node_growable(p)) {
-        grow_slice(p.slice, text);
+        grow_node(p, text);
 
         bubble(p);
       } else {
