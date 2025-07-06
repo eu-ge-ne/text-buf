@@ -1,7 +1,14 @@
-import type { Buffer } from "./buffer.ts";
-import type { Node } from "./node.ts";
+import { Buffer } from "./buffer.ts";
+import { create_node, NIL, type Node } from "./node.ts";
 
-export interface Tree {
-  root: Node;
-  bufs: Buffer[];
+export class Tree {
+  root = NIL;
+  bufs: Buffer[] = [];
+
+  create_node(text: string): Node {
+    const buf = new Buffer(text);
+    const buf_index = this.bufs.push(buf) - 1;
+
+    return create_node(buf_index, 0, buf.len, 0, buf.eol_starts.length);
+  }
 }

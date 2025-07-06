@@ -1,11 +1,9 @@
-import { Buffer } from "./buffer.ts";
 import { delete_node } from "./deletion.ts";
 import { insert_left, insert_right, InsertionCase } from "./insertion.ts";
 import {
   bubble,
   grow_node,
   NIL,
-  node_from_buf,
   node_growable,
   read,
   trim_node_end,
@@ -14,6 +12,7 @@ import {
 import type { Position } from "./position.ts";
 import { find_eol, find_node, successor } from "./querying.ts";
 import { split } from "./splitting.ts";
+import { Tree } from "./tree.ts";
 
 /**
  * `piece table` data structure implemented using `red-black tree`.
@@ -23,13 +22,7 @@ export class TextBuf {
    * @ignore
    * @internal
    */
-  root = NIL;
-
-  /**
-   * @ignore
-   * @internal
-   */
-  bufs: Buffer[] = [];
+  tree = new Tree();
 
   /**
    * Creates instances of `TextBuf` interpreting text characters as `UTF-16 code units`. Visit [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#utf-16_characters_unicode_code_points_and_grapheme_clusters) for more details. Accepts optional initial text.
@@ -39,9 +32,8 @@ export class TextBuf {
    */
   constructor(text?: string) {
     if (text && text.length > 0) {
-      const buf_index = this.bufs.push(new Buffer(text)) - 1;
-      this.root = node_from_buf(this, buf_index);
-      this.root.red = false;
+      this.tree.root = this.tree.create_node(text);
+      this.tree.root.red = false;
     }
   }
 
@@ -62,7 +54,7 @@ export class TextBuf {
    * ```
    */
   get count(): number {
-    return this.root.total_len;
+    return this.tree.root.total_len;
   }
 
   /**
@@ -82,7 +74,9 @@ export class TextBuf {
    * ```
    */
   get line_count(): number {
-    return this.root.total_len === 0 ? 0 : this.root.total_eols_len + 1;
+    return this.tree.root.total_len === 0
+      ? 0
+      : this.tree.root.total_eols_len + 1;
   }
 
   /**
@@ -112,7 +106,7 @@ export class TextBuf {
       return "";
     }
 
-    const first = find_node(this, start_i);
+    const first = find_node(this.tree, start_i);
     if (!first) {
       return "";
     }
@@ -123,7 +117,7 @@ export class TextBuf {
       Number.MAX_SAFE_INTEGER;
     const n = end_i - start_i;
 
-    return read(this, node, offset, n).reduce((r, x) => r + x, "");
+    return read(this.tree, node, offset, n).reduce((r, x) => r + x, "");
   }
 
   /**
@@ -153,7 +147,7 @@ export class TextBuf {
       let p = NIL;
       let insert_case = InsertionCase.Root;
 
-      for (let x = this.root; x !== NIL;) {
+      for (let x = this.tree.root; x !== NIL;) {
         if (i <= x.left.total_len) {
           insert_case = InsertionCase.Left;
           p = x;
@@ -175,31 +169,30 @@ export class TextBuf {
         }
       }
 
-      if (insert_case === InsertionCase.Right && node_growable(this, p)) {
-        grow_node(this, p, text);
+      if (insert_case === InsertionCase.Right && node_growable(this.tree, p)) {
+        grow_node(this.tree, p, text);
 
         bubble(p);
       } else {
-        const buf_index = this.bufs.push(new Buffer(text)) - 1;
-        const child = node_from_buf(this, buf_index);
+        const child = this.tree.create_node(text);
 
         switch (insert_case) {
           case InsertionCase.Root: {
-            this.root = child;
-            this.root.red = false;
+            this.tree.root = child;
+            this.tree.root.red = false;
             break;
           }
           case InsertionCase.Left: {
-            insert_left(this, p, child);
+            insert_left(this.tree, p, child);
             break;
           }
           case InsertionCase.Right: {
-            insert_right(this, p, child);
+            insert_right(this.tree, p, child);
             break;
           }
           case InsertionCase.Split: {
-            const y = split(this, p, i, 0);
-            insert_left(this, y, child);
+            const y = split(this.tree, p, i, 0);
+            insert_left(this.tree, y, child);
             break;
           }
         }
@@ -230,7 +223,7 @@ export class TextBuf {
     const i0 = this.#index(start);
 
     if (typeof i0 === "number") {
-      const first = find_node(this, i0);
+      const first = find_node(this.tree, i0);
 
       if (first) {
         const i1 = (end ? this.#index(end) : undefined) ??
@@ -242,29 +235,29 @@ export class TextBuf {
 
         if (offset2 === node.slice_len) {
           if (offset === 0) {
-            delete_node(this, node);
+            delete_node(this.tree, node);
           } else {
-            trim_node_end(this, node, count);
+            trim_node_end(this.tree, node, count);
             bubble(node);
           }
         } else if (offset2 < node.slice_len) {
           if (offset === 0) {
-            trim_node_start(this, node, count);
+            trim_node_start(this.tree, node, count);
             bubble(node);
           } else {
-            split(this, node, offset, count);
+            split(this.tree, node, offset, count);
           }
         } else {
           let x = node;
           let i = 0;
 
           if (offset !== 0) {
-            x = split(this, node, offset, 0);
+            x = split(this.tree, node, offset, 0);
           }
 
-          const last = find_node(this, i1);
+          const last = find_node(this.tree, i1);
           if (last && last.offset !== 0) {
-            split(this, last.node, last.offset, 0);
+            split(this.tree, last.node, last.offset, 0);
           }
 
           while ((x !== NIL) && (i < count)) {
@@ -272,7 +265,7 @@ export class TextBuf {
 
             const next = successor(x);
 
-            delete_node(this, x);
+            delete_node(this.tree, x);
 
             x = next;
           }
@@ -297,7 +290,7 @@ export class TextBuf {
           i = 0;
           break;
         default:
-          i = find_eol(this, ln - 1);
+          i = find_eol(this.tree, ln - 1);
           break;
       }
 

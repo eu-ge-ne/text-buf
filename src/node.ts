@@ -21,7 +21,7 @@ export interface Node {
   slice_eols_len: number;
 }
 
-function node(
+export function create_node(
   buf_index: number,
   slice_start: number,
   slice_len: number,
@@ -41,12 +41,6 @@ function node(
     slice_eols_start,
     slice_eols_len,
   };
-}
-
-export function node_from_buf(tree: Tree, buf_index: number): Node {
-  const buf = tree.bufs[buf_index]!;
-
-  return node(buf_index, 0, buf.len, 0, buf.eol_starts.length);
 }
 
 export function* read(
@@ -117,7 +111,7 @@ export function split_node(
   const eols_end = buf.find_eol(eols_start, start + len);
   const eols_len = eols_end - eols_start;
 
-  return node(x.buf_index, start, len, eols_start, eols_len);
+  return create_node(x.buf_index, start, len, eols_start, eols_len);
 }
 
 export function bubble(x: Node): void {
