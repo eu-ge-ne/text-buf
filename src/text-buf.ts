@@ -10,7 +10,7 @@ import {
   trim_node_start,
 } from "./node.ts";
 import type { Position } from "./position.ts";
-import { find_eol, find_node, successor } from "./querying.ts";
+import { find_eol, successor } from "./querying.ts";
 import { split } from "./splitting.ts";
 import { Tree } from "./tree.ts";
 
@@ -22,7 +22,7 @@ export class TextBuf {
    * @ignore
    * @internal
    */
-  tree = new Tree();
+  tree: Tree = new Tree();
 
   /**
    * Creates instances of `TextBuf` interpreting text characters as `UTF-16 code units`. Visit [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#utf-16_characters_unicode_code_points_and_grapheme_clusters) for more details. Accepts optional initial text.
@@ -106,7 +106,7 @@ export class TextBuf {
       return "";
     }
 
-    const first = find_node(this.tree, start_i);
+    const first = this.tree.find_node(start_i);
     if (!first) {
       return "";
     }
@@ -223,7 +223,7 @@ export class TextBuf {
     const i0 = this.#index(start);
 
     if (typeof i0 === "number") {
-      const first = find_node(this.tree, i0);
+      const first = this.tree.find_node(i0);
 
       if (first) {
         const i1 = (end ? this.#index(end) : undefined) ??
@@ -255,7 +255,7 @@ export class TextBuf {
             x = split(this.tree, node, offset, 0);
           }
 
-          const last = find_node(this.tree, i1);
+          const last = this.tree.find_node(i1);
           if (last && last.offset !== 0) {
             split(this.tree, last.node, last.offset, 0);
           }

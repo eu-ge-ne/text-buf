@@ -11,4 +11,26 @@ export class Tree {
 
     return create_node(buf_index, 0, buf.len, 0, buf.eol_starts.length);
   }
+
+  find_node(
+    index: number,
+  ): { node: Node; offset: number } | undefined {
+    let x = this.root;
+
+    while (x !== NIL) {
+      if (index < x.left.total_len) {
+        x = x.left;
+      } else {
+        index -= x.left.total_len;
+
+        if (index < x.slice_len) {
+          return { node: x, offset: index };
+        } else {
+          index -= x.slice_len;
+
+          x = x.right;
+        }
+      }
+    }
+  }
 }
