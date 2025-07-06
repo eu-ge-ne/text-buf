@@ -252,4 +252,123 @@ export class Tree {
 
     this.root.red = false;
   }
+
+  delete_node(z: Node): void {
+    let y = z;
+    let y_original_color = y.red;
+    let x: Node;
+
+    if (z.left === NIL) {
+      x = z.right;
+
+      this.transplant(z, z.right);
+      bubble(z.right.p);
+    } else if (z.right === NIL) {
+      x = z.left;
+
+      this.transplant(z, z.left);
+      bubble(z.left.p);
+    } else {
+      y = minimum(z.right);
+
+      y_original_color = y.red;
+      x = y.right;
+
+      if (y !== z.right) {
+        this.transplant(y, y.right);
+        bubble(y.right.p);
+
+        y.right = z.right;
+        y.right.p = y;
+      } else {
+        x.p = y;
+      }
+
+      this.transplant(z, y);
+
+      y.left = z.left;
+      y.left.p = y;
+      y.red = z.red;
+
+      bubble(y);
+    }
+
+    if (!y_original_color) {
+      this.delete_fixup(x);
+    }
+  }
+
+  transplant(u: Node, v: Node): void {
+    if (u.p === NIL) {
+      this.root = v;
+    } else if (u === u.p.left) {
+      u.p.left = v;
+    } else {
+      u.p.right = v;
+    }
+
+    v.p = u.p;
+  }
+
+  delete_fixup(x: Node): void {
+    while (x !== this.root && !x.red) {
+      if (x === x.p.left) {
+        let w = x.p.right;
+
+        if (w.red) {
+          w.red = false;
+          x.p.red = true;
+          this.left_rotate(x.p);
+          w = x.p.right;
+        }
+
+        if (!w.left.red && !w.right.red) {
+          w.red = true;
+          x = x.p;
+        } else {
+          if (!w.right.red) {
+            w.left.red = false;
+            w.red = true;
+            this.right_rotate(w);
+            w = x.p.right;
+          }
+
+          w.red = x.p.red;
+          x.p.red = false;
+          w.right.red = false;
+          this.left_rotate(x.p);
+          x = this.root;
+        }
+      } else {
+        let w = x.p.left;
+
+        if (w.red) {
+          w.red = false;
+          x.p.red = true;
+          this.right_rotate(x.p);
+          w = x.p.left;
+        }
+
+        if (!w.right.red && !w.left.red) {
+          w.red = true;
+          x = x.p;
+        } else {
+          if (!w.left.red) {
+            w.right.red = false;
+            w.red = true;
+            this.left_rotate(w);
+            w = x.p.left;
+          }
+
+          w.red = x.p.red;
+          x.p.red = false;
+          w.left.red = false;
+          this.right_rotate(x.p);
+          x = this.root;
+        }
+      }
+    }
+
+    x.red = false;
+  }
 }

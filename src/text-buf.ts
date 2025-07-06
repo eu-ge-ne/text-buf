@@ -1,4 +1,3 @@
-import { delete_node } from "./deletion.ts";
 import { bubble, NIL, successor } from "./node.ts";
 import type { Position } from "./position.ts";
 import { Tree } from "./tree.ts";
@@ -231,7 +230,7 @@ export class TextBuf {
 
         if (offset2 === node.slice_len) {
           if (offset === 0) {
-            delete_node(this.tree, node);
+            this.tree.delete_node(node);
           } else {
             this.tree.trim_node_end(node, count);
             bubble(node);
@@ -261,7 +260,7 @@ export class TextBuf {
 
             const next = successor(x);
 
-            delete_node(this.tree, x);
+            this.tree.delete_node(x);
 
             x = next;
           }
