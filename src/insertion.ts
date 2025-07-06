@@ -1,7 +1,7 @@
-import { NIL, type Node } from "./node.ts";
+import { bubble, NIL, type Node } from "./node.ts";
 import { minimum } from "./querying.ts";
 import { left_rotate, right_rotate } from "./rotation.ts";
-import { bubble, type Tree } from "./tree.ts";
+import type { Tree } from "./tree.ts";
 
 export const enum InsertionCase {
   Root,

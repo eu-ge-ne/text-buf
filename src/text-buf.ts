@@ -2,6 +2,7 @@ import { Buffer } from "./buffer.ts";
 import { delete_node } from "./deletion.ts";
 import { insert_left, insert_right, InsertionCase } from "./insertion.ts";
 import {
+  bubble,
   grow_node,
   NIL,
   node_from_buf,
@@ -13,7 +14,6 @@ import {
 import type { Position } from "./position.ts";
 import { find_eol, find_node, successor } from "./querying.ts";
 import { split } from "./splitting.ts";
-import { bubble } from "./tree.ts";
 
 /**
  * `piece table` data structure implemented using `red-black tree`.
@@ -26,6 +26,12 @@ export class TextBuf {
   root = NIL;
 
   /**
+   * @ignore
+   * @internal
+   */
+  bufs: Buffer[] = [];
+
+  /**
    * Creates instances of `TextBuf` interpreting text characters as `UTF-16 code units`. Visit [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#utf-16_characters_unicode_code_points_and_grapheme_clusters) for more details. Accepts optional initial text.
    *
    * @param `text` Initial text.
@@ -33,7 +39,8 @@ export class TextBuf {
    */
   constructor(text?: string) {
     if (text && text.length > 0) {
-      this.root = node_from_buf(new Buffer(text));
+      const buf_index = this.bufs.push(new Buffer(text)) - 1;
+      this.root = node_from_buf(this, buf_index);
       this.root.red = false;
     }
   }
@@ -105,7 +112,7 @@ export class TextBuf {
       return "";
     }
 
-    const first = find_node(this.root, start_i);
+    const first = find_node(this, start_i);
     if (!first) {
       return "";
     }
@@ -116,7 +123,7 @@ export class TextBuf {
       Number.MAX_SAFE_INTEGER;
     const n = end_i - start_i;
 
-    return read(node, offset, n).reduce((r, x) => r + x, "");
+    return read(this, node, offset, n).reduce((r, x) => r + x, "");
   }
 
   /**
@@ -168,12 +175,13 @@ export class TextBuf {
         }
       }
 
-      if (insert_case === InsertionCase.Right && node_growable(p)) {
-        grow_node(p, text);
+      if (insert_case === InsertionCase.Right && node_growable(this, p)) {
+        grow_node(this, p, text);
 
         bubble(p);
       } else {
-        const child = node_from_buf(new Buffer(text));
+        const buf_index = this.bufs.push(new Buffer(text)) - 1;
+        const child = node_from_buf(this, buf_index);
 
         switch (insert_case) {
           case InsertionCase.Root: {
@@ -222,7 +230,7 @@ export class TextBuf {
     const i0 = this.#index(start);
 
     if (typeof i0 === "number") {
-      const first = find_node(this.root, i0);
+      const first = find_node(this, i0);
 
       if (first) {
         const i1 = (end ? this.#index(end) : undefined) ??
@@ -236,12 +244,12 @@ export class TextBuf {
           if (offset === 0) {
             delete_node(this, node);
           } else {
-            trim_node_end(node, count);
+            trim_node_end(this, node, count);
             bubble(node);
           }
         } else if (offset2 < node.slice_len) {
           if (offset === 0) {
-            trim_node_start(node, count);
+            trim_node_start(this, node, count);
             bubble(node);
           } else {
             split(this, node, offset, count);
@@ -254,7 +262,7 @@ export class TextBuf {
             x = split(this, node, offset, 0);
           }
 
-          const last = find_node(this.root, i1);
+          const last = find_node(this, i1);
           if (last && last.offset !== 0) {
             split(this, last.node, last.offset, 0);
           }
@@ -289,7 +297,7 @@ export class TextBuf {
           i = 0;
           break;
         default:
-          i = find_eol(this.root, ln - 1);
+          i = find_eol(this, ln - 1);
           break;
       }
 

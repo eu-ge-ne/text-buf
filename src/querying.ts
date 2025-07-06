@@ -1,9 +1,12 @@
 import { NIL, type Node } from "./node.ts";
+import type { Tree } from "./tree.ts";
 
 export function find_node(
-  x: Node,
+  tree: Tree,
   index: number,
 ): { node: Node; offset: number } | undefined {
+  let x = tree.root;
+
   while (x !== NIL) {
     if (index < x.left.total_len) {
       x = x.left;
@@ -21,7 +24,12 @@ export function find_node(
   }
 }
 
-export function find_eol(x: Node, eol_index: number): number | undefined {
+export function find_eol(
+  tree: Tree,
+  eol_index: number,
+): number | undefined {
+  let x = tree.root;
+
   for (let i = 0; x !== NIL;) {
     if (eol_index < x.left.total_eols_len) {
       x = x.left;
@@ -30,7 +38,8 @@ export function find_eol(x: Node, eol_index: number): number | undefined {
       i += x.left.total_len;
 
       if (eol_index < x.slice_eols_len) {
-        return i + x.buf.eol_ends[x.slice_eols_start + eol_index]! -
+        return i +
+          tree.bufs[x.buf_index]!.eol_ends[x.slice_eols_start + eol_index]! -
           x.slice_start;
       } else {
         eol_index -= x.slice_eols_len;
