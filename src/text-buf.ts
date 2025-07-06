@@ -26,6 +26,12 @@ export class TextBuf {
   root = NIL;
 
   /**
+   * @ignore
+   * @internal
+   */
+  bufs: Buffer[] = [];
+
+  /**
    * Creates instances of `TextBuf` interpreting text characters as `UTF-16 code units`. Visit [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#utf-16_characters_unicode_code_points_and_grapheme_clusters) for more details. Accepts optional initial text.
    *
    * @param `text` Initial text.
@@ -33,7 +39,8 @@ export class TextBuf {
    */
   constructor(text?: string) {
     if (text && text.length > 0) {
-      this.root = node_from_buf(new Buffer(text));
+      const buf_index = this.bufs.push(new Buffer(text)) - 1;
+      this.root = node_from_buf(this, buf_index);
       this.root.red = false;
     }
   }
@@ -116,7 +123,7 @@ export class TextBuf {
       Number.MAX_SAFE_INTEGER;
     const n = end_i - start_i;
 
-    return read(node, offset, n).reduce((r, x) => r + x, "");
+    return read(node, this, offset, n).reduce((r, x) => r + x, "");
   }
 
   /**
@@ -168,12 +175,13 @@ export class TextBuf {
         }
       }
 
-      if (insert_case === InsertionCase.Right && node_growable(p)) {
-        grow_node(p, text);
+      if (insert_case === InsertionCase.Right && node_growable(p, this)) {
+        grow_node(p, this, text);
 
         bubble(p);
       } else {
-        const child = node_from_buf(new Buffer(text));
+        const buf_index = this.bufs.push(new Buffer(text)) - 1;
+        const child = node_from_buf(this, buf_index);
 
         switch (insert_case) {
           case InsertionCase.Root: {
@@ -236,12 +244,12 @@ export class TextBuf {
           if (offset === 0) {
             delete_node(this, node);
           } else {
-            trim_node_end(node, count);
+            trim_node_end(node, this, count);
             bubble(node);
           }
         } else if (offset2 < node.slice_len) {
           if (offset === 0) {
-            trim_node_start(node, count);
+            trim_node_start(node, this, count);
             bubble(node);
           } else {
             split(this, node, offset, count);
@@ -289,7 +297,7 @@ export class TextBuf {
           i = 0;
           break;
         default:
-          i = find_eol(this.root, ln - 1);
+          i = find_eol(this.root, this, ln - 1);
           break;
       }
 

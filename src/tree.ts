@@ -1,7 +1,9 @@
+import type { Buffer } from "./buffer.ts";
 import { NIL, type Node } from "./node.ts";
 
 export interface Tree {
   root: Node;
+  bufs: Buffer[];
 }
 
 export function bubble(x: Node): void {
