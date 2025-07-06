@@ -1,6 +1,6 @@
 import { delete_node } from "./deletion.ts";
 import { insert_left, insert_right, InsertionCase } from "./insertion.ts";
-import { bubble_update, NIL, node_from_text, read } from "./node.ts";
+import { NIL, node_from_text, read } from "./node.ts";
 import type { Position } from "./position.ts";
 import { find_eol, find_node, successor } from "./querying.ts";
 import {
@@ -10,6 +10,7 @@ import {
   trim_slice_start,
 } from "./slice.ts";
 import { split } from "./splitting.ts";
+import { bubble } from "./tree.ts";
 
 /**
  * `piece table` data structure implemented using `red-black tree`.
@@ -167,7 +168,7 @@ export class TextBuf {
       if (insert_case === InsertionCase.Right && slice_growable(p.slice)) {
         grow_slice(p.slice, text);
 
-        bubble_update(p);
+        bubble(p);
       } else {
         const child = node_from_text(text);
 
@@ -233,12 +234,12 @@ export class TextBuf {
             delete_node(this, node);
           } else {
             trim_slice_end(node.slice, count);
-            bubble_update(node);
+            bubble(node);
           }
         } else if (offset2 < node.slice.len) {
           if (offset === 0) {
             trim_slice_start(node.slice, count);
-            bubble_update(node);
+            bubble(node);
           } else {
             split(this, node, offset, count);
           }

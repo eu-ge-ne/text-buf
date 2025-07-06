@@ -37,7 +37,7 @@ export function slice_growable(x: Slice): boolean {
 export function grow_slice(x: Slice, text: string): void {
   x.buf.append(text);
 
-  resize_slice(x, x.len + [...text].length);
+  resize_slice(x, x.len + text.length);
 }
 
 export function trim_slice_end(x: Slice, n: number): void {

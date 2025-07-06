@@ -1,4 +1,5 @@
-import { bubble_update, NIL, type Node, type Tree } from "./node.ts";
+import { NIL, type Node } from "./node.ts";
+import { bubble, type Tree } from "./tree.ts";
 
 export function left_rotate(tree: Tree, x: Node): void {
   const y = x.right;
@@ -21,7 +22,7 @@ export function left_rotate(tree: Tree, x: Node): void {
   y.left = x;
   x.p = y;
 
-  bubble_update(x);
+  bubble(x);
 }
 
 export function right_rotate(tree: Tree, y: Node): void {
@@ -45,5 +46,5 @@ export function right_rotate(tree: Tree, y: Node): void {
   x.right = y;
   y.p = x;
 
-  bubble_update(y);
+  bubble(y);
 }
