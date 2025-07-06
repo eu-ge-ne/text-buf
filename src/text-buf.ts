@@ -5,7 +5,6 @@ import {
   grow_node,
   NIL,
   node_growable,
-  read,
   trim_node_end,
   trim_node_start,
 } from "./node.ts";
@@ -117,7 +116,7 @@ export class TextBuf {
       Number.MAX_SAFE_INTEGER;
     const n = end_i - start_i;
 
-    return read(this.tree, node, offset, n).reduce((r, x) => r + x, "");
+    return this.tree.read(node, offset, n).reduce((r, x) => r + x, "");
   }
 
   /**

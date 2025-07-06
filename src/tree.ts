@@ -1,5 +1,6 @@
 import { Buffer } from "./buffer.ts";
 import { create_node, NIL, type Node } from "./node.ts";
+import { successor } from "./querying.ts";
 
 export class Tree {
   root = NIL;
@@ -53,6 +54,18 @@ export class Tree {
           x = x.right;
         }
       }
+    }
+  }
+
+  *read(x: Node, offset: number, n: number): Generator<string> {
+    while ((x !== NIL) && (n > 0)) {
+      const count = Math.min(x.slice_len - offset, n);
+
+      yield this.bufs[x.buf_index]!.read(x.slice_start + offset, count);
+
+      x = successor(x);
+      offset = 0;
+      n -= count;
     }
   }
 }

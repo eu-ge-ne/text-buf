@@ -1,4 +1,3 @@
-import { successor } from "./querying.ts";
 import type { Tree } from "./tree.ts";
 
 export const NIL = { red: false, total_len: 0, total_eols_len: 0 } as Node;
@@ -41,23 +40,6 @@ export function create_node(
     slice_eols_start,
     slice_eols_len,
   };
-}
-
-export function* read(
-  tree: Tree,
-  x: Node,
-  offset: number,
-  n: number,
-): Generator<string> {
-  while ((x !== NIL) && (n > 0)) {
-    const count = Math.min(x.slice_len - offset, n);
-
-    yield tree.bufs[x.buf_index]!.read(x.slice_start + offset, count);
-
-    x = successor(x);
-    offset = 0;
-    n -= count;
-  }
 }
 
 export function node_growable(tree: Tree, x: Node): boolean {
