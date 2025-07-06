@@ -66,16 +66,14 @@ export function* read(
   }
 }
 
-export function node_growable(x: Node, tree: Tree): boolean {
+export function node_growable(tree: Tree, x: Node): boolean {
   const buf = tree.bufs[x.buf_index]!;
 
   return (buf.len < 100) && (x.slice_start + x.slice_len === buf.len);
 }
 
-export function grow_node(x: Node, tree: Tree, text: string): void {
-  const buf = tree.bufs[x.buf_index]!;
-
-  buf.append(text);
+export function grow_node(tree: Tree, x: Node, text: string): void {
+  tree.bufs[x.buf_index]!.append(text);
 
   resize_node(x, tree, x.slice_len + text.length);
 }

@@ -175,8 +175,8 @@ export class TextBuf {
         }
       }
 
-      if (insert_case === InsertionCase.Right && node_growable(p, this)) {
-        grow_node(p, this, text);
+      if (insert_case === InsertionCase.Right && node_growable(this, p)) {
+        grow_node(this, p, text);
 
         bubble(p);
       } else {
