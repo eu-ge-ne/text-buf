@@ -21,7 +21,7 @@ NIL.p = NIL;
 NIL.left = NIL;
 NIL.right = NIL;
 
-export function new_node(
+function new_node(
   buf: Buffer,
   slice_start: number,
   slice_len: number,
