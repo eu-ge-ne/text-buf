@@ -1,9 +1,10 @@
+import { Buffer } from "./buffer.ts";
 import { delete_node } from "./deletion.ts";
 import { insert_left, insert_right, InsertionCase } from "./insertion.ts";
 import {
   grow_node,
   NIL,
-  node_from_text,
+  node_from_buf,
   node_growable,
   read,
   trim_node_end,
@@ -32,7 +33,7 @@ export class TextBuf {
    */
   constructor(text?: string) {
     if (text && text.length > 0) {
-      this.root = node_from_text(text);
+      this.root = node_from_buf(new Buffer(text));
       this.root.red = false;
     }
   }
@@ -172,7 +173,7 @@ export class TextBuf {
 
         bubble(p);
       } else {
-        const child = node_from_text(text);
+        const child = node_from_buf(new Buffer(text));
 
         switch (insert_case) {
           case InsertionCase.Root: {

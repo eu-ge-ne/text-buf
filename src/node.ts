@@ -1,4 +1,4 @@
-import { Buffer } from "./buffer.ts";
+import type { Buffer } from "./buffer.ts";
 import { successor } from "./querying.ts";
 
 export interface Node {
@@ -43,9 +43,7 @@ function new_node(
   };
 }
 
-export function node_from_text(text: string): Node {
-  const buf = new Buffer(text);
-
+export function node_from_buf(buf: Buffer): Node {
   return new_node(buf, 0, buf.len, 0, buf.eol_starts.length);
 }
 
