@@ -26,11 +26,7 @@ export class TextBuf {
    */
   root = NIL;
 
-  /**
-   * @ignore
-   * @internal
-   */
-  bufs: Buffer[] = [];
+  #bufs: Buffer[] = [];
 
   /**
    * Creates instances of `TextBuf` interpreting text characters as `UTF-16 code units`. Visit [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#utf-16_characters_unicode_code_points_and_grapheme_clusters) for more details. Accepts optional initial text.
@@ -318,7 +314,7 @@ export class TextBuf {
 
   #create_node(text: string): Node {
     const buf = new Buffer(text);
-    const buf_index = this.bufs.push(buf) - 1;
+    const buf_index = this.#bufs.push(buf) - 1;
 
     return create_node(buf_index, 0, buf.len, 0, buf.eol_starts.length);
   }
@@ -354,7 +350,8 @@ export class TextBuf {
         i += x.left.total_len;
 
         if (eol_index < x.slice_eols_len) {
-          const buf = this.bufs[x.buf_index]!;
+          const buf = this.#bufs[x.buf_index]!;
+
           return i + buf.eol_ends[x.slice_eols_start + eol_index]! -
             x.slice_start;
         } else {
@@ -371,7 +368,7 @@ export class TextBuf {
     while (!x.nil && (n > 0)) {
       const count = Math.min(x.slice_len - offset, n);
 
-      yield this.bufs[x.buf_index]!.read(x.slice_start + offset, count);
+      yield this.#bufs[x.buf_index]!.read(x.slice_start + offset, count);
 
       x = successor(x);
       offset = 0;
@@ -380,7 +377,7 @@ export class TextBuf {
   }
 
   #split_node(x: Node, index: number, gap: number): Node {
-    const buf = this.bufs[x.buf_index]!;
+    const buf = this.#bufs[x.buf_index]!;
 
     const start = x.slice_start + index + gap;
     const len = x.slice_len - index - gap;
@@ -402,19 +399,19 @@ export class TextBuf {
   }
 
   #node_growable(x: Node): boolean {
-    const buf = this.bufs[x.buf_index]!;
+    const buf = this.#bufs[x.buf_index]!;
 
     return (buf.len < 100) && (x.slice_start + x.slice_len === buf.len);
   }
 
   #grow_node(x: Node, text: string): void {
-    this.bufs[x.buf_index]!.append(text);
+    this.#bufs[x.buf_index]!.append(text);
 
     this.#resize_node(x, x.slice_len + text.length);
   }
 
   #trim_node_start(x: Node, n: number): void {
-    const buf = this.bufs[x.buf_index]!;
+    const buf = this.#bufs[x.buf_index]!;
 
     x.slice_start += n;
     x.slice_len -= n;
@@ -433,10 +430,9 @@ export class TextBuf {
   }
 
   #resize_node(x: Node, len: number): void {
-    const buf = this.bufs[x.buf_index]!;
-
     x.slice_len = len;
 
+    const buf = this.#bufs[x.buf_index]!;
     const eols_end = buf.find_eol(
       x.slice_eols_start,
       x.slice_start + x.slice_len,
