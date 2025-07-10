@@ -109,7 +109,7 @@ export class TextBuf {
       return "";
     }
 
-    const first = this.#find_node(start_i);
+    const first = this.#find(start_i);
     if (!first) {
       return "";
     }
@@ -226,7 +226,7 @@ export class TextBuf {
     const i0 = this.#index(start);
 
     if (typeof i0 === "number") {
-      const first = this.#find_node(i0);
+      const first = this.#find(i0);
 
       if (first) {
         const i1 = (end ? this.#index(end) : undefined) ??
@@ -258,7 +258,7 @@ export class TextBuf {
             x = this.#split_node(node, offset, 0);
           }
 
-          const last = this.#find_node(i1);
+          const last = this.#find(i1);
           if (last && last.offset !== 0) {
             this.#split_node(last.node, last.offset, 0);
           }
@@ -313,7 +313,7 @@ export class TextBuf {
     }
   }
 
-  #find_node(index: number): { node: Node; offset: number } | undefined {
+  #find(index: number): { node: Node; offset: number } | undefined {
     let x = this.root;
 
     while (!x.nil) {
