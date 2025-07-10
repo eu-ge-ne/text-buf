@@ -66,6 +66,14 @@ export function minimum(x: Node): Node {
   return x;
 }
 
+export function maximum(x: Node): Node {
+  while (!x.right.nil) {
+    x = x.right;
+  }
+
+  return x;
+}
+
 export function successor(x: Node): Node {
   if (!x.right.nil) {
     return minimum(x.right);
