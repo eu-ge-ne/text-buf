@@ -104,7 +104,7 @@ export class TextBuf {
    * ```
    */
   read(start: Position, end?: Position): string {
-    const start_i = this.index(start);
+    const start_i = this.#index(start);
     if (typeof start_i === "undefined") {
       return "";
     }
@@ -116,7 +116,7 @@ export class TextBuf {
 
     const { node, offset } = first;
 
-    const end_i = (end ? this.index(end) : undefined) ??
+    const end_i = (end ? this.#index(end) : undefined) ??
       Number.MAX_SAFE_INTEGER;
     const n = end_i - start_i;
 
@@ -144,7 +144,7 @@ export class TextBuf {
    * ```
    */
   insert(pos: Position, text: string): void {
-    let i = this.index(pos);
+    let i = this.#index(pos);
 
     if (typeof i === "number") {
       let p = NIL;
@@ -223,13 +223,13 @@ export class TextBuf {
    * ```
    */
   delete(start: Position, end?: Position): void {
-    const i0 = this.index(start);
+    const i0 = this.#index(start);
 
     if (typeof i0 === "number") {
       const first = this.#find_node(i0);
 
       if (first) {
-        const i1 = (end ? this.index(end) : undefined) ??
+        const i1 = (end ? this.#index(end) : undefined) ??
           Number.MAX_SAFE_INTEGER;
 
         const { node, offset } = first;
@@ -277,11 +277,7 @@ export class TextBuf {
     }
   }
 
-  /**
-   * @ignore
-   * @internal
-   */
-  index(pos: Position): number | undefined {
+  #index(pos: Position): number | undefined {
     let i: number | undefined;
 
     if (typeof pos === "number") {
