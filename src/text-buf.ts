@@ -238,7 +238,7 @@ export class TextBuf {
 
         if (offset2 === node.slice_len) {
           if (offset === 0) {
-            this.#delete_node(node);
+            this.#delete(node);
           } else {
             this.#trim_node_end(node, count);
             bubble(node);
@@ -268,7 +268,7 @@ export class TextBuf {
 
             const next = successor(x);
 
-            this.#delete_node(x);
+            this.#delete(x);
 
             x = next;
           }
@@ -444,7 +444,7 @@ export class TextBuf {
     this.root.red = false;
   }
 
-  #delete_node(z: Node): void {
+  #delete(z: Node): void {
     let y = z;
     let y_original_color = y.red;
     let x: Node;
