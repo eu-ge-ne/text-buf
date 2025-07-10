@@ -372,3 +372,23 @@ Deno.test("Insert at the negative index", () => {
   assertEquals(buf.count, 11);
   assert_tree(buf);
 });
+
+Deno.test("Insert splitting node with fixup", () => {
+  const buf = new TextBuf();
+
+  buf.insert(0, "11");
+  buf.insert(2, "22");
+
+  buf.insert(2, "3");
+  buf.insert(3, "3");
+
+  buf.insert(4, "4");
+  buf.insert(5, "4");
+
+  assertEquals(buf.read(0), "11334422");
+
+  buf.insert(4, "-");
+
+  assertEquals(buf.read(0), "1133-4422");
+  assert_tree(buf);
+});
