@@ -1,7 +1,7 @@
 import { assertEquals } from "@std/assert";
 
 import { TextBuf } from "../src/text-buf.ts";
-import { assert_tree } from "./assert.ts";
+import { assert_generator, assert_tree } from "./assert.ts";
 
 const EXPECTED =
   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
@@ -62,7 +62,7 @@ function test_delete_head(buf: TextBuf, n: number): void {
   let expected = EXPECTED;
 
   while (expected.length > 0) {
-    assertEquals(buf.read(0), expected);
+    assert_generator(buf.read(0), expected);
     assertEquals(buf.count, expected.length);
     assert_tree(buf);
 
@@ -70,7 +70,7 @@ function test_delete_head(buf: TextBuf, n: number): void {
     expected = expected.slice(n);
   }
 
-  assertEquals(buf.read(0), "");
+  assert_generator(buf.read(0), "");
   assertEquals(buf.count, 0);
   assert_tree(buf);
 }
@@ -79,7 +79,7 @@ function test_delete_tail(buf: TextBuf, n: number): void {
   let expected = EXPECTED;
 
   while (expected.length > 0) {
-    assertEquals(buf.read(0), expected);
+    assert_generator(buf.read(0), expected);
     assertEquals(buf.count, expected.length);
     assert_tree(buf);
 
@@ -87,7 +87,7 @@ function test_delete_tail(buf: TextBuf, n: number): void {
     expected = expected.slice(0, -n);
   }
 
-  assertEquals(buf.read(0), "");
+  assert_generator(buf.read(0), "");
   assertEquals(buf.count, 0);
   assert_tree(buf);
 }
@@ -96,7 +96,7 @@ function test_delete_middle(buf: TextBuf, n: number): void {
   let expected = EXPECTED;
 
   while (expected.length > 0) {
-    assertEquals(buf.read(0), expected);
+    assert_generator(buf.read(0), expected);
     assertEquals(buf.count, expected.length);
     assert_tree(buf);
 
@@ -105,7 +105,7 @@ function test_delete_middle(buf: TextBuf, n: number): void {
     expected = expected.slice(0, pos) + expected.slice(pos + n);
   }
 
-  assertEquals(buf.read(0), expected);
+  assert_generator(buf.read(0), expected);
   assertEquals(buf.count, 0);
   assert_tree(buf);
 }
@@ -154,7 +154,7 @@ Deno.test("Delete splitting nodes", () => {
   for (let n = 2; buf.count > 0;) {
     const s = Math.floor(buf.count / n);
     for (let i = n - 1; i >= 1; i -= 1) {
-      assertEquals(buf.read(0), expected);
+      assert_generator(buf.read(0), expected);
       assertEquals(buf.count, expected.length);
       assert_tree(buf);
 
@@ -164,7 +164,7 @@ Deno.test("Delete splitting nodes", () => {
     n += 1;
   }
 
-  assertEquals(buf.read(0), expected);
+  assert_generator(buf.read(0), expected);
   assertEquals(buf.count, 0);
   assert_tree(buf);
 });
@@ -174,7 +174,7 @@ Deno.test("Delete count < 0", () => {
 
   buf.delete(5, -6);
 
-  assertEquals(buf.read(0), "Lorem ipsum");
+  assert_generator(buf.read(0), "Lorem ipsum");
   assert_tree(buf);
 });
 
@@ -191,8 +191,8 @@ Deno.test("Delete removes lines", () => {
 
   assertEquals(buf.count, 5);
   assertEquals(buf.line_count, 1);
-  assertEquals(buf.read(0), "ipsum");
-  assertEquals(buf.read([0, 0], [1, 0]), "ipsum");
+  assert_generator(buf.read(0), "ipsum");
+  assert_generator(buf.read([0, 0], [1, 0]), "ipsum");
   assert_tree(buf);
 });
 
@@ -203,7 +203,7 @@ Deno.test("Delete newline char removes line", () => {
 
   buf.delete(1, 2);
 
-  assertEquals(buf.read(0), "  \n");
+  assert_generator(buf.read(0), "  \n");
   assertEquals(buf.line_count, 2);
   assert_tree(buf);
 });
@@ -215,7 +215,7 @@ Deno.test("Delete first newline char removes line", () => {
 
   buf.delete(0, 1);
 
-  assertEquals(buf.read(0), "\n");
+  assert_generator(buf.read(0), "\n");
   assertEquals(buf.line_count, 2);
   assert_tree(buf);
 });
@@ -227,7 +227,7 @@ Deno.test("Delete line followed by newline", () => {
 
   buf.delete(2, 4);
 
-  assertEquals(buf.read(0), " \n\n \n");
+  assert_generator(buf.read(0), " \n\n \n");
   assertEquals(buf.line_count, 4);
   assert_tree(buf);
 });

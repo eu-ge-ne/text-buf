@@ -1,13 +1,5 @@
 import { Buffer } from "./buffer.ts";
-import {
-  bubble,
-  create_node,
-  maximum,
-  minimum,
-  NIL,
-  type Node,
-  successor,
-} from "./node.ts";
+import { bubble, create_node, maximum, minimum, NIL, type Node, successor } from "./node.ts";
 import type { Position } from "./position.ts";
 
 export const enum InsertionCase {
@@ -97,21 +89,21 @@ export class TextBuf {
    *
    * const buf = new TextBuf("Lorem\nipsum");
    *
-   * assertEquals(buf.read(0), "Lorem\nipsum");
-   * assertEquals(buf.read(6), "ipsum");
-   * assertEquals(buf.read([0, 0], [1, 0]), "Lorem\n");
-   * assertEquals(buf.read([1, 0], [2, 0]), "ipsum");
+   * assertEquals(buf.read(0).toArray().join(""), "Lorem\nipsum");
+   * assertEquals(buf.read(6).toArray().join(""), "ipsum");
+   * assertEquals(buf.read([0, 0], [1, 0]).toArray().join(""), "Lorem\n");
+   * assertEquals(buf.read([1, 0], [2, 0]).toArray().join(""), "ipsum");
    * ```
    */
-  read(start: Position, end?: Position): string {
+  *read(start: Position, end?: Position): Generator<string> {
     const start_i = this.#index(start);
     if (typeof start_i === "undefined") {
-      return "";
+      return;
     }
 
     const first = this.#find(start_i);
     if (!first) {
-      return "";
+      return;
     }
 
     const { node, offset } = first;
@@ -120,7 +112,7 @@ export class TextBuf {
       Number.MAX_SAFE_INTEGER;
     const n = end_i - start_i;
 
-    return this.#read(node, offset, n).reduce((r, x) => r + x, "");
+    yield* this.#read(node, offset, n);
   }
 
   /**
@@ -140,7 +132,7 @@ export class TextBuf {
    * buf.insert(0, "Lorem");
    * buf.insert([0, 5], " ipsum");
    *
-   * assertEquals(buf.read(0), "Lorem ipsum");
+   * assertEquals(buf.read(0).toArray().join(""), "Lorem ipsum");
    * ```
    */
   insert(pos: Position, text: string): void {
@@ -219,7 +211,7 @@ export class TextBuf {
    *
    * buf.delete(5, 11);
    *
-   * assertEquals(buf.read(0), "Lorem");
+   * assertEquals(buf.read(0).toArray().join(""), "Lorem");
    * ```
    */
   delete(start: Position, end?: Position): void {

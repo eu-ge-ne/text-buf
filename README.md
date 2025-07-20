@@ -27,12 +27,10 @@
   - [Delete](#delete)
 - [License](#license)
 
-> In computing, a piece table is a data structure typically used to represent a
-> text document while it is edited in a text editor. Initially a reference (or
-> 'span') to the whole of the original file is created, which represents the as
-> yet unchanged file. Subsequent inserts and deletes replace a span by
-> combinations of one, two, or three references to sections of either the
-> original document or to a buffer holding inserted text.
+> In computing, a piece table is a data structure typically used to represent a text document while it is edited in a
+> text editor. Initially a reference (or 'span') to the whole of the original file is created, which represents the as
+> yet unchanged file. Subsequent inserts and deletes replace a span by combinations of one, two, or three references to
+> sections of either the original document or to a buffer holding inserted text.
 
 &mdash;
 <cite>[Crowley, Charles (10 June 1998). "Data Structures for Text Sequences - 6.4 The piece table method"](https://web.archive.org/web/20180223071931/https://www.cs.unm.edu/~crowley/papers/sds.pdf)</cite>
@@ -74,45 +72,44 @@ const buf = new TextBuf();
 
 assertEquals(buf.count, 0);
 assertEquals(buf.line_count, 0);
-assertEquals(buf.read(0), "");
+assertEquals(buf.read(0).toArray().join(""), "");
 
 buf.insert(0, "Lorem");
 
 assertEquals(buf.count, 5);
 assertEquals(buf.line_count, 1);
-assertEquals(buf.read(0), "Lorem");
+assertEquals(buf.read(0).toArray().join(""), "Lorem");
 
 buf.insert(5, "ipsum");
 
 assertEquals(buf.count, 10);
 assertEquals(buf.line_count, 1);
-assertEquals(buf.read(0), "Loremipsum");
+assertEquals(buf.read(0).toArray().join(""), "Loremipsum");
 
 buf.insert(5, "\n");
 buf.insert(11, "\n");
 
 assertEquals(buf.count, 12);
 assertEquals(buf.line_count, 3);
-assertEquals(buf.read(0), "Lorem\nipsum\n");
-assertEquals(buf.read([0, 0], [1, 0]), "Lorem\n");
-assertEquals(buf.read([1, 0], [2, 0]), "ipsum\n");
-assertEquals(buf.read([2, 0], [3, 0]), "");
+assertEquals(buf.read(0).toArray().join(""), "Lorem\nipsum\n");
+assertEquals(buf.read([0, 0], [1, 0]).toArray().join(""), "Lorem\n");
+assertEquals(buf.read([1, 0], [2, 0]).toArray().join(""), "ipsum\n");
+assertEquals(buf.read([2, 0], [3, 0]).toArray().join(""), "");
 
 buf.delete(0, 6);
 buf.delete(5, 6);
 
 assertEquals(buf.count, 5);
 assertEquals(buf.line_count, 1);
-assertEquals(buf.read(0), "ipsum");
-assertEquals(buf.read([0, 0], [1, 0]), "ipsum");
+assertEquals(buf.read(0).toArray().join(""), "ipsum");
+assertEquals(buf.read([0, 0], [1, 0]).toArray().join(""), "ipsum");
 ```
 
 ## API
 
 ### `TextBuf()`
 
-Creates instances of `TextBuf` interpreting text characters as
-`UTF-16 code units`. Visit
+Creates instances of `TextBuf` interpreting text characters as `UTF-16 code units`. Visit
 [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#utf-16_characters_unicode_code_points_and_grapheme_clusters)
 for more details. Accepts optional initial text.
 
@@ -166,13 +163,12 @@ assertEquals(buf.line_count, 5);
 
 ### `TextBuf.proto.read()`
 
-Returns text in the buffer's section, specified by start (inclusive) and end
-(exclusive) positions.
+Returns text in the buffer's section, specified by start (inclusive) and end (exclusive) positions.
 
 Syntax
 
 ```ts ignore
-read(start: Position, end?: Position): string
+read(start: Position, end?: Position): Generator<string>
 ```
 
 Example
@@ -183,10 +179,10 @@ import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
 
 const buf = new TextBuf("Lorem\nipsum");
 
-assertEquals(buf.read(0), "Lorem\nipsum");
-assertEquals(buf.read(6), "ipsum");
-assertEquals(buf.read([0, 0], [1, 0]), "Lorem\n");
-assertEquals(buf.read([1, 0], [2, 0]), "ipsum");
+assertEquals(buf.read(0).toArray().join(""), "Lorem\nipsum");
+assertEquals(buf.read(6).toArray().join(""), "ipsum");
+assertEquals(buf.read([0, 0], [1, 0]).toArray().join(""), "Lorem\n");
+assertEquals(buf.read([1, 0], [2, 0]).toArray().join(""), "ipsum");
 ```
 
 ### `TextBuf.proto.insert()`
@@ -210,13 +206,12 @@ const buf = new TextBuf();
 buf.insert(0, "Lorem");
 buf.insert([0, 5], " ipsum");
 
-assertEquals(buf.read(0), "Lorem ipsum");
+assertEquals(buf.read(0).toArray().join(""), "Lorem ipsum");
 ```
 
 ### `TextBuf.proto.delete()`
 
-Removes characters in the buffer's section, specified by start (inclusive) and
-end (exclusive) positions.
+Removes characters in the buffer's section, specified by start (inclusive) and end (exclusive) positions.
 
 Syntax
 
@@ -234,7 +229,7 @@ const buf = new TextBuf("Lorem ipsum");
 
 buf.delete(5, 11);
 
-assertEquals(buf.read(0), "Lorem");
+assertEquals(buf.read(0).toArray().join(""), "Lorem");
 ```
 
 ## Benchmarks
