@@ -269,10 +269,18 @@ export class TextBuf {
     }
   }
 
+  /**
+   * @ignore
+   * @internal
+   */
   save(): Node {
     return structuredClone(this.root);
   }
 
+  /**
+   * @ignore
+   * @internal
+   */
   restore(x: Node): void {
     this.root = structuredClone(x);
   }
