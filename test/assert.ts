@@ -3,7 +3,10 @@ import { assert, assertEquals } from "@std/assert";
 import type { Node } from "../src/node.ts";
 import type { TextBuf } from "../src/text-buf.ts";
 
-export function assert_generator(actual: Generator<string>, expected: string): void {
+export function assert_generator(
+  actual: Generator<string>,
+  expected: string,
+): void {
   assertEquals(actual.reduce((a, x) => a + x, ""), expected);
 }
 
