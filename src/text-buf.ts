@@ -270,6 +270,14 @@ export class TextBuf {
     this.insert(this.count, text);
   }
 
+  reset(text?: string): void {
+    this.delete(0);
+
+    if (typeof text === "string") {
+      this.insert(0, text);
+    }
+  }
+
   /**
    * Removes characters in the buffer's section, specified by start (inclusive) and end (exclusive) positions.
    *
