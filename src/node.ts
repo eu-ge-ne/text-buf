@@ -9,6 +9,9 @@ NIL.p = NIL;
 NIL.left = NIL;
 NIL.right = NIL;
 
+/**
+ * @ignore
+ */
 export interface Node {
   nil: boolean;
   red: boolean;
