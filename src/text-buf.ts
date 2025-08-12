@@ -13,13 +13,15 @@ export const enum InsertionCase {
  * `piece table` data structure implemented using `red-black tree`.
  */
 export class TextBuf {
+  #bufs: Buffer[] = [];
+  #history: Node[] = [];
+  #history_index = 0;
+
   /**
    * @ignore
    * @internal
    */
   root = NIL;
-
-  #bufs: Buffer[] = [];
 
   /**
    * Creates instances of `TextBuf` interpreting text characters as `UTF-16 code units`. Visit [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#utf-16_characters_unicode_code_points_and_grapheme_clusters) for more details. Accepts optional initial text.
@@ -32,6 +34,8 @@ export class TextBuf {
       this.root = this.#create_node(text);
       this.root.red = false;
     }
+
+    this.reset();
   }
 
   /**
@@ -267,6 +271,41 @@ export class TextBuf {
         }
       }
     }
+  }
+
+  reset(): void {
+    this.#save(0);
+  }
+
+  commit(): void {
+    this.#save(this.#history_index + 1);
+  }
+
+  undo(): boolean {
+    if (this.#history_index > 0) {
+      this.#restore(this.#history_index - 1);
+      return true;
+    }
+    return false;
+  }
+
+  redo(): boolean {
+    if (this.#history_index < (this.#history.length - 1)) {
+      this.#restore(this.#history_index + 1);
+      return true;
+    }
+    return false;
+  }
+
+  #save(index: number): void {
+    this.#history_index = index;
+    this.#history[index] = structuredClone(this.root);
+    this.#history.length = index + 1;
+  }
+
+  #restore(index: number): void {
+    this.#history_index = index;
+    this.root = structuredClone(this.#history[index]!);
   }
 
   #index(pos: Position): number | undefined {
