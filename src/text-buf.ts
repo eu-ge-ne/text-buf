@@ -1,5 +1,13 @@
 import { Buffer } from "./buffer.ts";
-import { bubble, create_node, maximum, minimum, NIL, type Node, successor } from "./node.ts";
+import {
+  bubble,
+  create_node,
+  maximum,
+  minimum,
+  NIL,
+  type Node,
+  successor,
+} from "./node.ts";
 import type { Position } from "./position.ts";
 
 export const enum InsertionCase {

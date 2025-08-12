@@ -37,32 +37,50 @@ Deno.test("Insert into the end", () => {
   assert_tree(buf);
 
   buf.insert(buf.count, " adipiscing");
-  assert_generator(buf.read(0), "Lorem ipsum dolor sit amet, consectetur adipiscing");
+  assert_generator(
+    buf.read(0),
+    "Lorem ipsum dolor sit amet, consectetur adipiscing",
+  );
   assertEquals(buf.count, 50);
   assert_tree(buf);
 
   buf.insert(buf.count, " elit,");
-  assert_generator(buf.read(0), "Lorem ipsum dolor sit amet, consectetur adipiscing elit,");
+  assert_generator(
+    buf.read(0),
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit,",
+  );
   assertEquals(buf.count, 56);
   assert_tree(buf);
 
   buf.insert(buf.count, " sed");
-  assert_generator(buf.read(0), "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed");
+  assert_generator(
+    buf.read(0),
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed",
+  );
   assertEquals(buf.count, 60);
   assert_tree(buf);
 
   buf.insert(buf.count, " do");
-  assert_generator(buf.read(0), "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do");
+  assert_generator(
+    buf.read(0),
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do",
+  );
   assertEquals(buf.count, 63);
   assert_tree(buf);
 
   buf.insert(buf.count, " eiusmod");
-  assert_generator(buf.read(0), "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod");
+  assert_generator(
+    buf.read(0),
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod",
+  );
   assertEquals(buf.count, 71);
   assert_tree(buf);
 
   buf.insert(buf.count, " tempor");
-  assert_generator(buf.read(0), "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor");
+  assert_generator(
+    buf.read(0),
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+  );
   assertEquals(buf.count, 78);
   assert_tree(buf);
 
@@ -157,37 +175,58 @@ Deno.test("Insert into the beginning", () => {
   assert_tree(buf);
 
   buf.insert(0, " incididunt");
-  assert_generator(buf.read(0), " incididunt ut labore et dolore magna aliqua.");
+  assert_generator(
+    buf.read(0),
+    " incididunt ut labore et dolore magna aliqua.",
+  );
   assertEquals(buf.count, 45);
   assert_tree(buf);
 
   buf.insert(0, " tempor");
-  assert_generator(buf.read(0), " tempor incididunt ut labore et dolore magna aliqua.");
+  assert_generator(
+    buf.read(0),
+    " tempor incididunt ut labore et dolore magna aliqua.",
+  );
   assertEquals(buf.count, 52);
   assert_tree(buf);
 
   buf.insert(0, " eiusmod");
-  assert_generator(buf.read(0), " eiusmod tempor incididunt ut labore et dolore magna aliqua.");
+  assert_generator(
+    buf.read(0),
+    " eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  );
   assertEquals(buf.count, 60);
   assert_tree(buf);
 
   buf.insert(0, " do");
-  assert_generator(buf.read(0), " do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
+  assert_generator(
+    buf.read(0),
+    " do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  );
   assertEquals(buf.count, 63);
   assert_tree(buf);
 
   buf.insert(0, " sed");
-  assert_generator(buf.read(0), " sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
+  assert_generator(
+    buf.read(0),
+    " sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  );
   assertEquals(buf.count, 67);
   assert_tree(buf);
 
   buf.insert(0, " elit,");
-  assert_generator(buf.read(0), " elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
+  assert_generator(
+    buf.read(0),
+    " elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  );
   assertEquals(buf.count, 73);
   assert_tree(buf);
 
   buf.insert(0, " adipiscing");
-  assert_generator(buf.read(0), " adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
+  assert_generator(
+    buf.read(0),
+    " adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  );
   assertEquals(buf.count, 84);
   assert_tree(buf);
 
@@ -259,17 +298,26 @@ Deno.test("Insert splitting nodes", () => {
   assert_tree(buf);
 
   buf.insert(17, " sit et");
-  assert_generator(buf.read(0), "Lorem ipsum dolor sit et dolore magna aliqua.");
+  assert_generator(
+    buf.read(0),
+    "Lorem ipsum dolor sit et dolore magna aliqua.",
+  );
   assertEquals(buf.count, 45);
   assert_tree(buf);
 
   buf.insert(21, " amet, labore");
-  assert_generator(buf.read(0), "Lorem ipsum dolor sit amet, labore et dolore magna aliqua.");
+  assert_generator(
+    buf.read(0),
+    "Lorem ipsum dolor sit amet, labore et dolore magna aliqua.",
+  );
   assertEquals(buf.count, 58);
   assert_tree(buf);
 
   buf.insert(27, " consectetur ut");
-  assert_generator(buf.read(0), "Lorem ipsum dolor sit amet, consectetur ut labore et dolore magna aliqua.");
+  assert_generator(
+    buf.read(0),
+    "Lorem ipsum dolor sit amet, consectetur ut labore et dolore magna aliqua.",
+  );
   assertEquals(buf.count, 73);
   assert_tree(buf);
 

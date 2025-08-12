@@ -27,10 +27,12 @@
   - [Delete](#delete)
 - [License](#license)
 
-> In computing, a piece table is a data structure typically used to represent a text document while it is edited in a
-> text editor. Initially a reference (or 'span') to the whole of the original file is created, which represents the as
-> yet unchanged file. Subsequent inserts and deletes replace a span by combinations of one, two, or three references to
-> sections of either the original document or to a buffer holding inserted text.
+> In computing, a piece table is a data structure typically used to represent a
+> text document while it is edited in a text editor. Initially a reference (or
+> 'span') to the whole of the original file is created, which represents the as
+> yet unchanged file. Subsequent inserts and deletes replace a span by
+> combinations of one, two, or three references to sections of either the
+> original document or to a buffer holding inserted text.
 
 &mdash;
 <cite>[Crowley, Charles (10 June 1998). "Data Structures for Text Sequences - 6.4 The piece table method"](https://web.archive.org/web/20180223071931/https://www.cs.unm.edu/~crowley/papers/sds.pdf)</cite>
@@ -109,7 +111,8 @@ assertEquals(buf.read([0, 0], [1, 0]).toArray().join(""), "ipsum");
 
 ### `TextBuf()`
 
-Creates instances of `TextBuf` interpreting text characters as `UTF-16 code units`. Visit
+Creates instances of `TextBuf` interpreting text characters as
+`UTF-16 code units`. Visit
 [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#utf-16_characters_unicode_code_points_and_grapheme_clusters)
 for more details. Accepts optional initial text.
 
@@ -163,7 +166,8 @@ assertEquals(buf.line_count, 5);
 
 ### `TextBuf.proto.read()`
 
-Returns text in the buffer's section, specified by start (inclusive) and end (exclusive) positions.
+Returns text in the buffer's section, specified by start (inclusive) and end
+(exclusive) positions.
 
 Syntax
 
@@ -211,7 +215,8 @@ assertEquals(buf.read(0).toArray().join(""), "Lorem ipsum");
 
 ### `TextBuf.proto.delete()`
 
-Removes characters in the buffer's section, specified by start (inclusive) and end (exclusive) positions.
+Removes characters in the buffer's section, specified by start (inclusive) and
+end (exclusive) positions.
 
 Syntax
 

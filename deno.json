@@ -18,9 +18,6 @@
   "compilerOptions": {
     "noUncheckedIndexedAccess": true
   },
-  "fmt": {
-    "lineWidth": 120
-  },
   "lint": {
     "rules": {
       "tags": ["recommended", "jsr"],
