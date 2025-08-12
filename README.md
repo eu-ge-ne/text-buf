@@ -22,6 +22,7 @@
   - [`TextBuf.proto.read()`](#textbufprotoread)
   - [`TextBuf.proto.insert()`](#textbufprotoinsert)
   - [`TextBuf.proto.append()`](#textbufprotoappend)
+  - [`TextBuf.proto.reset()`](#textbufprotoreset)
   - [`TextBuf.proto.delete()`](#textbufprotodelete)
 - [Benchmarks](#benchmarks)
   - [Create](#create)
@@ -283,6 +284,30 @@ buf.insert(0, "Lorem");
 buf.append(" ipsum");
 
 assertEquals(buf.read(0).toArray().join(""), "Lorem ipsum");
+```
+
+### `TextBuf.proto.reset()`
+
+Resets the buffer
+
+Syntax
+
+```ts ignore
+reset(text?: string): void
+```
+
+Example
+
+```ts
+import { assertEquals } from "jsr:@std/assert";
+import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
+
+const buf = new TextBuf();
+
+buf.insert(0, "Lorem");
+buf.reset();
+
+assertEquals(buf.read(0).toArray().join(""), "");
 ```
 
 ### `TextBuf.proto.delete()`

@@ -250,7 +250,7 @@ export class TextBuf {
   /**
    * Appends text to the buffer
    *
-   * @param `text` Text to insert
+   * @param `text` Text to append
    *
    * @example
    *
@@ -268,6 +268,33 @@ export class TextBuf {
    */
   append(text: string): void {
     this.insert(this.count, text);
+  }
+
+  /**
+   * Resets the buffer
+   *
+   * @param `text` Text to insert
+   *
+   * @example
+   *
+   * ```ts
+   * import { assertEquals } from "jsr:@std/assert";
+   * import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
+   *
+   * const buf = new TextBuf();
+   *
+   * buf.insert(0, "Lorem");
+   * buf.reset();
+   *
+   * assertEquals(buf.read(0).toArray().join(""), "");
+   * ```
+   */
+  reset(text?: string): void {
+    this.delete(0);
+
+    if (typeof text === "string") {
+      this.insert(0, text);
+    }
   }
 
   /**
