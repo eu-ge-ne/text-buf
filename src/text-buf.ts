@@ -14,8 +14,6 @@ export const enum InsertionCase {
  */
 export class TextBuf {
   #bufs: Buffer[] = [];
-  #history: Node[] = [];
-  #history_index = 0;
 
   /**
    * @ignore
@@ -34,8 +32,6 @@ export class TextBuf {
       this.root = this.#create_node(text);
       this.root.red = false;
     }
-
-    this.reset();
   }
 
   /**
@@ -273,39 +269,12 @@ export class TextBuf {
     }
   }
 
-  reset(): void {
-    this.#save(0);
+  save(): Node {
+    return structuredClone(this.root);
   }
 
-  commit(): void {
-    this.#save(this.#history_index + 1);
-  }
-
-  undo(): boolean {
-    if (this.#history_index > 0) {
-      this.#restore(this.#history_index - 1);
-      return true;
-    }
-    return false;
-  }
-
-  redo(): boolean {
-    if (this.#history_index < (this.#history.length - 1)) {
-      this.#restore(this.#history_index + 1);
-      return true;
-    }
-    return false;
-  }
-
-  #save(index: number): void {
-    this.#history_index = index;
-    this.#history[index] = structuredClone(this.root);
-    this.#history.length = index + 1;
-  }
-
-  #restore(index: number): void {
-    this.#history_index = index;
-    this.root = structuredClone(this.#history[index]!);
+  restore(x: Node): void {
+    this.root = structuredClone(x);
   }
 
   #index(pos: Position): number | undefined {
