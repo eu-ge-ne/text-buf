@@ -87,6 +87,16 @@ export class TextBuf {
    * Saves snapshot
    *
    * @returns Node
+   *
+   * @example
+   *
+   * ```ts
+   * import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
+   *
+   * const buf = new TextBuf("Lorem\nipsum");
+   *
+   * buf.save();
+   * ```
    */
   save(): Node {
     return structuredClone(this.root);

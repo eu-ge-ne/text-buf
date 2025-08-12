@@ -177,6 +177,16 @@ Syntax
 save(): Node
 ```
 
+Example
+
+```ts
+import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
+
+const buf = new TextBuf("Lorem\nipsum");
+
+buf.save();
+```
+
 ### `TextBuf.proto.restore()`
 
 Restores a snapshot
