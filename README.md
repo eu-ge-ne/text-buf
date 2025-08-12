@@ -17,6 +17,8 @@
   - [`TextBuf()`](#textbuf)
   - [`TextBuf:count`](#textbufcount)
   - [`TextBuf:line_count`](#textbufline_count)
+  - [`TextBuf.proto.save()`](#textbufprotosave)
+  - [`TextBuf.proto.restore()`](#textbufprotorestore)
   - [`TextBuf.proto.read()`](#textbufprotoread)
   - [`TextBuf.proto.insert()`](#textbufprotoinsert)
   - [`TextBuf.proto.append()`](#textbufprotoappend)
@@ -163,6 +165,26 @@ import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
 const buf = new TextBuf("Lorem\nipsum\ndolor\nsit\namet");
 
 assertEquals(buf.line_count, 5);
+```
+
+### `TextBuf.proto.save()`
+
+Saves snapshot
+
+Syntax
+
+```ts ignore
+save(): Node
+```
+
+### `TextBuf.proto.restore()`
+
+Restores a snapshot
+
+Syntax
+
+```ts ignore
+restore(node: Node): void
 ```
 
 ### `TextBuf.proto.read()`

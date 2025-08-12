@@ -83,12 +83,22 @@ export class TextBuf {
     return this.root.total_len === 0 ? 0 : this.root.total_eols_len + 1;
   }
 
+  /**
+   * Saves snapshot
+   *
+   * @returns Node
+   */
   save(): Node {
     return structuredClone(this.root);
   }
 
-  restore(x: Node): void {
-    this.root = structuredClone(x);
+  /**
+   * Restores a snapshot
+   *
+   * @param `node` Node
+   */
+  restore(node: Node): void {
+    this.root = structuredClone(node);
   }
 
   /**
