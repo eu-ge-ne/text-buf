@@ -203,6 +203,10 @@ export class TextBuf {
     }
   }
 
+  append(text: string): void {
+    this.insert(this.count, text);
+  }
+
   /**
    * Removes characters in the buffer's section, specified by start (inclusive) and end (exclusive) positions.
    *
