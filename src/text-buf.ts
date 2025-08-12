@@ -13,13 +13,13 @@ export const enum InsertionCase {
  * `piece table` data structure implemented using `red-black tree`.
  */
 export class TextBuf {
-  #bufs: Buffer[] = [];
-
   /**
    * @ignore
    * @internal
    */
   root = NIL;
+
+  #bufs: Buffer[] = [];
 
   /**
    * Creates instances of `TextBuf` interpreting text characters as `UTF-16 code units`. Visit [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#utf-16_characters_unicode_code_points_and_grapheme_clusters) for more details. Accepts optional initial text.
