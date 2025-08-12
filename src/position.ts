@@ -4,4 +4,4 @@
  * - `number` is an offset from the start of buffer
  * - `[number, number]` are [line, column] indexes
  */
-export type Position = number | readonly [number, number];
+export type Pos = number | readonly [number, number];

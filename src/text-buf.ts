@@ -8,7 +8,7 @@ import {
   type Node,
   successor,
 } from "./node.ts";
-import type { Position } from "./position.ts";
+import type { Pos } from "./position.ts";
 
 export const enum InsertionCase {
   Root,
@@ -18,7 +18,7 @@ export const enum InsertionCase {
 }
 
 /**
- * `piece table` data structure implemented using `red-black tree`.
+ * `Piece Table` data structure implemented using `Red-Black Tree`
  */
 export class TextBuf {
   /**
@@ -30,7 +30,8 @@ export class TextBuf {
   #bufs: Buffer[] = [];
 
   /**
-   * Creates instances of `TextBuf` interpreting text characters as `UTF-16 code units`. Visit [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#utf-16_characters_unicode_code_points_and_grapheme_clusters) for more details. Accepts optional initial text.
+   * Creates instances of `TextBuf` interpreting text characters as `UTF-16 code units`.
+   * Visit [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#utf-16_characters_unicode_code_points_and_grapheme_clusters) for more details. Accepts optional initial text.
    *
    * @param `text` Initial text.
    * @returns `TextBuf` instance.
@@ -83,6 +84,49 @@ export class TextBuf {
   }
 
   /**
+   * Saves snapshot
+   *
+   * @returns Node
+   *
+   * @example
+   *
+   * ```ts
+   * import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
+   *
+   * const buf = new TextBuf("Lorem\nipsum");
+   *
+   * buf.save();
+   * ```
+   */
+  save(): Node {
+    return structuredClone(this.root);
+  }
+
+  /**
+   * Restores a snapshot
+   *
+   * @param `node` Node
+   *
+   * @example
+   *
+   * ```ts
+   * import { assertEquals } from "jsr:@std/assert";
+   * import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
+   *
+   * const buf = new TextBuf("0");
+   *
+   * const snapshot = buf.save();
+   * buf.insert(0, "Lorem ipsum");
+   * buf.restore(snapshot);
+   *
+   * assertEquals(buf.read(0).toArray().join(""), "0");
+   * ```
+   */
+  restore(node: Node): void {
+    this.root = structuredClone(node);
+  }
+
+  /**
    * Returns text in the buffer's section, specified by start (inclusive) and end (exclusive) positions.
    *
    * @param `start` Start position.
@@ -103,7 +147,7 @@ export class TextBuf {
    * assertEquals(buf.read([1, 0], [2, 0]).toArray().join(""), "ipsum");
    * ```
    */
-  *read(start: Position, end?: Position): Generator<string> {
+  *read(start: Pos, end?: Pos): Generator<string> {
     const start_i = this.#index(start);
     if (typeof start_i === "undefined") {
       return;
@@ -143,7 +187,7 @@ export class TextBuf {
    * assertEquals(buf.read(0).toArray().join(""), "Lorem ipsum");
    * ```
    */
-  insert(pos: Position, text: string): void {
+  insert(pos: Pos, text: string): void {
     let i = this.#index(pos);
 
     if (typeof i === "number") {
@@ -245,7 +289,7 @@ export class TextBuf {
    * assertEquals(buf.read(0).toArray().join(""), "Lorem");
    * ```
    */
-  delete(start: Position, end?: Position): void {
+  delete(start: Pos, end?: Pos): void {
     const i0 = this.#index(start);
 
     if (typeof i0 === "number") {
@@ -300,7 +344,7 @@ export class TextBuf {
     }
   }
 
-  #index(pos: Position): number | undefined {
+  #index(pos: Pos): number | undefined {
     let i: number | undefined;
 
     if (typeof pos === "number") {

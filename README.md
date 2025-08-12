@@ -1,6 +1,6 @@
 # @eu-ge-ne/text-buf
 
-`Piece Table` data structure implemented using `Red-Black Tree`.
+`Piece Table` data structure implemented using `Red-Black Tree`
 
 [![JSR](https://jsr.io/badges/@eu-ge-ne/text-buf)](https://jsr.io/@eu-ge-ne/text-buf)
 [![JSR Score](https://jsr.io/badges/@eu-ge-ne/text-buf/score)](https://jsr.io/@eu-ge-ne/text-buf)
@@ -17,6 +17,8 @@
   - [`TextBuf()`](#textbuf)
   - [`TextBuf:count`](#textbufcount)
   - [`TextBuf:line_count`](#textbufline_count)
+  - [`TextBuf.proto.save()`](#textbufprotosave)
+  - [`TextBuf.proto.restore()`](#textbufprotorestore)
   - [`TextBuf.proto.read()`](#textbufprotoread)
   - [`TextBuf.proto.insert()`](#textbufprotoinsert)
   - [`TextBuf.proto.append()`](#textbufprotoappend)
@@ -163,6 +165,51 @@ import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
 const buf = new TextBuf("Lorem\nipsum\ndolor\nsit\namet");
 
 assertEquals(buf.line_count, 5);
+```
+
+### `TextBuf.proto.save()`
+
+Saves snapshot
+
+Syntax
+
+```ts ignore
+save(): Node
+```
+
+Example
+
+```ts
+import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
+
+const buf = new TextBuf("Lorem\nipsum");
+
+buf.save();
+```
+
+### `TextBuf.proto.restore()`
+
+Restores a snapshot
+
+Syntax
+
+```ts ignore
+restore(node: Node): void
+```
+
+Example
+
+```ts
+import { assertEquals } from "jsr:@std/assert";
+import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
+
+const buf = new TextBuf("0");
+
+const snapshot = buf.save();
+buf.insert(0, "Lorem ipsum");
+buf.restore(snapshot);
+
+assertEquals(buf.read(0).toArray().join(""), "0");
 ```
 
 ### `TextBuf.proto.read()`
