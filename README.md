@@ -1,6 +1,6 @@
 # @eu-ge-ne/text-buf
 
-`piece table` data structure implemented using `red-black tree`.
+`Piece Table` data structure implemented using `Red-Black Tree`.
 
 [![JSR](https://jsr.io/badges/@eu-ge-ne/text-buf)](https://jsr.io/@eu-ge-ne/text-buf)
 [![JSR Score](https://jsr.io/badges/@eu-ge-ne/text-buf/score)](https://jsr.io/@eu-ge-ne/text-buf)
@@ -19,6 +19,7 @@
   - [`TextBuf:line_count`](#textbufline_count)
   - [`TextBuf.proto.read()`](#textbufprotoread)
   - [`TextBuf.proto.insert()`](#textbufprotoinsert)
+  - [`TextBuf.proto.append()`](#textbufprotoappend)
   - [`TextBuf.proto.delete()`](#textbufprotodelete)
 - [Benchmarks](#benchmarks)
   - [Create](#create)
@@ -191,12 +192,12 @@ assertEquals(buf.read([1, 0], [2, 0]).toArray().join(""), "ipsum");
 
 ### `TextBuf.proto.insert()`
 
-Inserts text into the buffer at the specified position.
+Inserts text into the buffer at the specified position
 
 Syntax
 
 ```ts ignore
-insert(position: Position, text: string): void
+insert(pos: Position, text: string): void
 ```
 
 Example
@@ -209,6 +210,30 @@ const buf = new TextBuf();
 
 buf.insert(0, "Lorem");
 buf.insert([0, 5], " ipsum");
+
+assertEquals(buf.read(0).toArray().join(""), "Lorem ipsum");
+```
+
+### `TextBuf.proto.append()`
+
+Appends text to the buffer
+
+Syntax
+
+```ts ignore
+append(text: string): void
+```
+
+Example
+
+```ts
+import { assertEquals } from "jsr:@std/assert";
+import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
+
+const buf = new TextBuf();
+
+buf.insert(0, "Lorem");
+buf.append(" ipsum");
 
 assertEquals(buf.read(0).toArray().join(""), "Lorem ipsum");
 ```
