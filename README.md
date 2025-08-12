@@ -197,6 +197,21 @@ Syntax
 restore(node: Node): void
 ```
 
+Example
+
+```ts
+import { assertEquals } from "jsr:@std/assert";
+import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
+
+const buf = new TextBuf("0");
+
+const snapshot = buf.save();
+buf.insert(0, "Lorem ipsum");
+buf.restore(snapshot);
+
+assertEquals(buf.read(0).toArray().join(""), "0");
+```
+
 ### `TextBuf.proto.read()`
 
 Returns text in the buffer's section, specified by start (inclusive) and end

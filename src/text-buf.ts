@@ -106,6 +106,21 @@ export class TextBuf {
    * Restores a snapshot
    *
    * @param `node` Node
+   *
+   * @example
+   *
+   * ```ts
+   * import { assertEquals } from "jsr:@std/assert";
+   * import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
+   *
+   * const buf = new TextBuf("0");
+   *
+   * const snapshot = buf.save();
+   * buf.insert(0, "Lorem ipsum");
+   * buf.restore(snapshot);
+   *
+   * assertEquals(buf.read(0).toArray().join(""), "0");
+   * ```
    */
   restore(node: Node): void {
     this.root = structuredClone(node);
