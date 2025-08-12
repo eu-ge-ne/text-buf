@@ -1,6 +1,6 @@
 # @eu-ge-ne/text-buf
 
-`Piece Table` data structure implemented using `Red-Black Tree`.
+`Piece Table` data structure implemented using `Red-Black Tree`
 
 [![JSR](https://jsr.io/badges/@eu-ge-ne/text-buf)](https://jsr.io/@eu-ge-ne/text-buf)
 [![JSR Score](https://jsr.io/badges/@eu-ge-ne/text-buf/score)](https://jsr.io/@eu-ge-ne/text-buf)
