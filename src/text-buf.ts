@@ -124,10 +124,10 @@ export class TextBuf {
   }
 
   /**
-   * Inserts text into the buffer at the specified position.
+   * Inserts text into the buffer at the specified position
    *
-   * @param `pos` Position at witch to insert the text.
-   * @param `text` Text to insert.
+   * @param `pos` Position at witch to insert the text
+   * @param `text` Text to insert
    *
    * @example
    *
@@ -203,6 +203,25 @@ export class TextBuf {
     }
   }
 
+  /**
+   * Appends text to the buffer
+   *
+   * @param `text` Text to insert
+   *
+   * @example
+   *
+   * ```ts
+   * import { assertEquals } from "jsr:@std/assert";
+   * import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
+   *
+   * const buf = new TextBuf();
+   *
+   * buf.insert(0, "Lorem");
+   * buf.append(" ipsum");
+   *
+   * assertEquals(buf.read(0).toArray().join(""), "Lorem ipsum");
+   * ```
+   */
   append(text: string): void {
     this.insert(this.count, text);
   }
