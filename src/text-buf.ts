@@ -82,6 +82,14 @@ export class TextBuf {
     return this.root.total_len === 0 ? 0 : this.root.total_eols_len + 1;
   }
 
+  save(): Node {
+    return structuredClone(this.root);
+  }
+
+  restore(x: Node): void {
+    this.root = structuredClone(x);
+  }
+
   /**
    * Returns text in the buffer's section, specified by start (inclusive) and end (exclusive) positions.
    *
