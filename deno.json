@@ -1,6 +1,6 @@
 {
   "name": "@eu-ge-ne/text-buf",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "license": "MIT",
   "exports": "./src/mod.ts",
   "imports": {
@@ -17,9 +17,6 @@
   },
   "compilerOptions": {
     "noUncheckedIndexedAccess": true
-  },
-  "fmt": {
-    "lineWidth": 120
   },
   "lint": {
     "rules": {
