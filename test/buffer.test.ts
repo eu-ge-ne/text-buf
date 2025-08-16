@@ -5,7 +5,7 @@ import { Buffer } from "../src/buffer.ts";
 Deno.test("Read", () => {
   const buf = new Buffer("Lorem ipsum");
 
-  assertEquals(buf.read(5, 1), " ");
+  assertEquals(buf.text.slice(5, 6), " ");
 });
 
 Deno.test("0 newlines", () => {

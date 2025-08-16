@@ -1,7 +1,7 @@
 const EOL_RE = /\r?\n/gm;
 
 export class Buffer {
-  #text = "";
+  text = "";
 
   len = 0;
   eol_starts: number[] = [];
@@ -18,11 +18,7 @@ export class Buffer {
     }
 
     this.len += text.length;
-    this.#text += text;
-  }
-
-  read(index: number, count: number): string {
-    return this.#text.slice(index, index + count);
+    this.text += text;
   }
 
   find_eol(a: number, index: number): number {

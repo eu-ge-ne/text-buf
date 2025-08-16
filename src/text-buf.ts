@@ -456,7 +456,10 @@ export class TextBuf {
     while (!x.nil && (n > 0)) {
       const count = Math.min(x.slice_len - offset, n);
 
-      yield this.#bufs[x.buf_index]!.read(x.slice_start + offset, count);
+      yield this.#bufs[x.buf_index]!.text.slice(
+        x.slice_start + offset,
+        x.slice_start + offset + count,
+      );
 
       x = successor(x);
       offset = 0;
