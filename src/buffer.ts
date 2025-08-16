@@ -1,8 +1,5 @@
-const EOL_RE = /\r?\n/gm;
-
 export class Buffer {
   text = "";
-
   len = 0;
   eol_starts: number[] = [];
   eol_ends: number[] = [];
@@ -12,7 +9,7 @@ export class Buffer {
   }
 
   append(text: string): void {
-    for (const x of text.matchAll(EOL_RE)) {
+    for (const x of text.matchAll(/\r?\n/gm)) {
       this.eol_starts.push(this.len + x.index);
       this.eol_ends.push(this.len + x.index + x[0].length);
     }
