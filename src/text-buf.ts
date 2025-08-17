@@ -334,7 +334,7 @@ export class TextBuf {
           if (offset === 0) {
             this.#delete(node);
           } else {
-            this.#trim_node_end(node, count);
+            this.#slice_node(node, node.slice_start, node.slice_len - count);
             bubble(node);
           }
         } else if (offset2 < node.slice_len) {
@@ -749,10 +749,6 @@ export class TextBuf {
 
   #trim_node_start(x: Node, n: number): void {
     this.#slice_node(x, x.slice_start + n, x.slice_len - n);
-  }
-
-  #trim_node_end(x: Node, n: number): void {
-    this.#slice_node(x, x.slice_start, x.slice_len - n);
   }
 
   #slice_node(x: Node, start: number, len: number): void {
