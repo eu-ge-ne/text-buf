@@ -21,19 +21,23 @@ export class Buffer {
   find_eol(a: number, index: number): number {
     let b = this.eol_starts.length - 1;
     let i = 0;
-    let v = 0;
+    let start = 0;
+    let end = 0;
 
     while (a <= b) {
       i = Math.trunc((a + b) / 2);
-      v = this.eol_starts[i]!;
+      start = this.eol_starts[i]!;
+      end = this.eol_ends[i]!;
 
-      if (v < index) {
+      if (index >= end) {
         a = i + 1;
-      } else if (v > index) {
+      } else if (index < start) {
         b = i - 1;
-      } else {
+      } else if (index === start) {
         a = i;
         break;
+      } else {
+        throw new Error("Invalid argument");
       }
     }
 

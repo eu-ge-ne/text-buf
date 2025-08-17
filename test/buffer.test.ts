@@ -1,4 +1,4 @@
-import { assertEquals } from "@std/assert";
+import { assertEquals, assertThrows } from "@std/assert";
 
 import { Buffer } from "../src/buffer.ts";
 
@@ -45,7 +45,7 @@ Deno.test("find_eol_index", () => {
   assertEquals(buf.find_eol(0, 1), 0);
 
   assertEquals(buf.find_eol(0, 2), 0);
-  assertEquals(buf.find_eol(0, 3), 1);
+  assertThrows(() => buf.find_eol(0, 3));
 
   assertEquals(buf.find_eol(0, 4), 1);
   assertEquals(buf.find_eol(0, 5), 1);
