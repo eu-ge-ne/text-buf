@@ -19,21 +19,19 @@ export class Buffer {
   }
 
   find_eol(a: number, index: number): number {
-    let b = this.eol_starts.length - 1;
+    const { eol_starts: starts, eol_ends: ends } = this;
+
+    let b = starts.length - 1;
     let i = 0;
-    let start = 0;
-    let end = 0;
 
     while (a <= b) {
       i = Math.trunc((a + b) / 2);
-      start = this.eol_starts[i]!;
-      end = this.eol_ends[i]!;
 
-      if (index >= end) {
+      if (index >= ends[i]!) {
         a = i + 1;
-      } else if (index < start) {
+      } else if (index < starts[i]!) {
         b = i - 1;
-      } else if (index === start) {
+      } else if (index === starts[i]!) {
         a = i;
         break;
       } else {
