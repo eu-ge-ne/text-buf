@@ -35,3 +35,23 @@ Deno.test("LF and CRLF", () => {
   assertEquals(buf.eol_starts, [6, 13]);
   assertEquals(buf.eol_ends, [7, 15]);
 });
+
+Deno.test("find_eol_index", () => {
+  const buf = new Buffer("AA\r\nBB\nCC");
+
+  assertEquals(buf.eol_starts.length, 2);
+
+  assertEquals(buf.find_eol(0, 0), 0);
+  assertEquals(buf.find_eol(0, 1), 0);
+
+  assertEquals(buf.find_eol(0, 2), 0);
+  assertEquals(buf.find_eol(0, 3), 1);
+
+  assertEquals(buf.find_eol(0, 4), 1);
+  assertEquals(buf.find_eol(0, 5), 1);
+
+  assertEquals(buf.find_eol(0, 6), 1);
+
+  assertEquals(buf.find_eol(0, 7), 2);
+  assertEquals(buf.find_eol(0, 8), 2);
+});
