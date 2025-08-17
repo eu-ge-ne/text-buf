@@ -42,6 +42,32 @@ export class Buffer {
     return a;
   }
 
+  slice_eols(start: number, end: number): [number, number] {
+    const max = this.eols_len;
+
+    let i = 0;
+    while (i < max) {
+      const eol_start = this.eols[i * 2]!;
+      if (eol_start >= start) {
+        break;
+      }
+      i += 1;
+    }
+    const result_start = i;
+
+    i = result_start;
+    while (i < max) {
+      const eol_start = this.eols[i * 2]!;
+      if (eol_start >= end) {
+        break;
+      }
+      i += 1;
+    }
+    const result_end = i;
+
+    return [result_start, result_end];
+  }
+
   #append_eols(text: string): void {
     for (const x of text.matchAll(/\r?\n/gm)) {
       const new_len = (this.eols_len + 1) * 2 * 4;
