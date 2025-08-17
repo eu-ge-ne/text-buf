@@ -31,8 +31,6 @@ export function create_node(
   buf_index: number,
   slice_start: number,
   slice_len: number,
-  slice_eols_start: number,
-  slice_eols_len: number,
 ): Node {
   return {
     nil: false,
@@ -41,12 +39,12 @@ export function create_node(
     left: NIL,
     right: NIL,
     total_len: slice_len,
-    total_eols_len: slice_eols_len,
+    total_eols_len: 0,
     buf_index,
     slice_start,
     slice_len,
-    slice_eols_start,
-    slice_eols_len,
+    slice_eols_start: 0,
+    slice_eols_len: 0,
   };
 }
 

@@ -712,34 +712,24 @@ export class TextBuf {
     const buf = new Buffer(text);
     const buf_index = this.#bufs.push(buf) - 1;
 
-    return create_node(buf_index, 0, buf.len, 0, buf.eols_len);
+    const node = create_node(buf_index, 0, buf.len);
+
+    this.#update_node_eols(node);
+    bubble(node);
+
+    return node;
   }
 
   #split_node(x: Node, index: number, gap: number): Node {
-    const buf = this.#bufs[x.buf_index]!;
-
     const start = x.slice_start + index + gap;
     const len = x.slice_len - index - gap;
 
     this.#resize_node(x, index);
     bubble(x);
 
-    /*
-    const eols_start = buf.find_eol_index(
-      start,
-      x.slice_eols_start + x.slice_eols_len,
-    );
-    const eols_end = buf.find_eol_index(
-      start + len,
-      eols_start,
-    );
-    const eols_len = eols_end - eols_start;
-    */
-    const b = buf.slice_eols(start, start + len);
-    const eols_start = b[0];
-    const eols_len = b[1] - b[0];
+    const node = create_node(x.buf_index, start, len);
 
-    const node = create_node(x.buf_index, start, len, eols_start, eols_len);
+    this.#update_node_eols(node);
     this.#insert_after(x, node);
 
     return node;
@@ -758,26 +748,10 @@ export class TextBuf {
   }
 
   #trim_node_start(x: Node, n: number): void {
-    const buf = this.#bufs[x.buf_index]!;
-
     x.slice_start += n;
     x.slice_len -= n;
-    /*
-    x.slice_eols_start = buf.find_eol_index(
-      x.slice_start,
-      x.slice_eols_start,
-    );
 
-    const eols_end = buf.find_eol_index(
-      x.slice_start + x.slice_len,
-      x.slice_eols_start,
-    );
-    */
-    const b = buf.slice_eols(x.slice_start, x.slice_start + x.slice_len);
-    x.slice_eols_start = b[0];
-    x.slice_eols_len = b[1] - b[0];
-
-    //x.slice_eols_len = eols_end - x.slice_eols_start;
+    this.#update_node_eols(x);
   }
 
   #trim_node_end(x: Node, n: number): void {
@@ -785,20 +759,16 @@ export class TextBuf {
   }
 
   #resize_node(x: Node, len: number): void {
-    const buf = this.#bufs[x.buf_index]!;
-
     x.slice_len = len;
 
-    /*
-    const eols_end = buf.find_eol_index(
-      x.slice_start + x.slice_len,
-      x.slice_eols_start,
-    );
+    this.#update_node_eols(x);
+  }
 
-    x.slice_eols_len = eols_end - x.slice_eols_start;
-    */
+  #update_node_eols(x: Node): void {
+    const buf = this.#bufs[x.buf_index]!;
 
     const b = buf.slice_eols(x.slice_start, x.slice_start + x.slice_len);
+
     x.slice_eols_start = b[0];
     x.slice_eols_len = b[1] - b[0];
   }
