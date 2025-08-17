@@ -712,9 +712,9 @@ export class TextBuf {
     const buf = new Buffer(text);
     const buf_index = this.#bufs.push(buf) - 1;
 
-    const node = create_node(buf_index, 0, buf.len);
+    const node = create_node(buf_index);
 
-    this.#update_node_eols(node);
+    this.#slice_node(node, 0, buf.len);
     bubble(node);
 
     return node;
@@ -724,12 +724,12 @@ export class TextBuf {
     const start = x.slice_start + index + gap;
     const len = x.slice_len - index - gap;
 
-    this.#resize_node(x, index);
+    this.#slice_node(x, x.slice_start, index);
     bubble(x);
 
-    const node = create_node(x.buf_index, start, len);
+    const node = create_node(x.buf_index);
 
-    this.#update_node_eols(node);
+    this.#slice_node(node, start, len);
     this.#insert_after(x, node);
 
     return node;
@@ -744,27 +744,21 @@ export class TextBuf {
   #grow_node(x: Node, text: string): void {
     this.#bufs[x.buf_index]!.append(text);
 
-    this.#resize_node(x, x.slice_len + text.length);
+    this.#slice_node(x, x.slice_start, x.slice_len + text.length);
   }
 
   #trim_node_start(x: Node, n: number): void {
-    x.slice_start += n;
-    x.slice_len -= n;
-
-    this.#update_node_eols(x);
+    this.#slice_node(x, x.slice_start + n, x.slice_len - n);
   }
 
   #trim_node_end(x: Node, n: number): void {
-    this.#resize_node(x, x.slice_len - n);
+    this.#slice_node(x, x.slice_start, x.slice_len - n);
   }
 
-  #resize_node(x: Node, len: number): void {
+  #slice_node(x: Node, start: number, len: number): void {
+    x.slice_start = start;
     x.slice_len = len;
 
-    this.#update_node_eols(x);
-  }
-
-  #update_node_eols(x: Node): void {
     const buf = this.#bufs[x.buf_index]!;
 
     const b = buf.slice_eols(x.slice_start, x.slice_start + x.slice_len);

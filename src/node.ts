@@ -27,22 +27,18 @@ export interface Node {
   slice_eols_len: number;
 }
 
-export function create_node(
-  buf_index: number,
-  slice_start: number,
-  slice_len: number,
-): Node {
+export function create_node(buf_index: number): Node {
   return {
     nil: false,
     red: true,
     p: NIL,
     left: NIL,
     right: NIL,
-    total_len: slice_len,
+    total_len: 0,
     total_eols_len: 0,
     buf_index,
-    slice_start,
-    slice_len,
+    slice_start: 0,
+    slice_len: 0,
     slice_eols_start: 0,
     slice_eols_len: 0,
   };
