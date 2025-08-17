@@ -190,59 +190,68 @@ export class TextBuf {
   insert(pos: Pos, text: string): void {
     let i = this.#index(pos);
 
-    if (typeof i === "number") {
-      let p = NIL;
-      let insert_case = InsertionCase.Root;
+    if (typeof i !== "number") {
+      return;
+    }
 
-      for (let x = this.root; !x.nil;) {
-        if (i <= x.left.total_len) {
-          insert_case = InsertionCase.Left;
+    let p = NIL;
+    let insert_case = InsertionCase.Root;
+
+    for (let x = this.root; !x.nil;) {
+      if (i <= x.left.total_len) {
+        insert_case = InsertionCase.Left;
+        p = x;
+        x = x.left;
+      } else {
+        i -= x.left.total_len;
+
+        if (i < x.slice_len) {
+          insert_case = InsertionCase.Split;
           p = x;
-          x = x.left;
+          x = NIL;
         } else {
-          i -= x.left.total_len;
+          i -= x.slice_len;
 
-          if (i < x.slice_len) {
-            insert_case = InsertionCase.Split;
-            p = x;
-            x = NIL;
-          } else {
-            i -= x.slice_len;
-
-            insert_case = InsertionCase.Right;
-            p = x;
-            x = x.right;
-          }
+          insert_case = InsertionCase.Right;
+          p = x;
+          x = x.right;
         }
       }
+    }
 
-      if (insert_case === InsertionCase.Right && this.#node_growable(p)) {
-        this.#bufs[p.buf_index]!.append(text);
+    if (insert_case === InsertionCase.Right) {
+      const buf = this.#bufs[p.buf_index]!;
+
+      if ((buf.len < 100) && (p.slice_start + p.slice_len === buf.len)) {
+        buf.append(text);
+
         this.#slice_node(p, p.slice_start, p.slice_len + text.length);
         bubble(p);
-      } else {
-        const child = this.#create_node(text);
 
-        switch (insert_case) {
-          case InsertionCase.Root: {
-            this.root = child;
-            this.root.red = false;
-            break;
-          }
-          case InsertionCase.Left: {
-            this.#insert_left(p, child);
-            break;
-          }
-          case InsertionCase.Right: {
-            this.#insert_right(p, child);
-            break;
-          }
-          case InsertionCase.Split: {
-            const y = this.#split_node(p, i, 0);
-            this.#insert_before(y, child);
-            break;
-          }
-        }
+        return;
+      }
+    }
+
+    const child = this.#create_node(text);
+
+    switch (insert_case) {
+      case InsertionCase.Root: {
+        this.root = child;
+        this.root.red = false;
+        break;
+      }
+      case InsertionCase.Left: {
+        this.#insert_left(p, child);
+        break;
+      }
+      case InsertionCase.Right: {
+        this.#insert_right(p, child);
+        break;
+      }
+      case InsertionCase.Split: {
+        const y = this.#split_node(p, i, 0);
+        this.#insert_before(y, child);
+        break;
       }
     }
   }
@@ -737,12 +746,6 @@ export class TextBuf {
     this.#insert_after(x, node);
 
     return node;
-  }
-
-  #node_growable(x: Node): boolean {
-    const buf = this.#bufs[x.buf_index]!;
-
-    return (buf.len < 100) && (x.slice_start + x.slice_len === buf.len);
   }
 
   #slice_node(x: Node, start: number, len: number): void {
