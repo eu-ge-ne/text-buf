@@ -217,8 +217,8 @@ export class TextBuf {
       }
 
       if (insert_case === InsertionCase.Right && this.#node_growable(p)) {
-        this.#grow_node(p, text);
-
+        this.#bufs[p.buf_index]!.append(text);
+        this.#slice_node(p, p.slice_start, p.slice_len + text.length);
         bubble(p);
       } else {
         const child = this.#create_node(text);
@@ -743,12 +743,6 @@ export class TextBuf {
     const buf = this.#bufs[x.buf_index]!;
 
     return (buf.len < 100) && (x.slice_start + x.slice_len === buf.len);
-  }
-
-  #grow_node(x: Node, text: string): void {
-    this.#bufs[x.buf_index]!.append(text);
-
-    this.#slice_node(x, x.slice_start, x.slice_len + text.length);
   }
 
   #slice_node(x: Node, start: number, len: number): void {
