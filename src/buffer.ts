@@ -20,6 +20,13 @@ export class Buffer {
     this.len += text.length;
   }
 
+  slice_eols(start: number, end: number): [number, number] {
+    const result_start = this.#find_eol(start, 0);
+    const result_end = this.#find_eol(end, result_start);
+
+    return [result_start, result_end];
+  }
+
   find_eol_index(index: number, a: number): number {
     let b = this.eols_len - 1;
     let i = 0;
@@ -40,13 +47,6 @@ export class Buffer {
     }
 
     return a;
-  }
-
-  slice_eols(start: number, end: number): [number, number] {
-    const result_start = this.#find_eol(start, 0);
-    const result_end = this.#find_eol(end, result_start);
-
-    return [result_start, result_end];
   }
 
   #find_eol(start: number, i: number): number {
