@@ -440,7 +440,7 @@ export class TextBuf {
         if (eol_index < x.slice_eols_len) {
           const buf = this.#bufs[x.buf_index]!;
 
-          return i + buf.eol_ends[x.slice_eols_start + eol_index]! -
+          return i + buf.eols[(x.slice_eols_start + eol_index) * 2 + 1]! -
             x.slice_start;
         } else {
           eol_index -= x.slice_eols_len;
@@ -712,7 +712,7 @@ export class TextBuf {
     const buf = new Buffer(text);
     const buf_index = this.#bufs.push(buf) - 1;
 
-    return create_node(buf_index, 0, buf.len, 0, buf.eol_starts.length);
+    return create_node(buf_index, 0, buf.len, 0, buf.eols_len);
   }
 
   #split_node(x: Node, index: number, gap: number): Node {
