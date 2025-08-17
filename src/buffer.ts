@@ -1,8 +1,9 @@
 export class Buffer {
+  #eols_buf = new ArrayBuffer(1024 * 64, { maxByteLength: 100e6 * 2 });
+
   text = "";
   len = 0;
-  eols_buf = new ArrayBuffer(1024 * 64, { maxByteLength: 100e6 * 2 });
-  eols = new Int32Array(this.eols_buf);
+  eols = new Int32Array(this.#eols_buf);
   eols_len = 0;
 
   constructor(text: string) {
@@ -44,8 +45,8 @@ export class Buffer {
   #append_eols(text: string): void {
     for (const x of text.matchAll(/\r?\n/gm)) {
       const new_len = (this.eols_len + 1) * 2 * 4;
-      if (new_len > this.eols_buf.byteLength) {
-        this.eols_buf.resize(new_len * 2);
+      if (new_len > this.#eols_buf.byteLength) {
+        this.#eols_buf.resize(new_len * 2);
       }
 
       this.eols[this.eols_len * 2] = this.len + x.index;
@@ -54,6 +55,6 @@ export class Buffer {
       this.eols_len += 1;
     }
 
-    this.eols_buf.resize(this.eols_len * 2 * 4);
+    this.#eols_buf.resize(this.eols_len * 2 * 4);
   }
 }
