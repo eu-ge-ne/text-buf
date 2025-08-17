@@ -724,6 +724,7 @@ export class TextBuf {
     this.#resize_node(x, index);
     bubble(x);
 
+    /*
     const eols_start = buf.find_eol_index(
       start,
       x.slice_eols_start + x.slice_eols_len,
@@ -733,6 +734,10 @@ export class TextBuf {
       eols_start,
     );
     const eols_len = eols_end - eols_start;
+    */
+    const b = buf.slice_eols(start, start + len);
+    const eols_start = b[0];
+    const eols_len = b[1] - b[0];
 
     const node = create_node(x.buf_index, start, len, eols_start, eols_len);
     this.#insert_after(x, node);
@@ -757,6 +762,7 @@ export class TextBuf {
 
     x.slice_start += n;
     x.slice_len -= n;
+    /*
     x.slice_eols_start = buf.find_eol_index(
       x.slice_start,
       x.slice_eols_start,
@@ -766,8 +772,12 @@ export class TextBuf {
       x.slice_start + x.slice_len,
       x.slice_eols_start,
     );
+    */
+    const b = buf.slice_eols(x.slice_start, x.slice_start + x.slice_len);
+    x.slice_eols_start = b[0];
+    x.slice_eols_len = b[1] - b[0];
 
-    x.slice_eols_len = eols_end - x.slice_eols_start;
+    //x.slice_eols_len = eols_end - x.slice_eols_start;
   }
 
   #trim_node_end(x: Node, n: number): void {
@@ -775,14 +785,21 @@ export class TextBuf {
   }
 
   #resize_node(x: Node, len: number): void {
+    const buf = this.#bufs[x.buf_index]!;
+
     x.slice_len = len;
 
-    const buf = this.#bufs[x.buf_index]!;
+    /*
     const eols_end = buf.find_eol_index(
       x.slice_start + x.slice_len,
       x.slice_eols_start,
     );
 
     x.slice_eols_len = eols_end - x.slice_eols_start;
+    */
+
+    const b = buf.slice_eols(x.slice_start, x.slice_start + x.slice_len);
+    x.slice_eols_start = b[0];
+    x.slice_eols_len = b[1] - b[0];
   }
 }
