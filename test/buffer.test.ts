@@ -1,11 +1,11 @@
-import { assertEquals } from "@std/assert";
+import { assertEquals, assertThrows } from "@std/assert";
 
 import { Buffer } from "../src/buffer.ts";
 
 Deno.test("Read", () => {
   const buf = new Buffer("Lorem ipsum");
 
-  assertEquals(buf.read(5, 1), " ");
+  assertEquals(buf.text.slice(5, 6), " ");
 });
 
 Deno.test("0 newlines", () => {
@@ -34,4 +34,24 @@ Deno.test("LF and CRLF", () => {
 
   assertEquals(buf.eol_starts, [6, 13]);
   assertEquals(buf.eol_ends, [7, 15]);
+});
+
+Deno.test("find_eol_index", () => {
+  const buf = new Buffer("AA\r\nBB\nCC");
+
+  assertEquals(buf.eol_starts.length, 2);
+
+  assertEquals(buf.find_eol_index(0, 0), 0);
+  assertEquals(buf.find_eol_index(1, 0), 0);
+
+  assertEquals(buf.find_eol_index(2, 0), 0);
+  assertThrows(() => buf.find_eol_index(3, 0));
+
+  assertEquals(buf.find_eol_index(4, 0), 1);
+  assertEquals(buf.find_eol_index(5, 0), 1);
+
+  assertEquals(buf.find_eol_index(6, 0), 1);
+
+  assertEquals(buf.find_eol_index(7, 0), 2);
+  assertEquals(buf.find_eol_index(8, 0), 2);
 });
