@@ -23,8 +23,8 @@ export interface Node {
   buf_index: number;
   slice_start: number;
   slice_len: number;
-  slice_eols_start: number;
-  slice_eols_len: number;
+  eols_start: number;
+  eols_len: number;
 }
 
 export function create_node(buf_index: number): Node {
@@ -39,8 +39,8 @@ export function create_node(buf_index: number): Node {
     buf_index,
     slice_start: 0,
     slice_len: 0,
-    slice_eols_start: 0,
-    slice_eols_len: 0,
+    eols_start: 0,
+    eols_len: 0,
   };
 }
 
@@ -48,7 +48,7 @@ export function bubble(x: Node): void {
   while (!x.nil) {
     x.total_len = x.left.total_len + x.slice_len + x.right.total_len;
 
-    x.total_eols_len = x.left.total_eols_len + x.slice_eols_len +
+    x.total_eols_len = x.left.total_eols_len + x.eols_len +
       x.right.total_eols_len;
 
     x = x.p;

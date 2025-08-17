@@ -450,13 +450,13 @@ export class TextBuf {
         eol_index -= x.left.total_eols_len;
         i += x.left.total_len;
 
-        if (eol_index < x.slice_eols_len) {
+        if (eol_index < x.eols_len) {
           const buf = this.#bufs[x.buf_index]!;
 
-          return i + buf.eols[(x.slice_eols_start + eol_index) * 2 + 1]! -
+          return i + buf.eols[(x.eols_start + eol_index) * 2 + 1]! -
             x.slice_start;
         } else {
-          eol_index -= x.slice_eols_len;
+          eol_index -= x.eols_len;
           i += x.slice_len;
 
           x = x.right;
@@ -754,9 +754,12 @@ export class TextBuf {
 
     const buf = this.#bufs[x.buf_index]!;
 
-    const b = buf.slice_eols(x.slice_start, x.slice_start + x.slice_len);
+    const [eols_start, eols_end] = buf.slice_eols(
+      x.slice_start,
+      x.slice_start + x.slice_len,
+    );
 
-    x.slice_eols_start = b[0];
-    x.slice_eols_len = b[1] - b[0];
+    x.eols_start = eols_start;
+    x.eols_len = eols_end - eols_start;
   }
 }
