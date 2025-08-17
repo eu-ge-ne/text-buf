@@ -18,7 +18,7 @@ export class Buffer {
     this.text += text;
   }
 
-  find_eol(a: number, index: number): number {
+  find_eol_index(index: number, a: number): number {
     const { eol_starts: starts, eol_ends: ends } = this;
 
     let b = starts.length - 1;
