@@ -748,18 +748,17 @@ export class TextBuf {
     return node;
   }
 
-  #slice_node(x: Node, start: number, len: number): void {
-    x.slice_start = start;
-    x.slice_len = len;
-
+  #slice_node(x: Node, slice_start: number, slice_len: number): void {
     const buf = this.#bufs[x.buf_index]!;
+    const slice_end = slice_start + slice_len;
 
-    const [eols_start, eols_end] = buf.slice_eols(
-      x.slice_start,
-      x.slice_start + x.slice_len,
-    );
+    x.slice_start = slice_start;
+    x.slice_len = slice_len;
 
-    x.eols_start = eols_start;
-    x.eols_len = eols_end - eols_start;
+    x.eols_start = buf.find_eol_index(slice_start, 0);
+
+    const eols_end = buf.find_eol_index(slice_end, x.eols_start);
+
+    x.eols_len = eols_end - x.eols_start;
   }
 }
