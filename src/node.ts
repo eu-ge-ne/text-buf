@@ -23,16 +23,16 @@ export interface Node {
   buf_index: number;
   slice_start: number;
   slice_len: number;
-  slice_eols_start: number;
-  slice_eols_len: number;
+  eols_start: number;
+  eols_len: number;
 }
 
 export function create_node(
   buf_index: number,
   slice_start: number,
   slice_len: number,
-  slice_eols_start: number,
-  slice_eols_len: number,
+  eols_start: number,
+  eols_len: number,
 ): Node {
   return {
     nil: false,
@@ -41,12 +41,12 @@ export function create_node(
     left: NIL,
     right: NIL,
     total_len: slice_len,
-    total_eols_len: slice_eols_len,
+    total_eols_len: eols_len,
     buf_index,
     slice_start,
     slice_len,
-    slice_eols_start,
-    slice_eols_len,
+    eols_start,
+    eols_len,
   };
 }
 
@@ -54,7 +54,7 @@ export function bubble(x: Node): void {
   while (!x.nil) {
     x.total_len = x.left.total_len + x.slice_len + x.right.total_len;
 
-    x.total_eols_len = x.left.total_eols_len + x.slice_eols_len +
+    x.total_eols_len = x.left.total_eols_len + x.eols_len +
       x.right.total_eols_len;
 
     x = x.p;

@@ -437,13 +437,13 @@ export class TextBuf {
         eol_index -= x.left.total_eols_len;
         i += x.left.total_len;
 
-        if (eol_index < x.slice_eols_len) {
+        if (eol_index < x.eols_len) {
           const buf = this.#bufs[x.buf_index]!;
 
-          return i + buf.eols[(x.slice_eols_start + eol_index) * 2 + 1]! -
+          return i + buf.eols[(x.eols_start + eol_index) * 2 + 1]! -
             x.slice_start;
         } else {
-          eol_index -= x.slice_eols_len;
+          eol_index -= x.eols_len;
           i += x.slice_len;
 
           x = x.right;
@@ -724,14 +724,8 @@ export class TextBuf {
     this.#resize_node(x, index);
     bubble(x);
 
-    const eols_start = buf.find_eol_index(
-      start,
-      x.slice_eols_start + x.slice_eols_len,
-    );
-    const eols_end = buf.find_eol_index(
-      start + len,
-      eols_start,
-    );
+    const eols_start = buf.find_eol_index(start, x.eols_start + x.eols_len);
+    const eols_end = buf.find_eol_index(start + len, eols_start);
     const eols_len = eols_end - eols_start;
 
     const node = create_node(x.buf_index, start, len, eols_start, eols_len);
@@ -757,17 +751,15 @@ export class TextBuf {
 
     x.slice_start += n;
     x.slice_len -= n;
-    x.slice_eols_start = buf.find_eol_index(
-      x.slice_start,
-      x.slice_eols_start,
-    );
+
+    x.eols_start = buf.find_eol_index(x.slice_start, x.eols_start);
 
     const eols_end = buf.find_eol_index(
       x.slice_start + x.slice_len,
-      x.slice_eols_start,
+      x.eols_start,
     );
 
-    x.slice_eols_len = eols_end - x.slice_eols_start;
+    x.eols_len = eols_end - x.eols_start;
   }
 
   #trim_node_end(x: Node, n: number): void {
@@ -775,14 +767,14 @@ export class TextBuf {
   }
 
   #resize_node(x: Node, len: number): void {
+    const buf = this.#bufs[x.buf_index]!;
+
     x.slice_len = len;
 
-    const buf = this.#bufs[x.buf_index]!;
     const eols_end = buf.find_eol_index(
       x.slice_start + x.slice_len,
-      x.slice_eols_start,
+      x.eols_start,
     );
-
-    x.slice_eols_len = eols_end - x.slice_eols_start;
+    x.eols_len = eols_end - x.eols_start;
   }
 }
