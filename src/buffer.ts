@@ -23,15 +23,19 @@ export class Buffer {
   find_eol_index(index: number, a: number): number {
     let b = this.eols_len - 1;
     let i = 0;
+    let start = 0;
+    let end = 0;
 
     while (a <= b) {
       i = Math.trunc((a + b) / 2);
+      start = this.eols[i * 2]!;
+      end = this.eols[i * 2 + 1]!;
 
-      if (index >= this.eols[i * 2 + 1]!) {
+      if (index >= end) {
         a = i + 1;
-      } else if (index < this.eols[i * 2]!) {
+      } else if (index < start) {
         b = i - 1;
-      } else if (index === this.eols[i * 2]!) {
+      } else if (index === start) {
         a = i;
         break;
       } else {

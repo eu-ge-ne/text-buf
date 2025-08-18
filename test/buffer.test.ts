@@ -55,3 +55,22 @@ Deno.test("find_eol_index", () => {
   assertEquals(buf.find_eol_index(7, 0), 2);
   assertEquals(buf.find_eol_index(8, 0), 2);
 });
+
+Deno.test("find_eol_index_2", () => {
+  const buf = new Buffer("1\n2\n3\n4\n5");
+  //                      01 23 45 67 8
+  //                       0  1  2  3
+
+  assertEquals(buf.eols_len, 4);
+
+  assertEquals(buf.find_eol_index(0, 0), 0);
+  assertEquals(buf.find_eol_index(1, 0), 0);
+  assertEquals(buf.find_eol_index(2, 0), 1);
+  assertEquals(buf.find_eol_index(3, 0), 1);
+  assertEquals(buf.find_eol_index(4, 0), 2);
+  assertEquals(buf.find_eol_index(5, 0), 2);
+  assertEquals(buf.find_eol_index(6, 0), 3);
+  assertEquals(buf.find_eol_index(7, 0), 3);
+  assertEquals(buf.find_eol_index(8, 0), 4);
+  assertEquals(buf.find_eol_index(8, 0), 4);
+});
