@@ -148,7 +148,7 @@ export class TextBuf {
    * ```
    */
   *read(start: Pos, end?: Pos): Generator<string> {
-    const start_i = this.#index(start);
+    const start_i = this.#pos_to_index(start);
     if (typeof start_i === "undefined") {
       return;
     }
@@ -160,7 +160,7 @@ export class TextBuf {
 
     const { node, offset } = first;
 
-    const end_i = (end ? this.#index(end) : undefined) ??
+    const end_i = (end ? this.#pos_to_index(end) : undefined) ??
       Number.MAX_SAFE_INTEGER;
     const n = end_i - start_i;
 
@@ -188,7 +188,7 @@ export class TextBuf {
    * ```
    */
   insert(pos: Pos, text: string): void {
-    let i = this.#index(pos);
+    let i = this.#pos_to_index(pos);
 
     if (typeof i === "number") {
       let p = NIL;
@@ -317,13 +317,13 @@ export class TextBuf {
    * ```
    */
   delete(start: Pos, end?: Pos): void {
-    const i0 = this.#index(start);
+    const i0 = this.#pos_to_index(start);
 
     if (typeof i0 === "number") {
       const first = this.#find(i0);
 
       if (first) {
-        const i1 = (end ? this.#index(end) : undefined) ??
+        const i1 = (end ? this.#pos_to_index(end) : undefined) ??
           Number.MAX_SAFE_INTEGER;
 
         const { node, offset } = first;
@@ -371,7 +371,7 @@ export class TextBuf {
     }
   }
 
-  #index(pos: Pos): number | undefined {
+  #pos_to_index(pos: Pos): number | undefined {
     let i: number | undefined;
 
     if (typeof pos === "number") {
@@ -382,14 +382,7 @@ export class TextBuf {
         ln = Math.max(this.line_count + ln, 0);
       }
 
-      switch (ln) {
-        case 0:
-          i = 0;
-          break;
-        default:
-          i = this.#find_eol(ln - 1);
-          break;
-      }
+      i = this.#find_line_start(ln);
 
       if (typeof i === "number") {
         i += pos[1];
@@ -427,28 +420,33 @@ export class TextBuf {
     }
   }
 
-  #find_eol(eol_index: number): number | undefined {
-    let x = this.root;
+  #find_line_start(ln: number): number | undefined {
+    if (ln === 0) {
+      return 0;
+    }
 
-    for (let i = 0; !x.nil;) {
+    let eol_index = ln - 1;
+    let x = this.root;
+    let i = 0;
+
+    while (!x.nil) {
       if (eol_index < x.left.total_eols_len) {
         x = x.left;
-      } else {
-        eol_index -= x.left.total_eols_len;
-        i += x.left.total_len;
-
-        if (eol_index < x.eols_len) {
-          const buf = this.#bufs[x.buf_index]!;
-
-          return i + buf.eols[(x.eols_start + eol_index) * 2 + 1]! -
-            x.slice_start;
-        } else {
-          eol_index -= x.eols_len;
-          i += x.slice_len;
-
-          x = x.right;
-        }
+        continue;
       }
+
+      eol_index -= x.left.total_eols_len;
+      i += x.left.total_len;
+
+      if (eol_index < x.eols_len) {
+        return i +
+          this.#bufs[x.buf_index]!.eols[(x.eols_start + eol_index) * 2 + 1]! -
+          x.slice_start;
+      }
+
+      eol_index -= x.eols_len;
+      i += x.slice_len;
+      x = x.right;
     }
   }
 
