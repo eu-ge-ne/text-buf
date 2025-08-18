@@ -190,68 +190,59 @@ export class TextBuf {
   insert(pos: Pos, text: string): void {
     let i = this.#index(pos);
 
-    if (typeof i !== "number") {
-      return;
-    }
+    if (typeof i === "number") {
+      let p = NIL;
+      let insert_case = InsertionCase.Root;
 
-    let p = NIL;
-    let insert_case = InsertionCase.Root;
-
-    for (let x = this.root; !x.nil;) {
-      if (i <= x.left.total_len) {
-        insert_case = InsertionCase.Left;
-        p = x;
-        x = x.left;
-      } else {
-        i -= x.left.total_len;
-
-        if (i < x.slice_len) {
-          insert_case = InsertionCase.Split;
+      for (let x = this.root; !x.nil;) {
+        if (i <= x.left.total_len) {
+          insert_case = InsertionCase.Left;
           p = x;
-          x = NIL;
+          x = x.left;
         } else {
-          i -= x.slice_len;
+          i -= x.left.total_len;
 
-          insert_case = InsertionCase.Right;
-          p = x;
-          x = x.right;
+          if (i < x.slice_len) {
+            insert_case = InsertionCase.Split;
+            p = x;
+            x = NIL;
+          } else {
+            i -= x.slice_len;
+
+            insert_case = InsertionCase.Right;
+            p = x;
+            x = x.right;
+          }
         }
       }
-    }
 
-    if (insert_case === InsertionCase.Right) {
-      const buf = this.#bufs[p.buf_index]!;
+      if (insert_case === InsertionCase.Right && this.#node_growable(p)) {
+        this.#grow_node(p, text);
 
-      if ((buf.len < 100) && (p.slice_start + p.slice_len === buf.len)) {
-        buf.append(text);
-
-        this.#slice_node(p, p.slice_start, p.slice_len + text.length);
         bubble(p);
+      } else {
+        const child = this.#create_node(text);
 
-        return;
-      }
-    }
-
-    const child = this.#create_node(text);
-
-    switch (insert_case) {
-      case InsertionCase.Root: {
-        this.root = child;
-        this.root.red = false;
-        break;
-      }
-      case InsertionCase.Left: {
-        this.#insert_left(p, child);
-        break;
-      }
-      case InsertionCase.Right: {
-        this.#insert_right(p, child);
-        break;
-      }
-      case InsertionCase.Split: {
-        const y = this.#split_node(p, i, 0);
-        this.#insert_before(y, child);
-        break;
+        switch (insert_case) {
+          case InsertionCase.Root: {
+            this.root = child;
+            this.root.red = false;
+            break;
+          }
+          case InsertionCase.Left: {
+            this.#insert_left(p, child);
+            break;
+          }
+          case InsertionCase.Right: {
+            this.#insert_right(p, child);
+            break;
+          }
+          case InsertionCase.Split: {
+            const y = this.#split_node(p, i, 0);
+            this.#insert_before(y, child);
+            break;
+          }
+        }
       }
     }
   }
@@ -343,16 +334,12 @@ export class TextBuf {
           if (offset === 0) {
             this.#delete(node);
           } else {
-            this.#slice_node(node, node.slice_start, node.slice_len - count);
+            this.#trim_node_end(node, count);
             bubble(node);
           }
         } else if (offset2 < node.slice_len) {
           if (offset === 0) {
-            this.#slice_node(
-              node,
-              node.slice_start + count,
-              node.slice_len - count,
-            );
+            this.#trim_node_start(node, count);
             bubble(node);
           } else {
             this.#split_node(node, offset, count);
@@ -450,13 +437,13 @@ export class TextBuf {
         eol_index -= x.left.total_eols_len;
         i += x.left.total_len;
 
-        if (eol_index < x.eols_len) {
+        if (eol_index < x.slice_eols_len) {
           const buf = this.#bufs[x.buf_index]!;
 
-          return i + buf.eols[(x.eols_start + eol_index) * 2 + 1]! -
+          return i + buf.eols[(x.slice_eols_start + eol_index) * 2 + 1]! -
             x.slice_start;
         } else {
-          eol_index -= x.eols_len;
+          eol_index -= x.slice_eols_len;
           i += x.slice_len;
 
           x = x.right;
@@ -725,39 +712,77 @@ export class TextBuf {
     const buf = new Buffer(text);
     const buf_index = this.#bufs.push(buf) - 1;
 
-    const node = create_node(buf_index);
-
-    this.#slice_node(node, 0, buf.len);
-    bubble(node);
-
-    return node;
+    return create_node(buf_index, 0, buf.len, 0, buf.eols_len);
   }
 
   #split_node(x: Node, index: number, gap: number): Node {
+    const buf = this.#bufs[x.buf_index]!;
+
     const start = x.slice_start + index + gap;
     const len = x.slice_len - index - gap;
 
-    this.#slice_node(x, x.slice_start, index);
+    this.#resize_node(x, index);
     bubble(x);
 
-    const node = create_node(x.buf_index);
+    const eols_start = buf.find_eol_index(
+      start,
+      x.slice_eols_start + x.slice_eols_len,
+    );
+    const eols_end = buf.find_eol_index(
+      start + len,
+      eols_start,
+    );
+    const eols_len = eols_end - eols_start;
 
-    this.#slice_node(node, start, len);
+    const node = create_node(x.buf_index, start, len, eols_start, eols_len);
     this.#insert_after(x, node);
 
     return node;
   }
 
-  #slice_node(x: Node, slice_start: number, slice_len: number): void {
+  #node_growable(x: Node): boolean {
     const buf = this.#bufs[x.buf_index]!;
-    const slice_end = slice_start + slice_len;
 
-    x.slice_start = slice_start;
-    x.slice_len = slice_len;
+    return (buf.len < 100) && (x.slice_start + x.slice_len === buf.len);
+  }
 
-    x.eols_start = buf.find_eol_index(slice_start, 0);
+  #grow_node(x: Node, text: string): void {
+    this.#bufs[x.buf_index]!.append(text);
 
-    const eols_end = buf.find_eol_index(slice_end, x.eols_start);
-    x.eols_len = eols_end - x.eols_start;
+    this.#resize_node(x, x.slice_len + text.length);
+  }
+
+  #trim_node_start(x: Node, n: number): void {
+    const buf = this.#bufs[x.buf_index]!;
+
+    x.slice_start += n;
+    x.slice_len -= n;
+    x.slice_eols_start = buf.find_eol_index(
+      x.slice_start,
+      x.slice_eols_start,
+    );
+
+    const eols_end = buf.find_eol_index(
+      x.slice_start + x.slice_len,
+      x.slice_eols_start,
+    );
+
+    x.slice_eols_len = eols_end - x.slice_eols_start;
+  }
+
+  #trim_node_end(x: Node, n: number): void {
+    this.#resize_node(x, x.slice_len - n);
+  }
+
+  #resize_node(x: Node, len: number): void {
+    x.slice_len = len;
+
+    const buf = this.#bufs[x.buf_index]!;
+    const eols_end = buf.find_eol_index(
+      x.slice_start + x.slice_len,
+      x.slice_eols_start,
+    );
+
+    x.slice_eols_len = eols_end - x.slice_eols_start;
   }
 }
