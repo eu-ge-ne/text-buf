@@ -758,7 +758,6 @@ export class TextBuf {
     x.eols_start = buf.find_eol_index(slice_start, 0);
 
     const eols_end = buf.find_eol_index(slice_end, x.eols_start);
-
     x.eols_len = eols_end - x.eols_start;
   }
 }
