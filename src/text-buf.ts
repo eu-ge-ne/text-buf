@@ -439,8 +439,8 @@ export class TextBuf {
       i += x.left.total_len;
 
       if (eol_index < x.eols_len) {
-        const eol_end = this.#bufs[x.buf]!
-          .eols[(x.eols_start + eol_index) * 2 + 1]!;
+        const buf = this.#bufs[x.buf]!;
+        const eol_end = buf.get_eol_end(x.eols_start + eol_index)!;
         return i + eol_end - x.slice_start;
       }
 
