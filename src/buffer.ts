@@ -20,6 +20,10 @@ export class Buffer {
     this.len += text.length;
   }
 
+  get_eol_end(index: number): number | undefined {
+    return this.eols[index * 2 + 1];
+  }
+
   find_eol_index(index: number, a: number): number {
     let b = this.eols_len - 1;
     let i = 0;

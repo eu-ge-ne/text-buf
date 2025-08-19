@@ -1,6 +1,6 @@
 {
   "name": "@eu-ge-ne/text-buf",
-  "version": "0.13.5",
+  "version": "0.13.6",
   "license": "MIT",
   "exports": "./src/mod.ts",
   "imports": {
