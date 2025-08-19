@@ -20,7 +20,7 @@ export interface Node {
   right: Node;
   total_len: number;
   total_eols_len: number;
-  buf_index: number;
+  buf: number;
   slice_start: number;
   slice_len: number;
   eols_start: number;
@@ -28,7 +28,7 @@ export interface Node {
 }
 
 export function create_node(
-  buf_index: number,
+  buf: number,
   slice_start: number,
   slice_len: number,
   eols_start: number,
@@ -42,7 +42,7 @@ export function create_node(
     right: NIL,
     total_len: slice_len,
     total_eols_len: eols_len,
-    buf_index,
+    buf,
     slice_start,
     slice_len,
     eols_start,

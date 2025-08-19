@@ -439,9 +439,9 @@ export class TextBuf {
       i += x.left.total_len;
 
       if (eol_index < x.eols_len) {
-        return i +
-          this.#bufs[x.buf_index]!.eols[(x.eols_start + eol_index) * 2 + 1]! -
-          x.slice_start;
+        const eol_end = this.#bufs[x.buf]!
+          .eols[(x.eols_start + eol_index) * 2 + 1]!;
+        return i + eol_end - x.slice_start;
       }
 
       eol_index -= x.eols_len;
@@ -454,7 +454,7 @@ export class TextBuf {
     while (!x.nil && (n > 0)) {
       const count = Math.min(x.slice_len - offset, n);
 
-      yield this.#bufs[x.buf_index]!.text.slice(
+      yield this.#bufs[x.buf]!.text.slice(
         x.slice_start + offset,
         x.slice_start + offset + count,
       );
@@ -714,7 +714,7 @@ export class TextBuf {
   }
 
   #split_node(x: Node, index: number, gap: number): Node {
-    const buf = this.#bufs[x.buf_index]!;
+    const buf = this.#bufs[x.buf]!;
 
     const start = x.slice_start + index + gap;
     const len = x.slice_len - index - gap;
@@ -726,26 +726,26 @@ export class TextBuf {
     const eols_end = buf.find_eol_index(start + len, eols_start);
     const eols_len = eols_end - eols_start;
 
-    const node = create_node(x.buf_index, start, len, eols_start, eols_len);
+    const node = create_node(x.buf, start, len, eols_start, eols_len);
     this.#insert_after(x, node);
 
     return node;
   }
 
   #node_growable(x: Node): boolean {
-    const buf = this.#bufs[x.buf_index]!;
+    const buf = this.#bufs[x.buf]!;
 
     return (buf.len < 100) && (x.slice_start + x.slice_len === buf.len);
   }
 
   #grow_node(x: Node, text: string): void {
-    this.#bufs[x.buf_index]!.append(text);
+    this.#bufs[x.buf]!.append(text);
 
     this.#resize_node(x, x.slice_len + text.length);
   }
 
   #trim_node_start(x: Node, n: number): void {
-    const buf = this.#bufs[x.buf_index]!;
+    const buf = this.#bufs[x.buf]!;
 
     x.slice_start += n;
     x.slice_len -= n;
@@ -765,7 +765,7 @@ export class TextBuf {
   }
 
   #resize_node(x: Node, len: number): void {
-    const buf = this.#bufs[x.buf_index]!;
+    const buf = this.#bufs[x.buf]!;
 
     x.slice_len = len;
 
@@ -773,6 +773,7 @@ export class TextBuf {
       x.slice_start + x.slice_len,
       x.eols_start,
     );
+
     x.eols_len = eols_end - x.eols_start;
   }
 }
