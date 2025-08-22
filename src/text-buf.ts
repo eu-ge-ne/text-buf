@@ -406,17 +406,17 @@ export class TextBuf {
     while (!x.nil) {
       if (index < x.left.total_len) {
         x = x.left;
-      } else {
-        index -= x.left.total_len;
-
-        if (index < x.slice_len) {
-          return { node: x, offset: index };
-        } else {
-          index -= x.slice_len;
-
-          x = x.right;
-        }
+        continue;
       }
+
+      index -= x.left.total_len;
+
+      if (index < x.slice_len) {
+        return { node: x, offset: index };
+      }
+
+      index -= x.slice_len;
+      x = x.right;
     }
   }
 
