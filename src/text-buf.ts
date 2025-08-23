@@ -190,59 +190,64 @@ export class TextBuf {
   insert(pos: Pos, text: string): void {
     let i = this.#pos_to_index(pos);
 
-    if (typeof i === "number") {
-      let p = NIL;
-      let insert_case = InsertionCase.Root;
+    if (typeof i !== "number") {
+      return;
+    }
 
-      for (let x = this.root; !x.nil;) {
-        if (i <= x.left.total_len) {
-          insert_case = InsertionCase.Left;
-          p = x;
-          x = x.left;
-        } else {
-          i -= x.left.total_len;
+    let insert_case = InsertionCase.Root;
+    let p = NIL;
+    let x = this.root;
 
-          if (i < x.slice_len) {
-            insert_case = InsertionCase.Split;
-            p = x;
-            x = NIL;
-          } else {
-            i -= x.slice_len;
-
-            insert_case = InsertionCase.Right;
-            p = x;
-            x = x.right;
-          }
-        }
+    while (!x.nil) {
+      if (i <= x.left.total_len) {
+        insert_case = InsertionCase.Left;
+        p = x;
+        x = x.left;
+        continue;
       }
 
-      if (insert_case === InsertionCase.Right && this.#node_growable(p)) {
-        this.#grow_node(p, text);
+      i -= x.left.total_len;
 
-        bubble(p);
-      } else {
-        const child = this.#create_node(text);
+      if (i < x.slice_len) {
+        insert_case = InsertionCase.Split;
+        p = x;
+        x = NIL;
+        continue;
+      }
 
-        switch (insert_case) {
-          case InsertionCase.Root: {
-            this.root = child;
-            this.root.red = false;
-            break;
-          }
-          case InsertionCase.Left: {
-            this.#insert_left(p, child);
-            break;
-          }
-          case InsertionCase.Right: {
-            this.#insert_right(p, child);
-            break;
-          }
-          case InsertionCase.Split: {
-            const y = this.#split_node(p, i, 0);
-            this.#insert_before(y, child);
-            break;
-          }
-        }
+      i -= x.slice_len;
+
+      insert_case = InsertionCase.Right;
+      p = x;
+      x = x.right;
+    }
+
+    if (insert_case === InsertionCase.Right && this.#node_growable(p)) {
+      this.#grow_node(p, text);
+      bubble(p);
+      return;
+    }
+
+    const child = this.#create_node(text);
+
+    switch (insert_case) {
+      case InsertionCase.Root: {
+        this.root = child;
+        this.root.red = false;
+        break;
+      }
+      case InsertionCase.Left: {
+        this.#insert_left(p, child);
+        break;
+      }
+      case InsertionCase.Right: {
+        this.#insert_right(p, child);
+        break;
+      }
+      case InsertionCase.Split: {
+        const y = this.#split_node(p, i, 0);
+        this.#insert_before(y, child);
+        break;
       }
     }
   }
