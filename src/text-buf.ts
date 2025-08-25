@@ -126,6 +126,36 @@ export class TextBuf {
   }
 
   /**
+   * Returns text in the buffer's section, specified by start (inclusive) and end (exclusive) indexes.
+   *
+   * @param `start` Start index.
+   * @param `end` Optional end index.
+   * @returns Text.
+   *
+   * @example
+   *
+   * ```ts
+   * import { assertEquals } from "jsr:@std/assert";
+   * import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
+   *
+   * const buf = new TextBuf("Lorem\nipsum");
+   *
+   * assertEquals(buf.read(0).toArray().join(""), "Lorem\nipsum");
+   * assertEquals(buf.read(6).toArray().join(""), "ipsum");
+   * ```
+   */
+  *read(start: number, end = Number.MAX_SAFE_INTEGER): Generator<string> {
+    const first = this.#find(start);
+    if (!first) {
+      return;
+    }
+
+    const { node, offset } = first;
+
+    yield* this.#read(node, offset, end - start);
+  }
+
+  /**
    * Returns text in the buffer's section, specified by start (inclusive) and end (exclusive) positions.
    *
    * @param `start` Start position.
@@ -140,23 +170,10 @@ export class TextBuf {
    *
    * const buf = new TextBuf("Lorem\nipsum");
    *
-   * assertEquals(buf.read(0).toArray().join(""), "Lorem\nipsum");
-   * assertEquals(buf.read(6).toArray().join(""), "ipsum");
-   * assertEquals(buf.read([0, 0], [1, 0]).toArray().join(""), "Lorem\n");
-   * assertEquals(buf.read([1, 0], [2, 0]).toArray().join(""), "ipsum");
+   * assertEquals(buf.read2([0, 0], [1, 0]).toArray().join(""), "Lorem\n");
+   * assertEquals(buf.read2([1, 0], [2, 0]).toArray().join(""), "ipsum");
    * ```
    */
-  *read(start: number, end = Number.MAX_SAFE_INTEGER): Generator<string> {
-    const first = this.#find(start);
-    if (!first) {
-      return;
-    }
-
-    const { node, offset } = first;
-
-    yield* this.#read(node, offset, end - start);
-  }
-
   *read2(start: [number, number], end?: [number, number]): Generator<string> {
     const i = this.#pos_to_index(start);
     if (typeof i !== "number") {
