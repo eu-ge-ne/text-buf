@@ -159,9 +159,11 @@ export class TextBuf {
 
   *read2(start: [number, number], end?: [number, number]): Generator<string> {
     const i = this.#pos_to_index(start);
-    if (typeof i === "number") {
-      yield* this.read(i, this.#pos_to_index(end));
+    if (typeof i !== "number") {
+      return;
     }
+
+    yield* this.read(i, this.#pos_to_index(end));
   }
 
   /**
@@ -249,9 +251,11 @@ export class TextBuf {
 
   insert2(pos: [number, number], text: string): void {
     const i = this.#pos_to_index(pos);
-    if (typeof i === "number") {
-      this.insert(i, text);
+    if (typeof i !== "number") {
+      return;
     }
+
+    this.insert(i, text);
   }
 
   /**
@@ -374,18 +378,24 @@ export class TextBuf {
 
   delete2(start: [number, number], end?: [number, number]): void {
     const i = this.#pos_to_index(start);
-    if (typeof i === "number") {
-      this.delete(i, this.#pos_to_index(end));
+    if (typeof i !== "number") {
+      return;
     }
+
+    this.delete(i, this.#pos_to_index(end));
   }
 
   #pos_to_index(pos?: [number, number]): number | undefined {
-    if (pos) {
-      const i = this.#find_line_start(pos[0]);
-      if (typeof i === "number") {
-        return i + pos[1];
-      }
+    if (!pos) {
+      return;
     }
+
+    const i = this.#find_line_start(pos[0]);
+    if (typeof i !== "number") {
+      return;
+    }
+
+    return i + pos[1];
   }
 
   #find(index: number): { node: Node; offset: number } | undefined {
