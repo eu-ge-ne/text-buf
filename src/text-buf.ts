@@ -189,7 +189,6 @@ export class TextBuf {
    */
   insert(pos: Pos, text: string): void {
     let i = this.#pos_to_index(pos);
-
     if (typeof i !== "number") {
       return;
     }
@@ -323,55 +322,57 @@ export class TextBuf {
    */
   delete(start: Pos, end?: Pos): void {
     const i0 = this.#pos_to_index(start);
+    if (typeof i0 !== "number") {
+      return;
+    }
 
-    if (typeof i0 === "number") {
-      const first = this.#find(i0);
+    const first = this.#find(i0);
+    if (!first) {
+      return;
+    }
 
-      if (first) {
-        const i1 = (end ? this.#pos_to_index(end) : undefined) ??
-          Number.MAX_SAFE_INTEGER;
+    const i1 = (end ? this.#pos_to_index(end) : undefined) ??
+      Number.MAX_SAFE_INTEGER;
 
-        const { node, offset } = first;
-        const count = i1 - i0;
-        const offset2 = offset + count;
+    const { node, offset } = first;
+    const count = i1 - i0;
+    const offset2 = offset + count;
 
-        if (offset2 === node.slice_len) {
-          if (offset === 0) {
-            this.#delete(node);
-          } else {
-            this.#trim_node_end(node, count);
-            bubble(node);
-          }
-        } else if (offset2 < node.slice_len) {
-          if (offset === 0) {
-            this.#trim_node_start(node, count);
-            bubble(node);
-          } else {
-            this.#split_node(node, offset, count);
-          }
-        } else {
-          let x = node;
-          let i = 0;
+    if (offset2 === node.slice_len) {
+      if (offset === 0) {
+        this.#delete(node);
+      } else {
+        this.#trim_node_end(node, count);
+        bubble(node);
+      }
+    } else if (offset2 < node.slice_len) {
+      if (offset === 0) {
+        this.#trim_node_start(node, count);
+        bubble(node);
+      } else {
+        this.#split_node(node, offset, count);
+      }
+    } else {
+      let x = node;
+      let i = 0;
 
-          if (offset !== 0) {
-            x = this.#split_node(node, offset, 0);
-          }
+      if (offset !== 0) {
+        x = this.#split_node(node, offset, 0);
+      }
 
-          const last = this.#find(i1);
-          if (last && last.offset !== 0) {
-            this.#split_node(last.node, last.offset, 0);
-          }
+      const last = this.#find(i1);
+      if (last && last.offset !== 0) {
+        this.#split_node(last.node, last.offset, 0);
+      }
 
-          while (!x.nil && (i < count)) {
-            i += x.slice_len;
+      while (!x.nil && (i < count)) {
+        i += x.slice_len;
 
-            const next = successor(x);
+        const next = successor(x);
 
-            this.#delete(x);
+        this.#delete(x);
 
-            x = next;
-          }
-        }
+        x = next;
       }
     }
   }
