@@ -356,12 +356,12 @@ assertEquals(buf.read(0).toArray().join(""), "");
 ### `TextBuf.proto.delete()`
 
 Removes characters in the buffer's section, specified by start (inclusive) and
-end (exclusive) positions.
+end (exclusive) indexes.
 
 Syntax
 
 ```ts ignore
-delete(start: Position, end?: Position): void
+delete(start: number, end = Number.MAX_SAFE_INTEGER): void
 ```
 
 Example
@@ -373,6 +373,30 @@ import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
 const buf = new TextBuf("Lorem ipsum");
 
 buf.delete(5, 11);
+
+assertEquals(buf.read(0).toArray().join(""), "Lorem");
+```
+
+### `TextBuf.proto.delete2()`
+
+Removes characters in the buffer's section, specified by start (inclusive) and
+end (exclusive) positions.
+
+Syntax
+
+```ts ignore
+delete2(start: [number, number], end?: [number, number]): void
+```
+
+Example
+
+```ts
+import { assertEquals } from "jsr:@std/assert";
+import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
+
+const buf = new TextBuf("Lorem ipsum");
+
+buf.delete2([0, 5], [0, 11]);
 
 assertEquals(buf.read(0).toArray().join(""), "Lorem");
 ```
