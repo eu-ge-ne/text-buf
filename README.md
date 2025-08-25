@@ -259,12 +259,12 @@ assertEquals(buf.read2([1, 0], [2, 0]).toArray().join(""), "ipsum");
 
 ### `TextBuf.proto.insert()`
 
-Inserts text into the buffer at the specified position
+Inserts text into the buffer at the specified index.
 
 Syntax
 
 ```ts ignore
-insert(pos: Position, text: string): void
+insert(i: number, text: string): void
 ```
 
 Example
@@ -276,6 +276,30 @@ import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
 const buf = new TextBuf();
 
 buf.insert(0, "Lorem");
+buf.insert(5, " ipsum");
+
+assertEquals(buf.read(0).toArray().join(""), "Lorem ipsum");
+```
+
+### `TextBuf.proto.insert2()`
+
+Inserts text into the buffer at the specified position.
+
+Syntax
+
+```ts ignore
+insert2(pos: [number, number], text: string): void
+```
+
+Example
+
+```ts
+import { assertEquals } from "jsr:@std/assert";
+import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
+
+const buf = new TextBuf();
+
+buf.insert2([0, 0], "Lorem");
 buf.insert2([0, 5], " ipsum");
 
 assertEquals(buf.read(0).toArray().join(""), "Lorem ipsum");

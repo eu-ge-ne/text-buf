@@ -184,7 +184,7 @@ export class TextBuf {
   }
 
   /**
-   * Inserts text into the buffer at the specified index
+   * Inserts text into the buffer at the specified index.
    *
    * @param `i` Index at witch to insert the text
    * @param `text` Text to insert
@@ -267,7 +267,7 @@ export class TextBuf {
   }
 
   /**
-   * Inserts text into the buffer at the specified position
+   * Inserts text into the buffer at the specified position.
    *
    * @param `pos` Position at witch to insert the text
    * @param `text` Text to insert
