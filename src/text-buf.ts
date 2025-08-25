@@ -184,9 +184,9 @@ export class TextBuf {
   }
 
   /**
-   * Inserts text into the buffer at the specified position
+   * Inserts text into the buffer at the specified index
    *
-   * @param `pos` Position at witch to insert the text
+   * @param `i` Index at witch to insert the text
    * @param `text` Text to insert
    *
    * @example
@@ -198,7 +198,7 @@ export class TextBuf {
    * const buf = new TextBuf();
    *
    * buf.insert(0, "Lorem");
-   * buf.insert([0, 5], " ipsum");
+   * buf.insert(5, " ipsum");
    *
    * assertEquals(buf.read(0).toArray().join(""), "Lorem ipsum");
    * ```
@@ -266,6 +266,26 @@ export class TextBuf {
     }
   }
 
+  /**
+   * Inserts text into the buffer at the specified position
+   *
+   * @param `pos` Position at witch to insert the text
+   * @param `text` Text to insert
+   *
+   * @example
+   *
+   * ```ts
+   * import { assertEquals } from "jsr:@std/assert";
+   * import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
+   *
+   * const buf = new TextBuf();
+   *
+   * buf.insert2([0, 0], "Lorem");
+   * buf.insert2([0, 5], " ipsum");
+   *
+   * assertEquals(buf.read(0).toArray().join(""), "Lorem ipsum");
+   * ```
+   */
   insert2(pos: [number, number], text: string): void {
     const i = this.#pos_to_index(pos);
     if (typeof i !== "number") {
