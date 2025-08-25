@@ -346,10 +346,10 @@ export class TextBuf {
   }
 
   /**
-   * Removes characters in the buffer's section, specified by start (inclusive) and end (exclusive) positions.
+   * Removes characters in the buffer's section, specified by start (inclusive) and end (exclusive) indexes.
    *
-   * @param `start` Start position.
-   * @param `end` Optional end position.
+   * @param `start` Start index.
+   * @param `end` Optional end index.
    *
    * @example
    *
@@ -413,6 +413,25 @@ export class TextBuf {
     }
   }
 
+  /**
+   * Removes characters in the buffer's section, specified by start (inclusive) and end (exclusive) positions.
+   *
+   * @param `start` Start position.
+   * @param `end` Optional end position.
+   *
+   * @example
+   *
+   * ```ts
+   * import { assertEquals } from "jsr:@std/assert";
+   * import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
+   *
+   * const buf = new TextBuf("Lorem ipsum");
+   *
+   * buf.delete2([0, 5], [0, 11]);
+   *
+   * assertEquals(buf.read(0).toArray().join(""), "Lorem");
+   * ```
+   */
   delete2(start: [number, number], end?: [number, number]): void {
     const i = this.#pos_to_index(start);
     if (typeof i !== "number") {
