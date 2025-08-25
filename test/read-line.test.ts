@@ -7,7 +7,7 @@ Deno.test("Empty", () => {
   const buf = new TextBuf();
 
   assertEquals(buf.line_count, 0);
-  assert_generator(buf.read([0, 0], [1, 0]), "");
+  assert_generator(buf.read2([0, 0], [1, 0]), "");
 
   assert_tree(buf);
 });
@@ -16,7 +16,7 @@ Deno.test("1 line", () => {
   const buf = new TextBuf("0");
 
   assertEquals(buf.line_count, 1);
-  assert_generator(buf.read([0, 0], [1, 0]), "0");
+  assert_generator(buf.read2([0, 0], [1, 0]), "0");
 
   assert_tree(buf);
 });
@@ -25,8 +25,8 @@ Deno.test("2 lines", () => {
   const buf = new TextBuf("0\n");
 
   assertEquals(buf.line_count, 2);
-  assert_generator(buf.read([0, 0], [1, 0]), "0\n");
-  assert_generator(buf.read([1, 0], [2, 0]), "");
+  assert_generator(buf.read2([0, 0], [1, 0]), "0\n");
+  assert_generator(buf.read2([1, 0], [2, 0]), "");
 
   assert_tree(buf);
 });
@@ -35,9 +35,9 @@ Deno.test("3 lines", () => {
   const buf = new TextBuf("0\n1\n");
 
   assertEquals(buf.line_count, 3);
-  assert_generator(buf.read([0, 0], [1, 0]), "0\n");
-  assert_generator(buf.read([1, 0], [2, 0]), "1\n");
-  assert_generator(buf.read([2, 0], [3, 0]), "");
+  assert_generator(buf.read2([0, 0], [1, 0]), "0\n");
+  assert_generator(buf.read2([1, 0], [2, 0]), "1\n");
+  assert_generator(buf.read2([2, 0], [3, 0]), "");
 
   assert_tree(buf);
 });
@@ -56,25 +56,25 @@ Deno.test("Line at valid index", () => {
   buf.insert(57, "sed\neiusmod\n");
   buf.insert(61, "do\n");
 
-  assert_generator(buf.read([0, 0], [1, 0]), "Lorem\n");
-  assert_generator(buf.read([1, 0], [2, 0]), "ipsum\n");
-  assert_generator(buf.read([2, 0], [3, 0]), "dolor\n");
-  assert_generator(buf.read([3, 0], [4, 0]), "sit\n");
-  assert_generator(buf.read([4, 0], [5, 0]), "amet,\n");
-  assert_generator(buf.read([5, 0], [6, 0]), "consectetur\n");
-  assert_generator(buf.read([6, 0], [7, 0]), "adipiscing\n");
-  assert_generator(buf.read([7, 0], [8, 0]), "elit,\n");
-  assert_generator(buf.read([8, 0], [9, 0]), "sed\n");
-  assert_generator(buf.read([9, 0], [10, 0]), "do\n");
-  assert_generator(buf.read([10, 0], [11, 0]), "eiusmod\n");
-  assert_generator(buf.read([11, 0], [12, 0]), "tempor\n");
-  assert_generator(buf.read([12, 0], [13, 0]), "incididunt\n");
-  assert_generator(buf.read([13, 0], [14, 0]), "ut\n");
-  assert_generator(buf.read([14, 0], [15, 0]), "labore\n");
-  assert_generator(buf.read([15, 0], [16, 0]), "et\n");
-  assert_generator(buf.read([16, 0], [17, 0]), "dolore\n");
-  assert_generator(buf.read([17, 0], [18, 0]), "magna\n");
-  assert_generator(buf.read([18, 0], [19, 0]), "aliqua.");
+  assert_generator(buf.read2([0, 0], [1, 0]), "Lorem\n");
+  assert_generator(buf.read2([1, 0], [2, 0]), "ipsum\n");
+  assert_generator(buf.read2([2, 0], [3, 0]), "dolor\n");
+  assert_generator(buf.read2([3, 0], [4, 0]), "sit\n");
+  assert_generator(buf.read2([4, 0], [5, 0]), "amet,\n");
+  assert_generator(buf.read2([5, 0], [6, 0]), "consectetur\n");
+  assert_generator(buf.read2([6, 0], [7, 0]), "adipiscing\n");
+  assert_generator(buf.read2([7, 0], [8, 0]), "elit,\n");
+  assert_generator(buf.read2([8, 0], [9, 0]), "sed\n");
+  assert_generator(buf.read2([9, 0], [10, 0]), "do\n");
+  assert_generator(buf.read2([10, 0], [11, 0]), "eiusmod\n");
+  assert_generator(buf.read2([11, 0], [12, 0]), "tempor\n");
+  assert_generator(buf.read2([12, 0], [13, 0]), "incididunt\n");
+  assert_generator(buf.read2([13, 0], [14, 0]), "ut\n");
+  assert_generator(buf.read2([14, 0], [15, 0]), "labore\n");
+  assert_generator(buf.read2([15, 0], [16, 0]), "et\n");
+  assert_generator(buf.read2([16, 0], [17, 0]), "dolore\n");
+  assert_generator(buf.read2([17, 0], [18, 0]), "magna\n");
+  assert_generator(buf.read2([18, 0], [19, 0]), "aliqua.");
 
   assert_tree(buf);
 });
@@ -82,9 +82,9 @@ Deno.test("Line at valid index", () => {
 Deno.test("Line at index >= line_count", () => {
   const buf = new TextBuf("Lorem\nipsum\ndolor\nsit\namet");
 
-  assert_generator(buf.read([4, 0], [5, 0]), "amet");
-  assert_generator(buf.read([5, 0], [6, 0]), "");
-  assert_generator(buf.read([6, 0], [7, 0]), "");
+  assert_generator(buf.read2([4, 0], [5, 0]), "amet");
+  assert_generator(buf.read2([5, 0], [6, 0]), "");
+  assert_generator(buf.read2([6, 0], [7, 0]), "");
 
   assert_tree(buf);
 });
@@ -92,9 +92,15 @@ Deno.test("Line at index >= line_count", () => {
 Deno.test("Line at index < 0", () => {
   const buf = new TextBuf("Lorem\nipsum\ndolor\nsit\namet");
 
-  assert_generator(buf.read([0, 0], [1, 0]), "Lorem\n");
-  assert_generator(buf.read([-1, 0], [buf.line_count, 0]), "amet");
-  assert_generator(buf.read([-2, 0], [-1, 0]), "sit\n");
+  assert_generator(buf.read2([0, 0], [1, 0]), "Lorem\n");
+  assert_generator(
+    buf.read2([buf.line_count - 1, 0], [buf.line_count, 0]),
+    "amet",
+  );
+  assert_generator(
+    buf.read2([buf.line_count - 2, 0], [buf.line_count - 1, 0]),
+    "sit\n",
+  );
 
   assert_tree(buf);
 });
@@ -106,11 +112,11 @@ Deno.test("Insert adds lines", () => {
     buf.insert(buf.count, `${i}\n`);
 
     assertEquals(buf.line_count, i + 2);
-    assert_generator(buf.read([i, 0], [i + 1, 0]), `${i}\n`);
+    assert_generator(buf.read2([i, 0], [i + 1, 0]), `${i}\n`);
     assert_tree(buf);
   }
 
   assertEquals(buf.line_count, 11);
-  assert_generator(buf.read([11, 0], [12, 0]), "");
+  assert_generator(buf.read2([11, 0], [12, 0]), "");
   assert_tree(buf);
 });

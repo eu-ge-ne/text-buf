@@ -8,7 +8,6 @@ import {
   type Node,
   successor,
 } from "./node.ts";
-import type { Pos } from "./position.ts";
 
 export const enum InsertionCase {
   Root,
@@ -147,24 +146,22 @@ export class TextBuf {
    * assertEquals(buf.read([1, 0], [2, 0]).toArray().join(""), "ipsum");
    * ```
    */
-  *read(start: Pos, end?: Pos): Generator<string> {
-    const start_i = this.#pos_to_index(start);
-    if (typeof start_i === "undefined") {
-      return;
-    }
-
-    const first = this.#find(start_i);
+  *read(start: number, end = Number.MAX_SAFE_INTEGER): Generator<string> {
+    const first = this.#find(start);
     if (!first) {
       return;
     }
 
     const { node, offset } = first;
 
-    const end_i = (end ? this.#pos_to_index(end) : undefined) ??
-      Number.MAX_SAFE_INTEGER;
-    const n = end_i - start_i;
+    yield* this.#read(node, offset, end - start);
+  }
 
-    yield* this.#read(node, offset, n);
+  *read2(start: [number, number], end?: [number, number]): Generator<string> {
+    const i = this.#pos_to_index(start);
+    if (typeof i === "number") {
+      yield* this.read(i, this.#pos_to_index(end));
+    }
   }
 
   /**
@@ -187,9 +184,8 @@ export class TextBuf {
    * assertEquals(buf.read(0).toArray().join(""), "Lorem ipsum");
    * ```
    */
-  insert(pos: Pos, text: string): void {
-    let i = this.#pos_to_index(pos);
-    if (typeof i !== "number") {
+  insert(i: number, text: string): void {
+    if (i > this.count) {
       return;
     }
 
@@ -248,6 +244,13 @@ export class TextBuf {
         this.#insert_before(y, child);
         break;
       }
+    }
+  }
+
+  insert2(pos: [number, number], text: string): void {
+    const i = this.#pos_to_index(pos);
+    if (typeof i === "number") {
+      this.insert(i, text);
     }
   }
 
@@ -320,22 +323,14 @@ export class TextBuf {
    * assertEquals(buf.read(0).toArray().join(""), "Lorem");
    * ```
    */
-  delete(start: Pos, end?: Pos): void {
-    const i0 = this.#pos_to_index(start);
-    if (typeof i0 !== "number") {
-      return;
-    }
-
-    const first = this.#find(i0);
+  delete(start: number, end = Number.MAX_SAFE_INTEGER): void {
+    const first = this.#find(start);
     if (!first) {
       return;
     }
 
-    const i1 = (end ? this.#pos_to_index(end) : undefined) ??
-      Number.MAX_SAFE_INTEGER;
-
     const { node, offset } = first;
-    const count = i1 - i0;
+    const count = end - start;
     const offset2 = offset + count;
 
     if (offset2 === node.slice_len) {
@@ -360,7 +355,7 @@ export class TextBuf {
         x = this.#split_node(node, offset, 0);
       }
 
-      const last = this.#find(i1);
+      const last = this.#find(end);
       if (last && last.offset !== 0) {
         this.#split_node(last.node, last.offset, 0);
       }
@@ -377,31 +372,18 @@ export class TextBuf {
     }
   }
 
-  #pos_to_index(pos: Pos): number | undefined {
-    let i: number | undefined;
-
-    if (typeof pos === "number") {
-      i = pos;
-    } else {
-      let ln = pos[0];
-      if (ln < 0) {
-        ln = Math.max(this.line_count + ln, 0);
-      }
-
-      i = this.#find_line_start(ln);
-
-      if (typeof i === "number") {
-        i += pos[1];
-      }
-    }
-
+  delete2(start: [number, number], end?: [number, number]): void {
+    const i = this.#pos_to_index(start);
     if (typeof i === "number") {
-      if (i < 0) {
-        i = Math.max(this.count + i, 0);
-      }
+      this.delete(i, this.#pos_to_index(end));
+    }
+  }
 
-      if (i <= this.count) {
-        return i;
+  #pos_to_index(pos?: [number, number]): number | undefined {
+    if (pos) {
+      const i = this.#find_line_start(pos[0]);
+      if (typeof i === "number") {
+        return i + pos[1];
       }
     }
   }
