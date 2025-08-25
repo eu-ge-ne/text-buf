@@ -96,9 +96,9 @@ buf.insert(11, "\n");
 assertEquals(buf.count, 12);
 assertEquals(buf.line_count, 3);
 assertEquals(buf.read(0).toArray().join(""), "Lorem\nipsum\n");
-assertEquals(buf.read([0, 0], [1, 0]).toArray().join(""), "Lorem\n");
-assertEquals(buf.read([1, 0], [2, 0]).toArray().join(""), "ipsum\n");
-assertEquals(buf.read([2, 0], [3, 0]).toArray().join(""), "");
+assertEquals(buf.read2([0, 0], [1, 0]).toArray().join(""), "Lorem\n");
+assertEquals(buf.read2([1, 0], [2, 0]).toArray().join(""), "ipsum\n");
+assertEquals(buf.read2([2, 0], [3, 0]).toArray().join(""), "");
 
 buf.delete(0, 6);
 buf.delete(5, 6);
@@ -106,7 +106,7 @@ buf.delete(5, 6);
 assertEquals(buf.count, 5);
 assertEquals(buf.line_count, 1);
 assertEquals(buf.read(0).toArray().join(""), "ipsum");
-assertEquals(buf.read([0, 0], [1, 0]).toArray().join(""), "ipsum");
+assertEquals(buf.read2([0, 0], [1, 0]).toArray().join(""), "ipsum");
 ```
 
 ## API
@@ -232,8 +232,8 @@ const buf = new TextBuf("Lorem\nipsum");
 
 assertEquals(buf.read(0).toArray().join(""), "Lorem\nipsum");
 assertEquals(buf.read(6).toArray().join(""), "ipsum");
-assertEquals(buf.read([0, 0], [1, 0]).toArray().join(""), "Lorem\n");
-assertEquals(buf.read([1, 0], [2, 0]).toArray().join(""), "ipsum");
+assertEquals(buf.read2([0, 0], [1, 0]).toArray().join(""), "Lorem\n");
+assertEquals(buf.read2([1, 0], [2, 0]).toArray().join(""), "ipsum");
 ```
 
 ### `TextBuf.proto.insert()`
@@ -255,7 +255,7 @@ import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
 const buf = new TextBuf();
 
 buf.insert(0, "Lorem");
-buf.insert([0, 5], " ipsum");
+buf.insert2([0, 5], " ipsum");
 
 assertEquals(buf.read(0).toArray().join(""), "Lorem ipsum");
 ```
