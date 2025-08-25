@@ -4,10 +4,10 @@ import { assert_generator, assert_tree } from "./assert.ts";
 Deno.test("Insert into 0 line", () => {
   const buf = new TextBuf();
 
-  buf.insert([0, 0], "Lorem ipsum");
+  buf.insert2([0, 0], "Lorem ipsum");
 
   assert_generator(buf.read(0), "Lorem ipsum");
-  assert_generator(buf.read([0, 0], [1, 0]), "Lorem ipsum");
+  assert_generator(buf.read2([0, 0], [1, 0]), "Lorem ipsum");
 
   assert_tree(buf);
 });
@@ -16,10 +16,10 @@ Deno.test("Insert into a line", () => {
   const buf = new TextBuf();
   buf.insert(0, "Lorem");
 
-  buf.insert([0, 5], " ipsum");
+  buf.insert2([0, 5], " ipsum");
 
   assert_generator(buf.read(0), "Lorem ipsum");
-  assert_generator(buf.read([0, 0], [1, 0]), "Lorem ipsum");
+  assert_generator(buf.read2([0, 0], [1, 0]), "Lorem ipsum");
 
   assert_tree(buf);
 });
@@ -27,10 +27,10 @@ Deno.test("Insert into a line", () => {
 Deno.test("Insert into a line which does not exist", () => {
   const buf = new TextBuf();
 
-  buf.insert([1, 0], "Lorem ipsum");
+  buf.insert2([1, 0], "Lorem ipsum");
 
   assert_generator(buf.read(0), "");
-  assert_generator(buf.read([0, 0], [1, 0]), "");
+  assert_generator(buf.read2([0, 0], [1, 0]), "");
 
   assert_tree(buf);
 });
@@ -38,10 +38,10 @@ Deno.test("Insert into a line which does not exist", () => {
 Deno.test("Insert into a column which does not exist", () => {
   const buf = new TextBuf();
 
-  buf.insert([0, 1], "Lorem ipsum");
+  buf.insert2([0, 1], "Lorem ipsum");
 
   assert_generator(buf.read(0), "");
-  assert_generator(buf.read([0, 0], [1, 0]), "");
+  assert_generator(buf.read2([0, 0], [1, 0]), "");
 
   assert_tree(buf);
 });

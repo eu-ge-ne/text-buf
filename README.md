@@ -96,9 +96,9 @@ buf.insert(11, "\n");
 assertEquals(buf.count, 12);
 assertEquals(buf.line_count, 3);
 assertEquals(buf.read(0).toArray().join(""), "Lorem\nipsum\n");
-assertEquals(buf.read([0, 0], [1, 0]).toArray().join(""), "Lorem\n");
-assertEquals(buf.read([1, 0], [2, 0]).toArray().join(""), "ipsum\n");
-assertEquals(buf.read([2, 0], [3, 0]).toArray().join(""), "");
+assertEquals(buf.read2([0, 0], [1, 0]).toArray().join(""), "Lorem\n");
+assertEquals(buf.read2([1, 0], [2, 0]).toArray().join(""), "ipsum\n");
+assertEquals(buf.read2([2, 0], [3, 0]).toArray().join(""), "");
 
 buf.delete(0, 6);
 buf.delete(5, 6);
@@ -106,7 +106,7 @@ buf.delete(5, 6);
 assertEquals(buf.count, 5);
 assertEquals(buf.line_count, 1);
 assertEquals(buf.read(0).toArray().join(""), "ipsum");
-assertEquals(buf.read([0, 0], [1, 0]).toArray().join(""), "ipsum");
+assertEquals(buf.read2([0, 0], [1, 0]).toArray().join(""), "ipsum");
 ```
 
 ## API
@@ -214,12 +214,12 @@ assertEquals(buf.read(0).toArray().join(""), "0");
 ### `TextBuf.proto.read()`
 
 Returns text in the buffer's section, specified by start (inclusive) and end
-(exclusive) positions.
+(exclusive) indexes.
 
 Syntax
 
 ```ts ignore
-read(start: Position, end?: Position): Generator<string>
+*read(start: number, end = Number.MAX_SAFE_INTEGER): Generator<string>
 ```
 
 Example
@@ -232,18 +232,39 @@ const buf = new TextBuf("Lorem\nipsum");
 
 assertEquals(buf.read(0).toArray().join(""), "Lorem\nipsum");
 assertEquals(buf.read(6).toArray().join(""), "ipsum");
-assertEquals(buf.read([0, 0], [1, 0]).toArray().join(""), "Lorem\n");
-assertEquals(buf.read([1, 0], [2, 0]).toArray().join(""), "ipsum");
 ```
 
-### `TextBuf.proto.insert()`
+### `TextBuf.proto.read2()`
 
-Inserts text into the buffer at the specified position
+Returns text in the buffer's section, specified by start (inclusive) and end
+(exclusive) positions.
 
 Syntax
 
 ```ts ignore
-insert(pos: Position, text: string): void
+*read2(start: [number, number], end?: [number, number]): Generator<string>
+```
+
+Example
+
+```ts
+import { assertEquals } from "jsr:@std/assert";
+import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
+
+const buf = new TextBuf("Lorem\nipsum");
+
+assertEquals(buf.read2([0, 0], [1, 0]).toArray().join(""), "Lorem\n");
+assertEquals(buf.read2([1, 0], [2, 0]).toArray().join(""), "ipsum");
+```
+
+### `TextBuf.proto.insert()`
+
+Inserts text into the buffer at the specified index.
+
+Syntax
+
+```ts ignore
+insert(i: number, text: string): void
 ```
 
 Example
@@ -255,7 +276,31 @@ import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
 const buf = new TextBuf();
 
 buf.insert(0, "Lorem");
-buf.insert([0, 5], " ipsum");
+buf.insert(5, " ipsum");
+
+assertEquals(buf.read(0).toArray().join(""), "Lorem ipsum");
+```
+
+### `TextBuf.proto.insert2()`
+
+Inserts text into the buffer at the specified position.
+
+Syntax
+
+```ts ignore
+insert2(pos: [number, number], text: string): void
+```
+
+Example
+
+```ts
+import { assertEquals } from "jsr:@std/assert";
+import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
+
+const buf = new TextBuf();
+
+buf.insert2([0, 0], "Lorem");
+buf.insert2([0, 5], " ipsum");
 
 assertEquals(buf.read(0).toArray().join(""), "Lorem ipsum");
 ```
@@ -311,12 +356,12 @@ assertEquals(buf.read(0).toArray().join(""), "");
 ### `TextBuf.proto.delete()`
 
 Removes characters in the buffer's section, specified by start (inclusive) and
-end (exclusive) positions.
+end (exclusive) indexes.
 
 Syntax
 
 ```ts ignore
-delete(start: Position, end?: Position): void
+delete(start: number, end = Number.MAX_SAFE_INTEGER): void
 ```
 
 Example
@@ -328,6 +373,30 @@ import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
 const buf = new TextBuf("Lorem ipsum");
 
 buf.delete(5, 11);
+
+assertEquals(buf.read(0).toArray().join(""), "Lorem");
+```
+
+### `TextBuf.proto.delete2()`
+
+Removes characters in the buffer's section, specified by start (inclusive) and
+end (exclusive) positions.
+
+Syntax
+
+```ts ignore
+delete2(start: [number, number], end?: [number, number]): void
+```
+
+Example
+
+```ts
+import { assertEquals } from "jsr:@std/assert";
+import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
+
+const buf = new TextBuf("Lorem ipsum");
+
+buf.delete2([0, 5], [0, 11]);
 
 assertEquals(buf.read(0).toArray().join(""), "Lorem");
 ```

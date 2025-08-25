@@ -83,7 +83,7 @@ function test_delete_tail(buf: TextBuf, n: number): void {
     assertEquals(buf.count, expected.length);
     assert_tree(buf);
 
-    buf.delete(-n, buf.count);
+    buf.delete(Math.max(buf.count - n, 0), buf.count);
     expected = expected.slice(0, -n);
   }
 
@@ -192,7 +192,7 @@ Deno.test("Delete removes lines", () => {
   assertEquals(buf.count, 5);
   assertEquals(buf.line_count, 1);
   assert_generator(buf.read(0), "ipsum");
-  assert_generator(buf.read([0, 0], [1, 0]), "ipsum");
+  assert_generator(buf.read2([0, 0], [1, 0]), "ipsum");
   assert_tree(buf);
 });
 

@@ -8,7 +8,6 @@ import {
   type Node,
   successor,
 } from "./node.ts";
-import type { Pos } from "./position.ts";
 
 export const enum InsertionCase {
   Root,
@@ -127,6 +126,36 @@ export class TextBuf {
   }
 
   /**
+   * Returns text in the buffer's section, specified by start (inclusive) and end (exclusive) indexes.
+   *
+   * @param `start` Start index.
+   * @param `end` Optional end index.
+   * @returns Text.
+   *
+   * @example
+   *
+   * ```ts
+   * import { assertEquals } from "jsr:@std/assert";
+   * import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
+   *
+   * const buf = new TextBuf("Lorem\nipsum");
+   *
+   * assertEquals(buf.read(0).toArray().join(""), "Lorem\nipsum");
+   * assertEquals(buf.read(6).toArray().join(""), "ipsum");
+   * ```
+   */
+  *read(start: number, end = Number.MAX_SAFE_INTEGER): Generator<string> {
+    const first = this.#find(start);
+    if (!first) {
+      return;
+    }
+
+    const { node, offset } = first;
+
+    yield* this.#read(node, offset, end - start);
+  }
+
+  /**
    * Returns text in the buffer's section, specified by start (inclusive) and end (exclusive) positions.
    *
    * @param `start` Start position.
@@ -141,36 +170,23 @@ export class TextBuf {
    *
    * const buf = new TextBuf("Lorem\nipsum");
    *
-   * assertEquals(buf.read(0).toArray().join(""), "Lorem\nipsum");
-   * assertEquals(buf.read(6).toArray().join(""), "ipsum");
-   * assertEquals(buf.read([0, 0], [1, 0]).toArray().join(""), "Lorem\n");
-   * assertEquals(buf.read([1, 0], [2, 0]).toArray().join(""), "ipsum");
+   * assertEquals(buf.read2([0, 0], [1, 0]).toArray().join(""), "Lorem\n");
+   * assertEquals(buf.read2([1, 0], [2, 0]).toArray().join(""), "ipsum");
    * ```
    */
-  *read(start: Pos, end?: Pos): Generator<string> {
-    const start_i = this.#pos_to_index(start);
-    if (typeof start_i === "undefined") {
+  *read2(start: [number, number], end?: [number, number]): Generator<string> {
+    const i = this.#pos_to_index(start);
+    if (typeof i !== "number") {
       return;
     }
 
-    const first = this.#find(start_i);
-    if (!first) {
-      return;
-    }
-
-    const { node, offset } = first;
-
-    const end_i = (end ? this.#pos_to_index(end) : undefined) ??
-      Number.MAX_SAFE_INTEGER;
-    const n = end_i - start_i;
-
-    yield* this.#read(node, offset, n);
+    yield* this.read(i, this.#pos_to_index(end));
   }
 
   /**
-   * Inserts text into the buffer at the specified position
+   * Inserts text into the buffer at the specified index.
    *
-   * @param `pos` Position at witch to insert the text
+   * @param `i` Index at witch to insert the text
    * @param `text` Text to insert
    *
    * @example
@@ -182,15 +198,13 @@ export class TextBuf {
    * const buf = new TextBuf();
    *
    * buf.insert(0, "Lorem");
-   * buf.insert([0, 5], " ipsum");
+   * buf.insert(5, " ipsum");
    *
    * assertEquals(buf.read(0).toArray().join(""), "Lorem ipsum");
    * ```
    */
-  insert(pos: Pos, text: string): void {
-    let i = this.#pos_to_index(pos);
-
-    if (typeof i !== "number") {
+  insert(i: number, text: string): void {
+    if (i > this.count) {
       return;
     }
 
@@ -253,6 +267,35 @@ export class TextBuf {
   }
 
   /**
+   * Inserts text into the buffer at the specified position.
+   *
+   * @param `pos` Position at witch to insert the text
+   * @param `text` Text to insert
+   *
+   * @example
+   *
+   * ```ts
+   * import { assertEquals } from "jsr:@std/assert";
+   * import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
+   *
+   * const buf = new TextBuf();
+   *
+   * buf.insert2([0, 0], "Lorem");
+   * buf.insert2([0, 5], " ipsum");
+   *
+   * assertEquals(buf.read(0).toArray().join(""), "Lorem ipsum");
+   * ```
+   */
+  insert2(pos: [number, number], text: string): void {
+    const i = this.#pos_to_index(pos);
+    if (typeof i !== "number") {
+      return;
+    }
+
+    this.insert(i, text);
+  }
+
+  /**
    * Appends text to the buffer
    *
    * @param `text` Text to append
@@ -303,10 +346,10 @@ export class TextBuf {
   }
 
   /**
-   * Removes characters in the buffer's section, specified by start (inclusive) and end (exclusive) positions.
+   * Removes characters in the buffer's section, specified by start (inclusive) and end (exclusive) indexes.
    *
-   * @param `start` Start position.
-   * @param `end` Optional end position.
+   * @param `start` Start index.
+   * @param `end` Optional end index.
    *
    * @example
    *
@@ -321,88 +364,94 @@ export class TextBuf {
    * assertEquals(buf.read(0).toArray().join(""), "Lorem");
    * ```
    */
-  delete(start: Pos, end?: Pos): void {
-    const i0 = this.#pos_to_index(start);
+  delete(start: number, end = Number.MAX_SAFE_INTEGER): void {
+    const first = this.#find(start);
+    if (!first) {
+      return;
+    }
 
-    if (typeof i0 === "number") {
-      const first = this.#find(i0);
+    const { node, offset } = first;
+    const count = end - start;
+    const offset2 = offset + count;
 
-      if (first) {
-        const i1 = (end ? this.#pos_to_index(end) : undefined) ??
-          Number.MAX_SAFE_INTEGER;
+    if (offset2 === node.slice_len) {
+      if (offset === 0) {
+        this.#delete(node);
+      } else {
+        this.#trim_node_end(node, count);
+        bubble(node);
+      }
+    } else if (offset2 < node.slice_len) {
+      if (offset === 0) {
+        this.#trim_node_start(node, count);
+        bubble(node);
+      } else {
+        this.#split_node(node, offset, count);
+      }
+    } else {
+      let x = node;
+      let i = 0;
 
-        const { node, offset } = first;
-        const count = i1 - i0;
-        const offset2 = offset + count;
+      if (offset !== 0) {
+        x = this.#split_node(node, offset, 0);
+      }
 
-        if (offset2 === node.slice_len) {
-          if (offset === 0) {
-            this.#delete(node);
-          } else {
-            this.#trim_node_end(node, count);
-            bubble(node);
-          }
-        } else if (offset2 < node.slice_len) {
-          if (offset === 0) {
-            this.#trim_node_start(node, count);
-            bubble(node);
-          } else {
-            this.#split_node(node, offset, count);
-          }
-        } else {
-          let x = node;
-          let i = 0;
+      const last = this.#find(end);
+      if (last && last.offset !== 0) {
+        this.#split_node(last.node, last.offset, 0);
+      }
 
-          if (offset !== 0) {
-            x = this.#split_node(node, offset, 0);
-          }
+      while (!x.nil && (i < count)) {
+        i += x.slice_len;
 
-          const last = this.#find(i1);
-          if (last && last.offset !== 0) {
-            this.#split_node(last.node, last.offset, 0);
-          }
+        const next = successor(x);
 
-          while (!x.nil && (i < count)) {
-            i += x.slice_len;
+        this.#delete(x);
 
-            const next = successor(x);
-
-            this.#delete(x);
-
-            x = next;
-          }
-        }
+        x = next;
       }
     }
   }
 
-  #pos_to_index(pos: Pos): number | undefined {
-    let i: number | undefined;
-
-    if (typeof pos === "number") {
-      i = pos;
-    } else {
-      let ln = pos[0];
-      if (ln < 0) {
-        ln = Math.max(this.line_count + ln, 0);
-      }
-
-      i = this.#find_line_start(ln);
-
-      if (typeof i === "number") {
-        i += pos[1];
-      }
+  /**
+   * Removes characters in the buffer's section, specified by start (inclusive) and end (exclusive) positions.
+   *
+   * @param `start` Start position.
+   * @param `end` Optional end position.
+   *
+   * @example
+   *
+   * ```ts
+   * import { assertEquals } from "jsr:@std/assert";
+   * import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
+   *
+   * const buf = new TextBuf("Lorem ipsum");
+   *
+   * buf.delete2([0, 5], [0, 11]);
+   *
+   * assertEquals(buf.read(0).toArray().join(""), "Lorem");
+   * ```
+   */
+  delete2(start: [number, number], end?: [number, number]): void {
+    const i = this.#pos_to_index(start);
+    if (typeof i !== "number") {
+      return;
     }
 
-    if (typeof i === "number") {
-      if (i < 0) {
-        i = Math.max(this.count + i, 0);
-      }
+    this.delete(i, this.#pos_to_index(end));
+  }
 
-      if (i <= this.count) {
-        return i;
-      }
+  #pos_to_index(pos?: [number, number]): number | undefined {
+    if (!pos) {
+      return;
     }
+
+    const i = this.#find_line_start(pos[0]);
+    if (typeof i !== "number") {
+      return;
+    }
+
+    return i + pos[1];
   }
 
   #find(index: number): { node: Node; offset: number } | undefined {
