@@ -214,12 +214,12 @@ assertEquals(buf.read(0).toArray().join(""), "0");
 ### `TextBuf.proto.read()`
 
 Returns text in the buffer's section, specified by start (inclusive) and end
-(exclusive) positions.
+(exclusive) indexes.
 
 Syntax
 
 ```ts ignore
-read(start: Position, end?: Position): Generator<string>
+*read(start: number, end = Number.MAX_SAFE_INTEGER): Generator<string>
 ```
 
 Example
@@ -232,6 +232,27 @@ const buf = new TextBuf("Lorem\nipsum");
 
 assertEquals(buf.read(0).toArray().join(""), "Lorem\nipsum");
 assertEquals(buf.read(6).toArray().join(""), "ipsum");
+```
+
+### `TextBuf.proto.read2()`
+
+Returns text in the buffer's section, specified by start (inclusive) and end
+(exclusive) positions.
+
+Syntax
+
+```ts ignore
+*read2(start: [number, number], end?: [number, number]): Generator<string>
+```
+
+Example
+
+```ts
+import { assertEquals } from "jsr:@std/assert";
+import { TextBuf } from "jsr:@eu-ge-ne/text-buf";
+
+const buf = new TextBuf("Lorem\nipsum");
+
 assertEquals(buf.read2([0, 0], [1, 0]).toArray().join(""), "Lorem\n");
 assertEquals(buf.read2([1, 0], [2, 0]).toArray().join(""), "ipsum");
 ```
