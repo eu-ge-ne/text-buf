@@ -1,7 +1,6 @@
-import { Buffer } from "./buffer.ts";
+import { Content } from "./content.ts";
 import {
   bubble,
-  create as create_node,
   find,
   maximum,
   minimum,
@@ -27,7 +26,7 @@ export class TextBuf {
    */
   root = NIL;
 
-  #bufs: Buffer[] = [];
+  #content = new Content();
 
   /**
    * Creates instances of `TextBuf` interpreting text characters as `UTF-16 code units`.
@@ -38,7 +37,7 @@ export class TextBuf {
    */
   constructor(text?: string) {
     if (text && text.length > 0) {
-      this.root = this.#create_node(text);
+      this.root = this.#content.create(text);
       this.root.red = false;
     }
   }
@@ -153,7 +152,7 @@ export class TextBuf {
 
     const { node, offset } = first;
 
-    yield* this.#read(node, offset, end - start);
+    yield* this.#content.read(node, offset, end - start);
   }
 
   /**
@@ -237,13 +236,13 @@ export class TextBuf {
       x = x.right;
     }
 
-    if (insert_case === InsertionCase.Right && this.#node_growable(p)) {
-      this.#grow_node(p, text);
+    if (insert_case === InsertionCase.Right && this.#content.growable(p)) {
+      this.#content.grow(p, text);
       bubble(p);
       return;
     }
 
-    const child = this.#create_node(text);
+    const child = this.#content.create(text);
 
     switch (insert_case) {
       case InsertionCase.Root: {
@@ -260,7 +259,8 @@ export class TextBuf {
         break;
       }
       case InsertionCase.Split: {
-        const y = this.#split_node(p, i, 0);
+        const y = this.#content.split(p, i, 0);
+        this.#insert_after(p, y);
         this.#insert_before(y, child);
         break;
       }
@@ -379,27 +379,30 @@ export class TextBuf {
       if (offset === 0) {
         this.#delete(node);
       } else {
-        this.#trim_node_end(node, count);
+        this.#content.trim_end(node, count);
         bubble(node);
       }
     } else if (offset2 < node.slice_len) {
       if (offset === 0) {
-        this.#trim_node_start(node, count);
+        this.#content.trim_start(node, count);
         bubble(node);
       } else {
-        this.#split_node(node, offset, count);
+        const y = this.#content.split(node, offset, count);
+        this.#insert_after(node, y);
       }
     } else {
       let x = node;
       let i = 0;
 
       if (offset !== 0) {
-        x = this.#split_node(node, offset, 0);
+        x = this.#content.split(node, offset, 0);
+        this.#insert_after(node, x);
       }
 
       const last = find(this.root, end);
       if (last && last.offset !== 0) {
-        this.#split_node(last.node, last.offset, 0);
+        const y = this.#content.split(last.node, last.offset, 0);
+        this.#insert_after(last.node, y);
       }
 
       while (!x.nil && (i < count)) {
@@ -474,7 +477,7 @@ export class TextBuf {
       i += x.left.total_len;
 
       if (eol_index < x.eols_len) {
-        const buf = this.#bufs[x.buf]!;
+        const buf = this.#content.buffers[x.buf]!;
         const eol_end = buf.get_eol_end(x.eols_start + eol_index)!;
         return i + eol_end - x.slice_start;
       }
@@ -482,21 +485,6 @@ export class TextBuf {
       eol_index -= x.eols_len;
       i += x.slice_len;
       x = x.right;
-    }
-  }
-
-  *#read(x: Node, offset: number, n: number): Generator<string> {
-    while (!x.nil && (n > 0)) {
-      const count = Math.min(x.slice_len - offset, n);
-
-      yield this.#bufs[x.buf]!.text.slice(
-        x.slice_start + offset,
-        x.slice_start + offset + count,
-      );
-
-      x = successor(x);
-      offset = 0;
-      n -= count;
     }
   }
 
@@ -739,76 +727,5 @@ export class TextBuf {
     }
 
     v.p = u.p;
-  }
-
-  #create_node(text: string): Node {
-    const buf = new Buffer(text);
-    const buf_index = this.#bufs.push(buf) - 1;
-
-    return create_node(buf_index, 0, buf.len, 0, buf.eols_len);
-  }
-
-  #split_node(x: Node, index: number, gap: number): Node {
-    const buf = this.#bufs[x.buf]!;
-
-    const start = x.slice_start + index + gap;
-    const len = x.slice_len - index - gap;
-
-    this.#resize_node(x, index);
-    bubble(x);
-
-    const eols_start = buf.find_eol_index(start, x.eols_start + x.eols_len);
-    const eols_end = buf.find_eol_index(start + len, eols_start);
-    const eols_len = eols_end - eols_start;
-
-    const node = create_node(x.buf, start, len, eols_start, eols_len);
-    this.#insert_after(x, node);
-
-    return node;
-  }
-
-  #node_growable(x: Node): boolean {
-    const buf = this.#bufs[x.buf]!;
-
-    return (buf.len < 100) && (x.slice_start + x.slice_len === buf.len);
-  }
-
-  #grow_node(x: Node, text: string): void {
-    this.#bufs[x.buf]!.append(text);
-
-    this.#resize_node(x, x.slice_len + text.length);
-  }
-
-  #trim_node_start(x: Node, n: number): void {
-    const buf = this.#bufs[x.buf]!;
-
-    x.slice_start += n;
-    x.slice_len -= n;
-
-    x.eols_start = buf.find_eol_index(x.slice_start, x.eols_start);
-
-    const eols_end = buf.find_eol_index(
-      x.slice_start + x.slice_len,
-      x.eols_start,
-    );
-
-    x.eols_len = eols_end - x.eols_start;
-  }
-
-  #trim_node_end(x: Node, n: number): void {
-    this.#resize_node(x, x.slice_len - n);
-  }
-
-  #resize_node(x: Node, len: number): void {
-    const buf = this.#bufs[x.buf]!;
-
-    x.slice_len = len;
-
-    const eols_end = buf.find_eol_index(
-      x.slice_start + x.slice_len,
-      x.eols_start,
-    );
-
-    x.eols_len = eols_end - x.eols_start;
   }
 }
