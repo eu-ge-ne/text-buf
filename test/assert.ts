@@ -19,12 +19,24 @@ export function assert_tree(tree: TextBuf): void {
 
   // 5. For each node, all simple paths from the node to descendant leaves
   // contain the same number of black nodes.
-  const leaf_parents = new Set<Node>();
-  collect_leaf_parents(tree.root, leaf_parents);
+  const leafs = new Set<Node>();
+  collect_leafs(tree.root, leafs);
 
-  const heights = Array.from(leaf_parents).map(black_height);
+  const heights = Array.from(leafs).map((x) => {
+    let height = 0;
+
+    while (!x.p.nil) {
+      if (!x.red) {
+        height += 1;
+      }
+      x = x.p;
+    }
+
+    return height;
+  });
+
   for (const height of heights) {
-    assert(Math.abs(heights[0]! - height) === 0);
+    assertEquals(heights[0], height);
   }
 }
 
@@ -46,26 +58,13 @@ function assert_node(x: Node): void {
   }
 }
 
-function collect_leaf_parents(x: Node, leaf_parents: Set<Node>): void {
+function collect_leafs(x: Node, leaf_parents: Set<Node>): void {
   if (!x.nil) {
     if (x.left.nil || x.right.nil) {
       leaf_parents.add(x);
     }
 
-    collect_leaf_parents(x.left, leaf_parents);
-    collect_leaf_parents(x.right, leaf_parents);
+    collect_leafs(x.left, leaf_parents);
+    collect_leafs(x.right, leaf_parents);
   }
-}
-
-function black_height(x: Node): number {
-  let height = 0;
-
-  while (!x.p.nil) {
-    if (!x.red) {
-      height += 1;
-    }
-    x = x.p;
-  }
-
-  return height;
 }
