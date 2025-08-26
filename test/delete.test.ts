@@ -1,7 +1,7 @@
 import { assertEquals } from "@std/assert";
 
 import { TextBuf } from "../src/text-buf.ts";
-import { assert_generator, assert_tree } from "./assert.ts";
+import { assert_generator, assert_root } from "./assert.ts";
 
 const EXPECTED =
   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
@@ -64,7 +64,7 @@ function test_delete_head(buf: TextBuf, n: number): void {
   while (expected.length > 0) {
     assert_generator(buf.read(0), expected);
     assertEquals(buf.count, expected.length);
-    assert_tree(buf);
+    assert_root(buf.tree.root);
 
     buf.delete(0, n);
     expected = expected.slice(n);
@@ -72,7 +72,7 @@ function test_delete_head(buf: TextBuf, n: number): void {
 
   assert_generator(buf.read(0), "");
   assertEquals(buf.count, 0);
-  assert_tree(buf);
+  assert_root(buf.tree.root);
 }
 
 function test_delete_tail(buf: TextBuf, n: number): void {
@@ -81,7 +81,7 @@ function test_delete_tail(buf: TextBuf, n: number): void {
   while (expected.length > 0) {
     assert_generator(buf.read(0), expected);
     assertEquals(buf.count, expected.length);
-    assert_tree(buf);
+    assert_root(buf.tree.root);
 
     buf.delete(Math.max(buf.count - n, 0), buf.count);
     expected = expected.slice(0, -n);
@@ -89,7 +89,7 @@ function test_delete_tail(buf: TextBuf, n: number): void {
 
   assert_generator(buf.read(0), "");
   assertEquals(buf.count, 0);
-  assert_tree(buf);
+  assert_root(buf.tree.root);
 }
 
 function test_delete_middle(buf: TextBuf, n: number): void {
@@ -98,7 +98,7 @@ function test_delete_middle(buf: TextBuf, n: number): void {
   while (expected.length > 0) {
     assert_generator(buf.read(0), expected);
     assertEquals(buf.count, expected.length);
-    assert_tree(buf);
+    assert_root(buf.tree.root);
 
     const pos = Math.floor(buf.count / 2);
     buf.delete(pos, pos + n);
@@ -107,7 +107,7 @@ function test_delete_middle(buf: TextBuf, n: number): void {
 
   assert_generator(buf.read(0), expected);
   assertEquals(buf.count, 0);
-  assert_tree(buf);
+  assert_root(buf.tree.root);
 }
 
 for (let n = 1; n <= 10; n += 1) {
@@ -156,7 +156,7 @@ Deno.test("Delete splitting nodes", () => {
     for (let i = n - 1; i >= 1; i -= 1) {
       assert_generator(buf.read(0), expected);
       assertEquals(buf.count, expected.length);
-      assert_tree(buf);
+      assert_root(buf.tree.root);
 
       buf.delete(s * i, s * i + 2);
       expected = expected.slice(0, s * i) + expected.slice(s * i + 2);
@@ -166,7 +166,7 @@ Deno.test("Delete splitting nodes", () => {
 
   assert_generator(buf.read(0), expected);
   assertEquals(buf.count, 0);
-  assert_tree(buf);
+  assert_root(buf.tree.root);
 });
 
 Deno.test("Delete count < 0", () => {
@@ -175,7 +175,7 @@ Deno.test("Delete count < 0", () => {
   buf.delete(5, -6);
 
   assert_generator(buf.read(0), "Lorem ipsum");
-  assert_tree(buf);
+  assert_root(buf.tree.root);
 });
 
 Deno.test("Delete removes lines", () => {
@@ -193,7 +193,7 @@ Deno.test("Delete removes lines", () => {
   assertEquals(buf.line_count, 1);
   assert_generator(buf.read(0), "ipsum");
   assert_generator(buf.read2([0, 0], [1, 0]), "ipsum");
-  assert_tree(buf);
+  assert_root(buf.tree.root);
 });
 
 Deno.test("Delete newline char removes line", () => {
@@ -205,7 +205,7 @@ Deno.test("Delete newline char removes line", () => {
 
   assert_generator(buf.read(0), "  \n");
   assertEquals(buf.line_count, 2);
-  assert_tree(buf);
+  assert_root(buf.tree.root);
 });
 
 Deno.test("Delete first newline char removes line", () => {
@@ -217,7 +217,7 @@ Deno.test("Delete first newline char removes line", () => {
 
   assert_generator(buf.read(0), "\n");
   assertEquals(buf.line_count, 2);
-  assert_tree(buf);
+  assert_root(buf.tree.root);
 });
 
 Deno.test("Delete line followed by newline", () => {
@@ -229,5 +229,5 @@ Deno.test("Delete line followed by newline", () => {
 
   assert_generator(buf.read(0), " \n\n \n");
   assertEquals(buf.line_count, 4);
-  assert_tree(buf);
+  assert_root(buf.tree.root);
 });

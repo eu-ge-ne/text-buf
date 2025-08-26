@@ -1,5 +1,5 @@
 import { TextBuf } from "../src/text-buf.ts";
-import { assert_generator, assert_tree } from "./assert.ts";
+import { assert_generator, assert_root } from "./assert.ts";
 
 Deno.test("Line at valid index", () => {
   const buf = new TextBuf("Lorem\nipsum\ndolor\nsit\namet");
@@ -10,7 +10,7 @@ Deno.test("Line at valid index", () => {
   assert_generator(buf.read2([3, 0]), "sit\namet");
   assert_generator(buf.read2([4, 0]), "amet");
 
-  assert_tree(buf);
+  assert_root(buf.tree.root);
 });
 
 Deno.test("Line at index >= line_count", () => {
@@ -20,7 +20,7 @@ Deno.test("Line at index >= line_count", () => {
   assert_generator(buf.read2([5, 0]), "");
   assert_generator(buf.read2([6, 0]), "");
 
-  assert_tree(buf);
+  assert_root(buf.tree.root);
 });
 
 Deno.test("Line at index < 0", () => {
@@ -30,5 +30,5 @@ Deno.test("Line at index < 0", () => {
   assert_generator(buf.read2([buf.line_count - 1, 0]), "amet");
   assert_generator(buf.read2([buf.line_count - 2, 0]), "sit\namet");
 
-  assert_tree(buf);
+  assert_root(buf.tree.root);
 });

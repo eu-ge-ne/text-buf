@@ -1,7 +1,7 @@
 import { assertEquals } from "@std/assert";
 
 import { TextBuf } from "../src/text-buf.ts";
-import { assert_generator, assert_tree } from "./assert.ts";
+import { assert_generator, assert_root } from "./assert.ts";
 
 Deno.test("Empty", () => {
   const buf = new TextBuf();
@@ -9,7 +9,7 @@ Deno.test("Empty", () => {
   assertEquals(buf.line_count, 0);
   assert_generator(buf.read2([0, 0], [1, 0]), "");
 
-  assert_tree(buf);
+  assert_root(buf.tree.root);
 });
 
 Deno.test("1 line", () => {
@@ -18,7 +18,7 @@ Deno.test("1 line", () => {
   assertEquals(buf.line_count, 1);
   assert_generator(buf.read2([0, 0], [1, 0]), "0");
 
-  assert_tree(buf);
+  assert_root(buf.tree.root);
 });
 
 Deno.test("2 lines", () => {
@@ -28,7 +28,7 @@ Deno.test("2 lines", () => {
   assert_generator(buf.read2([0, 0], [1, 0]), "0\n");
   assert_generator(buf.read2([1, 0], [2, 0]), "");
 
-  assert_tree(buf);
+  assert_root(buf.tree.root);
 });
 
 Deno.test("3 lines", () => {
@@ -39,7 +39,7 @@ Deno.test("3 lines", () => {
   assert_generator(buf.read2([1, 0], [2, 0]), "1\n");
   assert_generator(buf.read2([2, 0], [3, 0]), "");
 
-  assert_tree(buf);
+  assert_root(buf.tree.root);
 });
 
 Deno.test("Line at valid index", () => {
@@ -76,7 +76,7 @@ Deno.test("Line at valid index", () => {
   assert_generator(buf.read2([17, 0], [18, 0]), "magna\n");
   assert_generator(buf.read2([18, 0], [19, 0]), "aliqua.");
 
-  assert_tree(buf);
+  assert_root(buf.tree.root);
 });
 
 Deno.test("Line at index >= line_count", () => {
@@ -86,7 +86,7 @@ Deno.test("Line at index >= line_count", () => {
   assert_generator(buf.read2([5, 0], [6, 0]), "");
   assert_generator(buf.read2([6, 0], [7, 0]), "");
 
-  assert_tree(buf);
+  assert_root(buf.tree.root);
 });
 
 Deno.test("Line at index < 0", () => {
@@ -102,7 +102,7 @@ Deno.test("Line at index < 0", () => {
     "sit\n",
   );
 
-  assert_tree(buf);
+  assert_root(buf.tree.root);
 });
 
 Deno.test("Insert adds lines", () => {
@@ -113,10 +113,10 @@ Deno.test("Insert adds lines", () => {
 
     assertEquals(buf.line_count, i + 2);
     assert_generator(buf.read2([i, 0], [i + 1, 0]), `${i}\n`);
-    assert_tree(buf);
+    assert_root(buf.tree.root);
   }
 
   assertEquals(buf.line_count, 11);
   assert_generator(buf.read2([11, 0], [12, 0]), "");
-  assert_tree(buf);
+  assert_root(buf.tree.root);
 });

@@ -1,13 +1,6 @@
 import { Content } from "./content.ts";
-import {
-  bubble,
-  find,
-  maximum,
-  minimum,
-  NIL,
-  type Node,
-  successor,
-} from "./node.ts";
+import { bubble, find, NIL, type Node, successor } from "./node.ts";
+import { Tree } from "./tree.ts";
 
 export const enum InsertionCase {
   Root,
@@ -24,7 +17,7 @@ export class TextBuf {
    * @ignore
    * @internal
    */
-  root = NIL;
+  tree = new Tree();
 
   #content = new Content();
 
@@ -37,8 +30,8 @@ export class TextBuf {
    */
   constructor(text?: string) {
     if (text && text.length > 0) {
-      this.root = this.#content.create(text);
-      this.root.red = false;
+      this.tree.root = this.#content.create(text);
+      this.tree.root.red = false;
     }
   }
 
@@ -59,7 +52,7 @@ export class TextBuf {
    * ```
    */
   get count(): number {
-    return this.root.total_len;
+    return this.tree.root.total_len;
   }
 
   /**
@@ -79,7 +72,9 @@ export class TextBuf {
    * ```
    */
   get line_count(): number {
-    return this.root.total_len === 0 ? 0 : this.root.total_eols_len + 1;
+    return this.tree.root.total_len === 0
+      ? 0
+      : this.tree.root.total_eols_len + 1;
   }
 
   /**
@@ -98,7 +93,7 @@ export class TextBuf {
    * ```
    */
   save(): Node {
-    return structuredClone(this.root);
+    return structuredClone(this.tree.root);
   }
 
   /**
@@ -122,7 +117,7 @@ export class TextBuf {
    * ```
    */
   restore(node: Node): void {
-    this.root = structuredClone(node);
+    this.tree.root = structuredClone(node);
   }
 
   /**
@@ -145,7 +140,7 @@ export class TextBuf {
    * ```
    */
   *read(start: number, end = Number.MAX_SAFE_INTEGER): Generator<string> {
-    const first = find(this.root, start);
+    const first = find(this.tree.root, start);
     if (!first) {
       return;
     }
@@ -210,7 +205,7 @@ export class TextBuf {
 
     let insert_case = InsertionCase.Root;
     let p = NIL;
-    let x = this.root;
+    let x = this.tree.root;
 
     while (!x.nil) {
       if (i <= x.left.total_len) {
@@ -246,22 +241,22 @@ export class TextBuf {
 
     switch (insert_case) {
       case InsertionCase.Root: {
-        this.root = child;
-        this.root.red = false;
+        this.tree.root = child;
+        this.tree.root.red = false;
         break;
       }
       case InsertionCase.Left: {
-        this.#insert_left(p, child);
+        this.tree.insert_left(p, child);
         break;
       }
       case InsertionCase.Right: {
-        this.#insert_right(p, child);
+        this.tree.insert_right(p, child);
         break;
       }
       case InsertionCase.Split: {
         const y = this.#content.split(p, i, 0);
-        this.#insert_after(p, y);
-        this.#insert_before(y, child);
+        this.tree.insert_after(p, y);
+        this.tree.insert_before(y, child);
         break;
       }
     }
@@ -366,7 +361,7 @@ export class TextBuf {
    * ```
    */
   delete(start: number, end = Number.MAX_SAFE_INTEGER): void {
-    const first = find(this.root, start);
+    const first = find(this.tree.root, start);
     if (!first) {
       return;
     }
@@ -377,7 +372,7 @@ export class TextBuf {
 
     if (offset2 === node.slice_len) {
       if (offset === 0) {
-        this.#delete(node);
+        this.tree.delete(node);
       } else {
         this.#content.trim_end(node, count);
         bubble(node);
@@ -388,7 +383,7 @@ export class TextBuf {
         bubble(node);
       } else {
         const y = this.#content.split(node, offset, count);
-        this.#insert_after(node, y);
+        this.tree.insert_after(node, y);
       }
     } else {
       let x = node;
@@ -396,13 +391,13 @@ export class TextBuf {
 
       if (offset !== 0) {
         x = this.#content.split(node, offset, 0);
-        this.#insert_after(node, x);
+        this.tree.insert_after(node, x);
       }
 
-      const last = find(this.root, end);
+      const last = find(this.tree.root, end);
       if (last && last.offset !== 0) {
         const y = this.#content.split(last.node, last.offset, 0);
-        this.#insert_after(last.node, y);
+        this.tree.insert_after(last.node, y);
       }
 
       while (!x.nil && (i < count)) {
@@ -410,7 +405,7 @@ export class TextBuf {
 
         const next = successor(x);
 
-        this.#delete(x);
+        this.tree.delete(x);
 
         x = next;
       }
@@ -464,7 +459,7 @@ export class TextBuf {
     }
 
     let eol_index = ln - 1;
-    let x = this.root;
+    let x = this.tree.root;
     let i = 0;
 
     while (!x.nil) {
@@ -486,246 +481,5 @@ export class TextBuf {
       i += x.slice_len;
       x = x.right;
     }
-  }
-
-  #insert_before(p: Node, z: Node): void {
-    if (p.left.nil) {
-      this.#insert_left(p, z);
-    } else {
-      this.#insert_right(maximum(p.left), z);
-    }
-  }
-
-  #insert_after(p: Node, z: Node): void {
-    if (p.right.nil) {
-      this.#insert_right(p, z);
-    } else {
-      this.#insert_left(minimum(p.right), z);
-    }
-  }
-
-  #insert_left(p: Node, z: Node): void {
-    p.left = z;
-    z.p = p;
-
-    bubble(z);
-
-    this.#insert_fixup(z);
-  }
-
-  #insert_right(p: Node, z: Node): void {
-    p.right = z;
-    z.p = p;
-
-    bubble(z);
-
-    this.#insert_fixup(z);
-  }
-
-  #insert_fixup(z: Node): void {
-    while (z.p.red) {
-      if (z.p === z.p.p.left) {
-        const y = z.p.p.right;
-        if (y.red) {
-          z.p.red = false;
-          y.red = false;
-          z.p.p.red = true;
-          z = z.p.p;
-        } else {
-          if (z === z.p.right) {
-            z = z.p;
-            this.#left_rotate(z);
-          }
-          z.p.red = false;
-          z.p.p.red = true;
-          this.#right_rotate(z.p.p);
-        }
-      } else {
-        const y = z.p.p.left;
-        if (y.red) {
-          z.p.red = false;
-          y.red = false;
-          z.p.p.red = true;
-          z = z.p.p;
-        } else {
-          if (z === z.p.left) {
-            z = z.p;
-            this.#right_rotate(z);
-          }
-          z.p.red = false;
-          z.p.p.red = true;
-          this.#left_rotate(z.p.p);
-        }
-      }
-    }
-
-    this.root.red = false;
-  }
-
-  #delete(z: Node): void {
-    let y = z;
-    let y_original_color = y.red;
-    let x: Node;
-
-    if (z.left.nil) {
-      x = z.right;
-
-      this.#transplant(z, z.right);
-      bubble(z.right.p);
-    } else if (z.right.nil) {
-      x = z.left;
-
-      this.#transplant(z, z.left);
-      bubble(z.left.p);
-    } else {
-      y = minimum(z.right);
-
-      y_original_color = y.red;
-      x = y.right;
-
-      if (y !== z.right) {
-        this.#transplant(y, y.right);
-        bubble(y.right.p);
-
-        y.right = z.right;
-        y.right.p = y;
-      } else {
-        x.p = y;
-      }
-
-      this.#transplant(z, y);
-
-      y.left = z.left;
-      y.left.p = y;
-      y.red = z.red;
-
-      bubble(y);
-    }
-
-    if (!y_original_color) {
-      this.#delete_fixup(x);
-    }
-  }
-
-  #delete_fixup(x: Node): void {
-    while (x !== this.root && !x.red) {
-      if (x === x.p.left) {
-        let w = x.p.right;
-
-        if (w.red) {
-          w.red = false;
-          x.p.red = true;
-          this.#left_rotate(x.p);
-          w = x.p.right;
-        }
-
-        if (!w.left.red && !w.right.red) {
-          w.red = true;
-          x = x.p;
-        } else {
-          if (!w.right.red) {
-            w.left.red = false;
-            w.red = true;
-            this.#right_rotate(w);
-            w = x.p.right;
-          }
-
-          w.red = x.p.red;
-          x.p.red = false;
-          w.right.red = false;
-          this.#left_rotate(x.p);
-          x = this.root;
-        }
-      } else {
-        let w = x.p.left;
-
-        if (w.red) {
-          w.red = false;
-          x.p.red = true;
-          this.#right_rotate(x.p);
-          w = x.p.left;
-        }
-
-        if (!w.right.red && !w.left.red) {
-          w.red = true;
-          x = x.p;
-        } else {
-          if (!w.left.red) {
-            w.right.red = false;
-            w.red = true;
-            this.#left_rotate(w);
-            w = x.p.left;
-          }
-
-          w.red = x.p.red;
-          x.p.red = false;
-          w.left.red = false;
-          this.#right_rotate(x.p);
-          x = this.root;
-        }
-      }
-    }
-
-    x.red = false;
-  }
-
-  #left_rotate(x: Node): void {
-    const y = x.right;
-
-    x.right = y.left;
-    if (!y.left.nil) {
-      y.left.p = x;
-    }
-
-    y.p = x.p;
-
-    if (x.p.nil) {
-      this.root = y;
-    } else if (x === x.p.left) {
-      x.p.left = y;
-    } else {
-      x.p.right = y;
-    }
-
-    y.left = x;
-    x.p = y;
-
-    bubble(x);
-  }
-
-  #right_rotate(y: Node): void {
-    const x = y.left;
-
-    y.left = x.right;
-    if (!x.right.nil) {
-      x.right.p = y;
-    }
-
-    x.p = y.p;
-
-    if (y.p.nil) {
-      this.root = x;
-    } else if (y === y.p.left) {
-      y.p.left = x;
-    } else {
-      y.p.right = x;
-    }
-
-    x.right = y;
-    y.p = x;
-
-    bubble(y);
-  }
-
-  #transplant(u: Node, v: Node): void {
-    if (u.p.nil) {
-      this.root = v;
-    } else if (u === u.p.left) {
-      u.p.left = v;
-    } else {
-      u.p.right = v;
-    }
-
-    v.p = u.p;
   }
 }
