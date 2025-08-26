@@ -1,7 +1,8 @@
 import { Buffer } from "./buffer.ts";
 import {
   bubble,
-  create_node,
+  create as create_node,
+  find,
   maximum,
   minimum,
   NIL,
@@ -145,7 +146,7 @@ export class TextBuf {
    * ```
    */
   *read(start: number, end = Number.MAX_SAFE_INTEGER): Generator<string> {
-    const first = this.#find(start);
+    const first = find(this.root, start);
     if (!first) {
       return;
     }
@@ -365,7 +366,7 @@ export class TextBuf {
    * ```
    */
   delete(start: number, end = Number.MAX_SAFE_INTEGER): void {
-    const first = this.#find(start);
+    const first = find(this.root, start);
     if (!first) {
       return;
     }
@@ -396,7 +397,7 @@ export class TextBuf {
         x = this.#split_node(node, offset, 0);
       }
 
-      const last = this.#find(end);
+      const last = find(this.root, end);
       if (last && last.offset !== 0) {
         this.#split_node(last.node, last.offset, 0);
       }
@@ -452,26 +453,6 @@ export class TextBuf {
     }
 
     return i + pos[1];
-  }
-
-  #find(index: number): { node: Node; offset: number } | undefined {
-    let x = this.root;
-
-    while (!x.nil) {
-      if (index < x.left.total_len) {
-        x = x.left;
-        continue;
-      }
-
-      index -= x.left.total_len;
-
-      if (index < x.slice_len) {
-        return { node: x, offset: index };
-      }
-
-      index -= x.slice_len;
-      x = x.right;
-    }
   }
 
   #find_line_start(ln: number): number | undefined {
