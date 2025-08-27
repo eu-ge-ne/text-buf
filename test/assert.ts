@@ -1,7 +1,6 @@
 import { assert, assertEquals } from "@std/assert";
 
 import type { Node } from "../src/node.ts";
-import type { TextBuf } from "../src/text-buf.ts";
 
 export function assert_generator(
   actual: Generator<string>,
@@ -10,17 +9,17 @@ export function assert_generator(
   assertEquals(actual.reduce((a, x) => a + x, ""), expected);
 }
 
-export function assert_tree(tree: TextBuf): void {
+export function assert_root(root: Node): void {
   // 1. Every node is either red or black.
   // 2. The root is black.
-  assert(!tree.root.red);
+  assert(!root.red);
 
-  assert_node(tree.root);
+  assert_node(root);
 
   // 5. For each node, all simple paths from the node to descendant leaves
   // contain the same number of black nodes.
   const leafs = new Set<Node>();
-  collect_leafs(tree.root, leafs);
+  collect_leafs(root, leafs);
 
   const heights = Array.from(leafs).map((x) => {
     let height = 0;

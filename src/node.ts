@@ -27,7 +27,7 @@ export interface Node {
   eols_len: number;
 }
 
-export function create_node(
+export function create(
   buf: number,
   slice_start: number,
   slice_len: number,
@@ -48,6 +48,27 @@ export function create_node(
     eols_start,
     eols_len,
   };
+}
+
+export function find(
+  x: Node,
+  index: number,
+): { node: Node; offset: number } | undefined {
+  while (!x.nil) {
+    if (index < x.left.total_len) {
+      x = x.left;
+      continue;
+    }
+
+    index -= x.left.total_len;
+
+    if (index < x.slice_len) {
+      return { node: x, offset: index };
+    }
+
+    index -= x.slice_len;
+    x = x.right;
+  }
 }
 
 export function bubble(x: Node): void {

@@ -1,7 +1,7 @@
 import { assertEquals } from "@std/assert";
 
 import { TextBuf } from "../src/text-buf.ts";
-import { assert_generator, assert_tree } from "./assert.ts";
+import { assert_generator, assert_root } from "./assert.ts";
 
 Deno.test("Create empty", () => {
   const buf = new TextBuf();
@@ -10,7 +10,7 @@ Deno.test("Create empty", () => {
   assertEquals(buf.count, 0);
   assertEquals(buf.line_count, 0);
 
-  assert_tree(buf);
+  assert_root(buf.tree.root);
 });
 
 Deno.test("Create", () => {
@@ -20,5 +20,5 @@ Deno.test("Create", () => {
   assertEquals(buf.count, 11);
   assertEquals(buf.line_count, 1);
 
-  assert_tree(buf);
+  assert_root(buf.tree.root);
 });
