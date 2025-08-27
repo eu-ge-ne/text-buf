@@ -17,7 +17,7 @@ export class TextBuf {
    * @ignore
    * @internal
    */
-  tree = new Tree();
+  tree: Tree = new Tree();
 
   #content = new Content();
 
